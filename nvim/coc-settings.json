@@ -1,0 +1,9 @@
+{
+  "suggest.autoTrigger": "none",
+  "suggest.timeout": 500,
+  "eslint.autoFixOnSave": true,
+  "eslint.quiet": true,
+  "stylelintplus.autoFixOnSave": true,
+  "diagnostic.checkCurrentLine": true
+}
+
