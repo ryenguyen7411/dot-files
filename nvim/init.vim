@@ -8,27 +8,25 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mattn/emmet-vim'
 Plug 'Yggdroot/indentLine'
-" Plug 'scrooloose/nerdtree'
 " Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-" Plug 'nvim-treesitter/playground'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-project.nvim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'alvan/vim-closetag'
+" Plug 'alvan/vim-closetag'
 Plug 'tomasiser/vim-code-dark'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'mhinz/vim-startify'
 Plug 'tpope/vim-surround'
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-telescope/telescope-project.nvim'
 
 call plug#end()
 
+""" Extra script for setup plugin, written in lua script
 lua << EOF
-
 require('telescope').setup {
   defaults = {
     vimgrep_arguments = {
@@ -66,7 +64,6 @@ require'nvim-treesitter.configs'.setup {
 }
 
 -- require'lspconfig'.tsserver.setup{}
-
 EOF
 
 "*****************************************************************************
@@ -83,6 +80,9 @@ set laststatus=2
 set updatetime=300
 set autoread
 set lazyredraw
+
+" Prefered .swp directory
+set directory^=$HOME/.vimswap//
 
 " Encoding
 let $LANG='en_US.UTF-8'
@@ -108,9 +108,11 @@ syntax on
 set number relativenumber
 colorscheme codedark
 
-highlight Normal     ctermbg=NONE guibg=NONE
-highlight LineNr     ctermbg=NONE guibg=NONE
-highlight SignColumn ctermbg=NONE guibg=NONE
+highlight Normal      ctermbg=NONE guibg=NONE
+highlight NonText     ctermbg=NONE guibg=NONE
+highlight LineNr      ctermbg=NONE guibg=NONE
+highlight SignColumn  ctermbg=NONE guibg=NONE
+highlight EndOfBuffer ctermbg=NONE guibg=NONE
 
 set mouse=a
 set mousemodel=popup_setpos
@@ -169,27 +171,60 @@ autocmd FileType scss setl iskeyword+=@-@
 " Mappings
 "*****************************************************************************
 
-" Map leader to <slash>
+" Map leader to <comma>
 let mapleader=','
 
 " Basic mappings
-nnoremap U <C-R>
-nnoremap j jzz
-nnoremap k kzz
+nnoremap j gjzz
+nnoremap k gkzz
+xnoremap j gjzz
+xnoremap k gkzz
+nmap <C-j> 5j
+nmap <C-k> 5k
+xmap <C-j> 5j
+xmap <C-k> 5k
+
 nnoremap # #zz
 nnoremap * *zz
 nnoremap n nzz
 nnoremap N Nzz
 nnoremap G Gzz
+nnoremap { {zz
+nnoremap } }zz
 
+" Map redo to U (undo is u)
+nnoremap U <C-R>
+
+" Quick switch buffer
+nnoremap <silent><leader><tab> :bn<CR>
+nnoremap <silent><leader><S-tab> :bp<CR>
+
+" Yank to Vim + OS clipboard
+nnoremap y "*y
+xnoremap y "*y
+
+" Fast save / quit
+nmap <leader>w :w!<cr>
+nmap <leader>qq :bd!<cr>
+
+" Visual mode: shifting > and <, move line up and down
+vnoremap < <gv
+vnoremap > >gv
+vnoremap J :m '>+1<CR>gv=gvzz
+vnoremap K :m '<-2<CR>gv=gvzz
+
+" Expand emmet abbr
+imap j<Tab> <C-Y>,
+
+" Go to normal mode if k is preceded by j.
 inoremap <expr>k EscapeInsertOrNot()
-
 function! EscapeInsertOrNot() abort
-  " If k is preceded by j, then remove j and go to normal mode.
-  let line = getline('.')
-  let cur_idx = CursorIdx()
-  let pre_char = CharAtIdx(line, cur_idx-1)
+  if col('.') <= 1
+    return ''
+  endif
 
+  let pre_cursor = getline('.')[:col('.')-2]
+  let pre_char = strcharpart(pre_cursor, strchars(pre_cursor)-1)
   if pre_char ==# 'j'
     return "\b\e"
   else
@@ -197,59 +232,14 @@ function! EscapeInsertOrNot() abort
   endif
 endfunction
 
-function! CharAtIdx(str, idx) abort
-  return strcharpart(a:str, a:idx, 1)
-endfunction
-
-function! CursorIdx() abort
-  let cursor_byte_idx = col('.')
-  if cursor_byte_idx == 1
-    return 0
-  endif
-
-  let pre_cursor_text = getline('.')[:col('.')-2]
-  return strchars(pre_cursor_text)
-endfunction
-
-""""""""""""
-
-nmap <silent><leader><cr> :noh<cr>
-
-" Yank to Vim + OS clipboard
-nnoremap y "*y
-xnoremap y "*y
-
 " Telescope
-nnoremap <silent><leader>f /
-nnoremap <silent><leader>fp <cmd>lua require('telescope').extensions.project.project{}<cr>
 nnoremap <silent><leader>ff <cmd>Telescope find_files<cr>
 nnoremap <silent><leader>fg <cmd>Telescope live_grep<cr>
-nnoremap <silent><leader>fb <cmd>Telescope buffers sort_lastused=true default_selection_index=2<cr>
+nnoremap <silent><leader>fp <cmd>lua require('telescope').extensions.project.project{ display_type = 'full' }<cr>
 nnoremap <silent><leader>fx <cmd>lua require('telescope.builtin').file_browser({cwd = vim.fn.expand('%:p:h'), hidden = true})<cr>
-
+nnoremap <silent><leader>fb <cmd>Telescope buffers sort_lastused=true default_selection_index=2<cr>
 nnoremap <silent><leader>fa <cmd>Telescope current_buffer_fuzzy_find<cr>
 nnoremap <silent><leader>fh <cmd>Telescope help_tags<cr>
-
-" Fast save
-nmap <leader>w :w!<cr>
-nmap <leader>qq :bd!<cr>
-
-" Visual Mode: Shifting > and <, move line up and down
-vnoremap < <gv
-vnoremap > >gv
-vnoremap J :m '>+1<CR>gv=gv
-vnoremap K :m '<-2<CR>gv=gv
-
-" nnoremap <silent><F2> :NERDTreeFind<CR>
-" nnoremap <silent><F3> :NERDTreeToggle<CR>
-
-" Do emmet
-imap j<Tab> <C-Y>,
-
-" Miscellaneous
-nnoremap <silent><leader>\ :w \| :source % \| :PlugInstall<CR>
-nnoremap <silent><leader>= :e! ~/.config/nvim/init.vim<CR>
-nnoremap <silent><leader>n :e! ~/buff<CR>
 
 " GoTo code navigation.
 nmap <silent><F12> <Plug>(coc-definition)
@@ -273,6 +263,12 @@ function! s:show_documentation()
   endif
 endfunction
 
+" Miscellaneous
+nnoremap <silent><leader>\ :w \| :source % \| :PlugInstall<CR>
+nnoremap <silent><leader>= :e! ~/.config/nvim/init.vim<CR>
+nnoremap <silent><leader>n :e! ~/buff<CR>
+nnoremap <silent><leader><cr> :noh<cr>
+
 " nmap <silent><F12> <cmd>lua vim.lsp.buf.definition()<CR>
 " nmap <silent>gi <cmd>lua vim.lsp.buf.implementation()<CR>
 " nmap <silent>gr <cmd>lua vim.lsp.buf.references()<CR>
@@ -286,27 +282,15 @@ endfunction
 " Custom configs
 "*****************************************************************************
 
-" Autoclose Tags
-let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx'
-let g:closetag_shortcut = '>'
-let g:closetag_close_shortcut = '<leader>>'
-let g:closetag_emptyTags_caseSensitive = 1
-
-" IndentLine
+" indentLine
 let g:indentLine_char = '┆'
 let g:indentLine_faster = 1
 
-" COC
+" coc.nvim
 let g:coc_global_extensions = ['coc-stylelintplus', 'coc-eslint', 'coc-json', 'coc-tsserver']
 
-"" NerdTree
-" let NERDTreeShowHidden=1
-
-" Startify
+" vim-startify
 let g:startify_change_to_dir=0
-
-" Vim Airline
-let g:airline_theme = 'codedark'
 
 " Include user's local vim config
 if filereadable(expand("~/.config/nvim/local_init.vim"))
