@@ -4,24 +4,27 @@
 
 call plug#begin(expand('~/.config/nvim/plugged'))
 
-Plug 'jiangmiao/auto-pairs'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mattn/emmet-vim'
 Plug 'Yggdroot/indentLine'
+Plug 'windwp/nvim-autopairs'
 " Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'windwp/nvim-ts-autotag'
+Plug 'p00f/nvim-ts-rainbow'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-project.nvim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-" Plug 'alvan/vim-closetag'
 Plug 'tomasiser/vim-code-dark'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'mhinz/vim-startify'
 Plug 'tpope/vim-surround'
+Plug 'tveskag/nvim-blame-line'
+Plug 'ThePrimeagen/vim-be-good'
 
 call plug#end()
 
@@ -31,12 +34,16 @@ require('telescope').setup {
   defaults = {
     vimgrep_arguments = {
       'rg',
+      '--hidden',
       '--color=never',
       '--no-heading',
       '--with-filename',
       '--line-number',
       '--column',
       '--smart-case'
+    },
+    file_ignore_patterns = {
+      ".git/",
     },
   },
   pickers = {
@@ -56,10 +63,19 @@ require('telescope').setup {
 }
 
 require'telescope'.load_extension('project')
+require('nvim-autopairs').setup()
 
 require'nvim-treesitter.configs'.setup {
   highlight = {
     enable = true,
+  },
+  autotag = {
+    enable = true,
+  },
+  rainbow = {
+    enable = true,
+    extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
+    max_file_lines = 1000, -- Do not enable for files with more than 1000 lines, int
   },
 }
 
@@ -100,10 +116,6 @@ set incsearch
 set ignorecase
 set smartcase
 
-"*****************************************************************************
-" Visual Settings
-"*****************************************************************************
-
 syntax on
 set number relativenumber
 colorscheme codedark
@@ -113,6 +125,7 @@ highlight NonText     ctermbg=NONE guibg=NONE
 highlight LineNr      ctermbg=NONE guibg=NONE
 highlight SignColumn  ctermbg=NONE guibg=NONE
 highlight EndOfBuffer ctermbg=NONE guibg=NONE
+highlight Folded      ctermfg=yellow
 
 set mouse=a
 set mousemodel=popup_setpos
@@ -189,8 +202,11 @@ nnoremap * *zz
 nnoremap n nzz
 nnoremap N Nzz
 nnoremap G Gzz
+
 nnoremap { {zz
 nnoremap } }zz
+xnoremap { {zz
+xnoremap } }zz
 
 " Map redo to U (undo is u)
 nnoremap U <C-R>
@@ -213,8 +229,17 @@ vnoremap > >gv
 vnoremap J :m '>+1<CR>gv=gvzz
 vnoremap K :m '<-2<CR>gv=gvzz
 
+" Split resize current pane
+nnoremap <silent><leader>- 5<C-w><
+nnoremap <silent><leader>+ 5<C-w>>
+nnoremap <silent><leader>. <C-w>=
+
 " Expand emmet abbr
 imap j<Tab> <C-Y>,
+
+" Fold / unfold code
+vnoremap zf zfzz
+vnoremap zo zozz
 
 " Go to normal mode if k is preceded by j.
 inoremap <expr>k EscapeInsertOrNot()
@@ -233,8 +258,8 @@ function! EscapeInsertOrNot() abort
 endfunction
 
 " Telescope
-nnoremap <silent><leader>ff <cmd>Telescope find_files<cr>
-nnoremap <silent><leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <silent><leader>ff <cmd>lua require('telescope.builtin').find_files({hidden = true})<cr>
+nnoremap <silent><leader>fg <cmd>Telescope live_grep prompt_prefix=<cr>
 nnoremap <silent><leader>fp <cmd>lua require('telescope').extensions.project.project{ display_type = 'full' }<cr>
 nnoremap <silent><leader>fx <cmd>lua require('telescope.builtin').file_browser({cwd = vim.fn.expand('%:p:h'), hidden = true})<cr>
 nnoremap <silent><leader>fb <cmd>Telescope buffers sort_lastused=true default_selection_index=2<cr>
@@ -268,6 +293,9 @@ nnoremap <silent><leader>\ :w \| :source % \| :PlugInstall<CR>
 nnoremap <silent><leader>= :e! ~/.config/nvim/init.vim<CR>
 nnoremap <silent><leader>n :e! ~/buff<CR>
 nnoremap <silent><leader><cr> :noh<cr>
+
+" Git blame
+nnoremap <silent><leader>b :ToggleBlameLine<CR>
 
 " nmap <silent><F12> <cmd>lua vim.lsp.buf.definition()<CR>
 " nmap <silent>gi <cmd>lua vim.lsp.buf.implementation()<CR>
