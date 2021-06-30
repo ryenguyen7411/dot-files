@@ -1,0 +1,14 @@
+{
+  "extends": "stylelint-config-sass-guidelines",
+  "rules": {
+    "linebreaks": "unix",
+    "max-nesting-depth": [4, { "severity": "warning", "ignore": [ "pseudo-classes" ] }],
+    "rule-empty-line-before": null,
+    "scss/at-extend-no-missing-placeholder": null,
+    "selector-max-id": 1,
+    "value-no-vendor-prefix": [true, { "ignoreValues": [ "box" ] }]
+  },
+  "ignoreFiles": [
+    "**/*.js*"
+  ]
+}

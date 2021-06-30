@@ -7,7 +7,7 @@ call plug#begin(expand('~/.config/nvim/plugged'))
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mattn/emmet-vim'
 Plug 'Yggdroot/indentLine'
-Plug 'windwp/nvim-autopairs'
+" Plug 'windwp/nvim-autopairs'
 " Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-ts-autotag'
@@ -25,11 +25,30 @@ Plug 'mhinz/vim-startify'
 Plug 'tpope/vim-surround'
 Plug 'tveskag/nvim-blame-line'
 Plug 'ThePrimeagen/vim-be-good'
+Plug 'jiangmiao/auto-pairs'
 
 call plug#end()
 
 """ Extra script for setup plugin, written in lua script
 lua << EOF
+local previewers = require('telescope.previewers')
+local _bad = { 'metadata/.*%.json' } -- Put all filetypes that slow you down in this array
+local bad_files = function(filepath)
+  for _, v in ipairs(_bad) do
+    if filepath:match(v) then
+      return false
+    end
+  end
+  return true
+end
+
+local new_maker = function(filepath, bufnr, opts)
+  opts = opts or {}
+  if opts.use_ft_detect == nil then opts.use_ft_detect = true end
+  opts.use_ft_detect = opts.use_ft_detect == false and false or bad_files(filepath)
+  previewers.buffer_previewer_maker(filepath, bufnr, opts)
+end
+
 require('telescope').setup {
   defaults = {
     vimgrep_arguments = {
@@ -45,6 +64,7 @@ require('telescope').setup {
     file_ignore_patterns = {
       ".git/",
     },
+    buffer_previewer_maker = new_maker,
   },
   pickers = {
     buffers = {
@@ -63,7 +83,6 @@ require('telescope').setup {
 }
 
 require'telescope'.load_extension('project')
-require('nvim-autopairs').setup()
 
 require'nvim-treesitter.configs'.setup {
   highlight = {
@@ -79,6 +98,7 @@ require'nvim-treesitter.configs'.setup {
   },
 }
 
+-- require('nvim-autopairs').setup()
 -- require'lspconfig'.tsserver.setup{}
 EOF
 
@@ -96,6 +116,8 @@ set laststatus=2
 set updatetime=300
 set autoread
 set lazyredraw
+set splitbelow
+set splitright
 
 " Prefered .swp directory
 set directory^=$HOME/.vimswap//
@@ -230,6 +252,14 @@ vnoremap J :m '>+1<CR>gv=gvzz
 vnoremap K :m '<-2<CR>gv=gvzz
 
 " Split resize current pane
+nnoremap zh         <C-w>h
+nnoremap zl         <C-w>l
+nnoremap zj         5<C-w><
+nnoremap zk         5<C-w>>
+nnoremap zb         <C-w>=
+nnoremap <silent>zn :vs<CR>
+nnoremap zm         <C-w>q
+
 nnoremap <silent><leader>- 5<C-w><
 nnoremap <silent><leader>+ 5<C-w>>
 nnoremap <silent><leader>. <C-w>=

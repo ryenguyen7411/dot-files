@@ -1,0 +1,49 @@
+{
+  "env": {
+    "es2020": true,
+    "browser": true,
+    "node": true
+  },
+  "extends": [
+    "standard",
+    "standard-jsx",
+    "standard-react"
+  ],
+  "ignorePatterns": [
+    "node_modules/",
+    "dist*/",
+    "script/"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "import/resolver": {
+      "webpack": {
+        "config": "./webpack.config.js"
+      }
+    },
+    "import/ignore": "node_modules",
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"],
+    "import/no-unresolved": ["error", { "commonjs": true }],
+    "jsx-quotes": ["error", "prefer-double"],
+    "linebreak-style": ["error", "unix"],
+    "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitted" }],
+    "no-unused-vars": ["error", { "varsIgnorePattern": "^_", "ignoreRestSiblings": true }],
+    "object-property-newline": "off",
+    "react/no-did-mount-set-state": "off",
+    "react/no-did-update-set-state": "off",
+    "semi": ["error", "always"],
+    // Temporarily disabled
+    "no-template-curly-in-string": "off",
+    "react/prop-types": "warn"
+  }
+}
