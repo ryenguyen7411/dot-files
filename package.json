@@ -1,0 +1,8 @@
+{
+  "name": "dot-files",
+  "version": "1.0.2",
+  "main": "index.js",
+  "repository": "git@github.com:ryenguyen7411/dot-files.git",
+  "author": "Rye Nguyen <ryenguyen7411@gmail.com>",
+  "license": "MIT"
+}
