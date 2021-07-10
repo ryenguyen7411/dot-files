@@ -12,6 +12,12 @@ autoload -U compinit && compinit
 
 source $ZSH/oh-my-zsh.sh
 
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
 # User configuration
 alias vi='nvim'
 alias n='sudo n'
@@ -28,9 +34,11 @@ alias gcd='git checkout develop && git pull && clear'
 alias gcg='git add --all && git stash && git checkout staging && git reset --hard origin/staging && clear'
 alias gcs='gac && stash && git checkout release-loship && clear'
 alias gcss='gac && stash && git checkout release && clear'
+alias gct='gac && git commit -m "temp" --no-verify && clear'
 
 alias dev4='clear && DEV_PORT=4000 yarn dev'
 alias dev5='clear && DEV_PORT=5000 yarn dev'
+devx() { clear; DEV_PORT=$1 yarn dev; }
 
 alias push='npm version patch --no-git-tag-version && git add package.json && amend && git push -u origin HEAD'
 alias púh='push'
@@ -55,3 +63,4 @@ alias lf='ls -d .* --color=auto'
 ## helper
 alias zshr='source ~/.zshrc && clear'
 alias tmuxr='tmux source-file ~/.tmux.conf'
+killp () { kill $(lsof -ti:$1) }
