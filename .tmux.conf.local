@@ -305,8 +305,8 @@ set -g history-limit 10000
 # set -gu prefix2
 unbind C-a
 unbind C-b
-set -g prefix `
-bind ` send-prefix
+set -g prefix2 `
+bind ` send-prefix -2
 
 # disable tmux status line
 set -g status off

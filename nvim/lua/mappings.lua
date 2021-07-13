@@ -33,7 +33,7 @@ map('x', 'y', '"*y', { noremap=true })
 
 -- Fast save / quit
 map('n', '<leader>w', ':w!<CR>', { silent=true })
-map('n', '<leader>qq', ':bp | bd #<CR>', { silent=true })
+map('n', '<leader>qq', ':bp|bd #<CR>', { silent=true })
 
 -- Visual mode: shifting > and <, move line up and down
 map('v', '<', '<gv', {})
@@ -108,7 +108,7 @@ function show_documentation()
 end
 
 -- Miscellaneous
-map('n', '<leader>\\', ':w | :source % | :PaqInstall<CR>', { silent=true })
+map('n', '<leader>\\', ':w|:source %|:PaqInstall<CR>', { silent=true })
 map('n', '<leader>=', ':e! ~/.config/nvim/init.lua<CR>', { silent=true })
 map('n', '<leader>n', ':enew<CR>', { silent=true })
 map('n', '<leader><cr>', ':noh<CR>', { silent=true })
