@@ -21,6 +21,7 @@ o.mouse = 'a'
 o.mousemodel = 'popup_setpos'
 
 -- Encoding
+cmd('let $LANG=\'en_US.UTF-8\'')
 o.encoding = 'utf-8'
 o.fileencoding = 'utf-8'
 
@@ -33,6 +34,7 @@ o.incsearch = true
 o.ignorecase = true
 o.smartcase = true
 
+cmd('filetype on')
 cmd('colorscheme codedark')
 cmd('au VimEnter * highlight Normal ctermbg=NONE guibg=NONE')
 cmd('au VimEnter * highlight NonText ctermbg=NONE guibg=NONE')

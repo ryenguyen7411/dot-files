@@ -32,8 +32,8 @@ alias gac='git add --all && clear'
 alias gcm='git checkout master && git pull && clear'
 alias gcd='git checkout develop && git pull && clear'
 alias gcg='git add --all && git stash && git checkout staging && git reset --hard origin/staging && clear'
-alias gcs='gac && stash && git checkout release-loship && clear'
-alias gcss='gac && stash && git checkout release && clear'
+alias gcs='gac && stash && git checkout release-loship && git pull && clear'
+alias gcss='gac && stash && git checkout release && git pull && clear'
 alias gct='gac && git commit -m "temp" --no-verify && clear'
 
 alias dev4='clear && DEV_PORT=4000 yarn dev'
@@ -43,7 +43,7 @@ devx() { clear; DEV_PORT=$1 yarn dev; }
 alias push='npm version patch --no-git-tag-version && git add package.json && amend && git push -u origin HEAD'
 alias púh='push'
 alias fush='git push -u origin HEAD'
-alias fstag= 'git push origin HEAD:staging -f'
+alias fstag='git push origin HEAD:staging -f'
 alias amend='git commit --amend --no-edit'
 alias amendf='git commit --amend --no-verify --no-edit'
 alias grc='git add --all && git rebase --continue && clear'
@@ -51,7 +51,7 @@ alias stash='git stash'
 alias skip='git update-index --skip-worktree'
 alias nskip='git update-index --no-skip-worktree'
 reset() { git reset HEAD~"$1" }
-rhard() { git reset --hard HEAD~"$1" }
+rhard() { gac; git reset --hard HEAD~"$1" }
 
 ## exit
 alias :q='exit'

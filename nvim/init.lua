@@ -10,6 +10,7 @@ require('paq') {
   -- 'neovim/nvim-lspconfig';
   {'nvim-treesitter/nvim-treesitter', run=':TSUpdate'};
   'windwp/nvim-ts-autotag';
+  'JoosepAlviste/nvim-ts-context-commentstring';
   'p00f/nvim-ts-rainbow';
   'nvim-lua/plenary.nvim';
   'nvim-lua/popup.nvim';
@@ -17,7 +18,8 @@ require('paq') {
   'nvim-telescope/telescope-project.nvim';
   'tomasiser/vim-code-dark';
   'tpope/vim-commentary';
-  -- 'tpope/vim-fugitive';
+  'tpope/vim-fugitive';
+  'tpope/vim-repeat';
   'mhinz/vim-startify';
   'tpope/vim-surround';
   'tveskag/nvim-blame-line';
@@ -26,7 +28,7 @@ require('paq') {
 
 local previewers = require('telescope.previewers')
 local bad_files = function (filepath)
-  local _bad = { 'metadata/.*%.json' } -- Put all filetypes that slow you down in this array
+  local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min' } -- Put all filetypes that slow you down in this array
   for _, v in ipairs(_bad) do
     if filepath:match(v) then
       return false
@@ -63,7 +65,7 @@ require('telescope').setup {
   pickers = {
     buffers = {
       show_all_buffers = true,
-      sort_lastused = true,
+      sort_mru = true,
       mappings = {
         i = {
           ["<c-d>"] = "delete_buffer",
@@ -74,8 +76,12 @@ require('telescope').setup {
       }
     }
   },
+  extensions = {
+    project = {
+      hidden_files = true
+    }
+  }
 }
-require('telescope').load_extension('project')
 
 -- Setup Treesitter
 require('nvim-treesitter.configs').setup {
@@ -90,6 +96,12 @@ require('nvim-treesitter.configs').setup {
     extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
     max_file_lines = 1000, -- Do not enable for files with more than 1000 lines, int
   },
+}
+
+require'nvim-treesitter.configs'.setup {
+  context_commentstring = {
+    enable = true
+  }
 }
 
 -- require('nvim-autopairs').setup()

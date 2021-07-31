@@ -2,7 +2,7 @@ local cmd = vim.cmd
 local g = vim.g
 local map = vim.api.nvim_set_keymap
 
-g.mapleader = ','
+g.mapleader = ' '
 
 map('n', 'j', 'gjzz', {})
 map('n', 'k', 'gkzz', {})
@@ -34,6 +34,7 @@ map('x', 'y', '"*y', { noremap=true })
 -- Fast save / quit
 map('n', '<leader>w', ':w!<CR>', { silent=true })
 map('n', '<leader>qq', ':bp|bd #<CR>', { silent=true })
+map('n', '<leader><BS>', ':%bdelete!<CR>', { silent=true, noremap=true })
 
 -- Visual mode: shifting > and <, move line up and down
 map('v', '<', '<gv', {})
@@ -47,11 +48,11 @@ map('n', 'zl', '<C-w>l', {})
 map('n', 'zj', ' 5<C-w><', {})
 map('n', 'zk', ' 5<C-w>>', {})
 map('n', 'zb', '<C-w>=', {})
-map('n', 'zn', ':vs<CR>,ff', { silent=true })
+map('n', 'zn', ':vs<CR> ,;', { silent=true })
 map('n', 'zm', '<C-w>q', {})
 
 -- Expand emmet
-map('i', 'z<Tab>', '<C-Y>,', { silent=true })
+map('i', ',g', '<C-Y>,', { silent=true })
 
 -- Fold / unfold code
 map('v', 'zf', 'zfzz', {})
@@ -74,11 +75,11 @@ map('v', 'zo', 'zozz', {})
 -- end
 
 -- Telescope
-map('n', '<leader>ff', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>', { silent=true })
-map('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', { silent=true })
-map('n', '<leader>fp', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>', { silent=true })
-map('n', '<leader>fx', '<cmd>lua require("telescope.builtin").file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true })<cr>', { silent=true })
-map('n', '<leader>fb', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>', { silent=true })
+map('n', '<leader>,;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>', { silent=true })
+map('n', '<leader>,j', '<cmd>lua require("telescope.builtin").live_grep()<cr>', { silent=true })
+map('n', '<leader>,l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>', { silent=true })
+map('n', '<leader>,k', '<cmd>lua require("telescope.builtin").file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true })<cr>', { silent=true })
+map('n', '<leader>,b', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>', { silent=true })
 map('n', '<leader>fa', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>', { silent=true })
 map('n', '<leader>fh', '<cmd>lua require("telescope.builtin").help_tags()<cr>', { silent=true })
 
@@ -111,7 +112,7 @@ end
 map('n', '<leader>\\', ':w|:source %|:PaqInstall<CR>', { silent=true })
 map('n', '<leader>=', ':e! ~/.config/nvim/init.lua<CR>', { silent=true })
 map('n', '<leader>n', ':enew<CR>', { silent=true })
-map('n', '<leader><cr>', ':noh<CR>', { silent=true })
+map('n', '<leader><cr>', ':nohl<CR><C-L>', { silent=true })
 
 -- Git blame
 map('n', '<leader>b', ':ToggleBlameLine<CR>', { silent=true })
