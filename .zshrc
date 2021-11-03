@@ -18,6 +18,14 @@ export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 
+export PATH=$PATH:/usr/local/sbin
+export PATH=$PATH:/usr/local/opt/libtool/libexec/gnubin
+
+export LDFLAGS="-L/usr/local/opt/libffi/lib"
+export CPPFLAGS="-I/usr/local/opt/libffi/include"
+
+export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+
 # User configuration
 alias vi='nvim'
 alias n='sudo n'

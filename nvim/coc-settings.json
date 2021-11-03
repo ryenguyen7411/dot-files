@@ -1,6 +1,7 @@
 {
   "suggest.autoTrigger": "none",
   "suggest.timeout": 500,
+  "javascript.validate.enable": false,
   "eslint.autoFixOnSave": true,
   "eslint.quiet": true,
   "stylelintplus.autoFixOnSave": true,

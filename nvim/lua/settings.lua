@@ -1,6 +1,6 @@
 local cmd = vim.cmd
 local g = vim.g
-local o = vim.o
+local o = vim.opt
 
 o.tabstop = 2
 o.shiftwidth = 2
@@ -13,6 +13,9 @@ o.hidden = true
 o.updatetime = 250
 o.autoread = true
 o.lazyredraw = true
+
+o.fillchars = 'eob: '
+o.whichwrap:append "<>hl"
 
 o.number = true
 o.relativenumber = true
@@ -34,15 +37,6 @@ o.incsearch = true
 o.ignorecase = true
 o.smartcase = true
 
-cmd('filetype on')
-cmd('colorscheme codedark')
-cmd('au VimEnter * highlight Normal ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight NonText ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight LineNr ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight SignColumn ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight EndOfBuffer ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight Folded ctermfg=yellow')
-
 -- indentLine
 g.indentLine_char = '┆'
 g.indentLine_faster = 1
@@ -52,3 +46,18 @@ g.coc_global_extensions = { 'coc-stylelintplus', 'coc-eslint', 'coc-json', 'coc-
 
 -- vim-startify
 g.startify_change_to_dir = 0
+
+-- lightline
+cmd('let g:lightline = { "colorscheme": "tokyonight" }')
+
+-- tokyonight
+g.tokyonight_transparent = true
+
+cmd('filetype on')
+cmd('colorscheme tokyonight')
+cmd('au VimEnter * highlight Normal ctermbg=NONE guibg=NONE')
+cmd('au VimEnter * highlight NonText ctermbg=NONE guibg=NONE')
+cmd('au VimEnter * highlight LineNr ctermbg=NONE guibg=NONE')
+cmd('au VimEnter * highlight SignColumn ctermbg=NONE guibg=NONE')
+cmd('au VimEnter * highlight EndOfBuffer ctermbg=NONE guibg=NONE')
+cmd('au VimEnter * highlight Folded ctermfg=yellow')

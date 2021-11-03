@@ -1,29 +1,31 @@
 require('paq') {
   "savq/paq-nvim"; -- Let Paq manage itself
 
-  'jiangmiao/auto-pairs';
-  {'neoclide/coc.nvim', branch='release'};
-  'mattn/emmet-vim';
-  'Yggdroot/indentLine';
-  'itchyny/lightline.vim';
-  -- 'windwp/nvim-autopairs';
-  -- 'neovim/nvim-lspconfig';
-  {'nvim-treesitter/nvim-treesitter', run=':TSUpdate'};
-  'windwp/nvim-ts-autotag';
-  'JoosepAlviste/nvim-ts-context-commentstring';
-  'p00f/nvim-ts-rainbow';
   'nvim-lua/plenary.nvim';
   'nvim-lua/popup.nvim';
+
+  'itchyny/lightline.vim';
+  'JoosepAlviste/nvim-ts-context-commentstring';
+  'mattn/emmet-vim';
+  'mhinz/vim-startify';
+  {'neoclide/coc.nvim', branch='release'};
+  -- 'neovim/nvim-lspconfig';
   'nvim-telescope/telescope.nvim';
   'nvim-telescope/telescope-project.nvim';
+  {'nvim-treesitter/nvim-treesitter', run=':TSUpdate'};
+  'p00f/nvim-ts-rainbow';
   'tomasiser/vim-code-dark';
   'tpope/vim-commentary';
   'tpope/vim-fugitive';
   'tpope/vim-repeat';
-  'mhinz/vim-startify';
   'tpope/vim-surround';
   'tveskag/nvim-blame-line';
-  'ThePrimeagen/vim-be-good';
+  'Yggdroot/indentLine';
+  'windwp/nvim-autopairs';
+  'windwp/nvim-ts-autotag';
+
+  'folke/tokyonight.nvim';
+  'sindrets/diffview.nvim';
 }
 
 local previewers = require('telescope.previewers')
@@ -61,6 +63,7 @@ require('telescope').setup {
       ".git/",
     },
     buffer_previewer_maker = preview_maker,
+    disable_devicons = true
   },
   pickers = {
     buffers = {
@@ -74,12 +77,21 @@ require('telescope').setup {
           ["<c-d>"] = "delete_buffer",
         }
       }
+    },
+    find_files = {
+      disable_devicons = true
+    },
+    file_browser = {
+      disable_devicons = true
+    },
+    live_grep = {
+      disable_devicons = true
     }
   },
   extensions = {
     project = {
       hidden_files = true
-    }
+    },
   }
 }
 
@@ -96,15 +108,48 @@ require('nvim-treesitter.configs').setup {
     extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
     max_file_lines = 1000, -- Do not enable for files with more than 1000 lines, int
   },
-}
-
-require'nvim-treesitter.configs'.setup {
   context_commentstring = {
     enable = true
-  }
+  },
 }
 
--- require('nvim-autopairs').setup()
+local npairs = require'nvim-autopairs'
+local Rule   = require'nvim-autopairs.rule'
+npairs.setup {
+  check_ts = true,
+  map_cr = true,
+  ignored_next_char = "[%w%.]"
+}
+npairs.add_rules {
+  Rule(' ', ' ')
+    :with_pair(function (opts)
+      local pair = opts.line:sub(opts.col - 1, opts.col)
+      return vim.tbl_contains({ '()', '[]', '{}' }, pair)
+    end),
+  Rule('( ', ' )')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%)') ~= nil
+      end)
+      :use_key(')'),
+  Rule('{ ', ' }')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%}') ~= nil
+      end)
+      :use_key('}'),
+  Rule('[ ', ' ]')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%]') ~= nil
+      end)
+      :use_key(']')
+}
+
+require'diffview'.setup{
+  use_icons = false
+}
+
 -- require('lspconfig').tsserver.setup{}
 
 require('settings')    -- lua/settings.lua
