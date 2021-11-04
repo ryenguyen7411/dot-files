@@ -1,10 +1,13 @@
 {
+  "suggest.floatEnable": false,
   "suggest.autoTrigger": "none",
-  "suggest.timeout": 500,
+  "diagnostic.checkCurrentLine": true,
+  "diagnostic.virtualText": true,
+  "signature.enable": false,
+  "codeLens.enable": false,
   "javascript.validate.enable": false,
   "eslint.autoFixOnSave": true,
   "eslint.quiet": true,
-  "stylelintplus.autoFixOnSave": true,
-  "diagnostic.checkCurrentLine": true
-}
+  "eslint.format.enable": true,
+  "stylelintplus.autoFixOnSave": true }
 

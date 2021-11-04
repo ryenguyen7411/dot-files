@@ -42,7 +42,7 @@ g.indentLine_char = '┆'
 g.indentLine_faster = 1
 
 -- coc.nvim
-g.coc_global_extensions = { 'coc-stylelintplus', 'coc-eslint', 'coc-json', 'coc-tsserver' }
+g.coc_global_extensions = { 'coc-css', 'coc-eslint', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
 
 -- vim-startify
 g.startify_change_to_dir = 0

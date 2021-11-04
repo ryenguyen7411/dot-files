@@ -12,6 +12,7 @@ require('paq') {
   -- 'neovim/nvim-lspconfig';
   'nvim-telescope/telescope.nvim';
   'nvim-telescope/telescope-project.nvim';
+  {'nvim-telescope/telescope-fzf-native.nvim', run='make'};
   {'nvim-treesitter/nvim-treesitter', run=':TSUpdate'};
   'p00f/nvim-ts-rainbow';
   'tomasiser/vim-code-dark';
@@ -26,6 +27,7 @@ require('paq') {
 
   'folke/tokyonight.nvim';
   'sindrets/diffview.nvim';
+  'b0o/mapx.nvim';
 }
 
 local previewers = require('telescope.previewers')
@@ -94,6 +96,7 @@ require('telescope').setup {
     },
   }
 }
+require('telescope').load_extension('fzf')
 
 -- Setup Treesitter
 require('nvim-treesitter.configs').setup {
@@ -113,8 +116,8 @@ require('nvim-treesitter.configs').setup {
   },
 }
 
-local npairs = require'nvim-autopairs'
-local Rule   = require'nvim-autopairs.rule'
+local npairs = require('nvim-autopairs')
+local Rule   = require('nvim-autopairs.rule')
 npairs.setup {
   check_ts = true,
   map_cr = true,
@@ -146,8 +149,12 @@ npairs.add_rules {
       :use_key(']')
 }
 
-require'diffview'.setup{
+require('diffview').setup{
   use_icons = false
+}
+
+require('mapx').setup{
+  global = true
 }
 
 -- require('lspconfig').tsserver.setup{}
