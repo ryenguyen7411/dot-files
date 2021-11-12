@@ -1,4 +1,5 @@
 {
+  "coc.preferences.formatOnSaveFiletypes": ["*/**.lua"],
   "suggest.floatEnable": false,
   "suggest.autoTrigger": "none",
   "diagnostic.checkCurrentLine": true,
@@ -9,5 +10,7 @@
   "eslint.autoFixOnSave": true,
   "eslint.quiet": true,
   "eslint.format.enable": true,
-  "stylelintplus.autoFixOnSave": true }
+  "stylelintplus.autoFixOnSave": true,
+  "stylua.styluaPath": "/Users/ryeng/.cargo/bin/stylua"
+}
 

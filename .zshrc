@@ -26,6 +26,8 @@ export CPPFLAGS="-I/usr/local/opt/libffi/include"
 
 export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
 
+source $HOME/.cargo/env
+
 # User configuration
 alias vi='nvim'
 alias n='sudo n'

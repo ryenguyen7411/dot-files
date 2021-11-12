@@ -26,11 +26,12 @@ xmap('{', '{zz')
 xmap('}', '}zz')
 
 -- Map redo to U (undo is u)
-nnoremap('U', '<Plug>(RepeatUndo)')
+nmap('U', '<C-R>')
 
 -- Yank to Vim + OS clipboard
 nnoremap('y', '"*y')
 xnoremap('y', '"*y')
+nnoremap('Y', ':%y+<CR>')
 
 -- Fast save / quit
 nmap('<leader>w', ':w!<CR>', 'silent')
@@ -46,8 +47,8 @@ vmap('K', ':m \'<-2<CR>gv=gvzz')
 -- Split resize current pane
 nmap('zh', '<C-w>h')
 nmap('zl', '<C-w>l')
-nmap('zj', ' 5<C-w><')
-nmap('zk', ' 5<C-w>>')
+nmap('zj', '<Space>5<C-w><')
+nmap('zk', '<Space>5<C-w>>')
 nmap('zb', '<C-w>=')
 nmap('zn', ':vs<CR><Space>,;', 'silent')
 nmap('zm', '<C-w>q')
@@ -79,29 +80,29 @@ imap(',g', '<Plug>(emmet-expand-abbr)', 'silent')
 nmap('<F6>', ':Startify<CR>', 'silent')
 
 -- Plugin: coc.nvim
-nmap('<leader>cc', ':CocConfig<CR>', 'silent')
-nmap('<F12>', '<Plug>(coc-definition)', 'silent')
-nmap('<leader>cf', '<Plug>(coc-diagnostic-prev)<CR>zz', 'silent')
-nmap('<leader>cg', '<Plug>(coc-diagnostic-next)<CR>zz', 'silent')
-nmap('<leader>co', ':call CocAction("runCommand", "tsserver.organizeImports")<CR>', 'silent')
+nmap('<leader>,c', ':CocConfig<CR>', 'silent')
+-- nmap('<F12>', '<Plug>(coc-definition)', 'silent')
+nmap('<leader>,n', '<Plug>(coc-diagnostic-prev)<CR>zz', 'silent')
+nmap('<leader>,m', '<Plug>(coc-diagnostic-next)<CR>zz', 'silent')
+nmap('<leader>,o', ':call CocAction("runCommand", "tsserver.organizeImports")<CR>', 'silent')
 -- nmap('<leader>ck', show_documentation(), 'silent')
 -- nmap('<space>f', '<Plug>(coc-format-selected)', 'silent')
 -- nmap('gi', '<Plug>(coc-implementation)', 'silent')
 -- nmap('gr', '<Plug>(coc-references)', 'silent')
 -- nmap('<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', 'silent')
 
-function show_documentation()
-  local filetype = vim.bo.filetype
-  if filetype == "vim" or filetype == "help" then
-    vim.api.nvim_command("h " .. vim.fn.expand("<cword>"))
-  elseif vim.fn["coc#rpc#ready"]() then
-    vim.fn.CocActionAsync("doHover")
-  else
-    vim.api.nvim_command(
-    "!" .. vim.bo.keywordprg .. " " .. vim.fn.expand("<cword>")
-    )
-  end
-end
+-- function show_documentation()
+--   local filetype = vim.bo.filetype
+--   if filetype == "vim" or filetype == "help" then
+--     vim.api.nvim_command("h " .. vim.fn.expand("<cword>"))
+--   elseif vim.fn["coc#rpc#ready"]() then
+--     vim.fn.CocActionAsync("doHover")
+--   else
+--     vim.api.nvim_command(
+--       "!" .. vim.bo.keywordprg .. " " .. vim.fn.expand("<cword>")
+--     )
+--   end
+-- end
 
 -- Plugin: telescope.nvim
 nmap('<leader>,;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>', 'silent')
@@ -115,10 +116,19 @@ nmap('<leader>,h', '<cmd>lua require("telescope.builtin").help_tags()<cr>', 'sil
 nmap('<leader>b', ':ToggleBlameLine<CR>', 'silent')
 
 -- Diffview
-nmap('<leader>,o', ':DiffviewOpen<CR>', 'silent')
-nmap('<leader>,i', ':DiffviewClose<CR>', 'silent')
+nmap('<leader>,d', ':DiffviewOpen<CR>', 'silent')
+nmap('<leader>,s', ':DiffviewClose<CR>', 'silent')
 nmap('<leader>,p', ':DiffviewToggleFiles<CR>', 'silent')
 nmap('<leader>,f', ':DiffviewFileHistory<CR>', 'silent')
+
+-- Plugin: any-jump
+nmap('<F12>', ':AnyJump<CR>', 'silent')
+nmap('<F8>', ':AnyJumpLastResults<CR>', 'silent')
+
+-- Plugin: nvim-spectre
+-- open plugin -> set smaller pane -> switch pane side
+nnoremap('<leader>,i', ':lua require("spectre").open()<CR><Space>60<C-w><<CR><C-w>r', 'silent')
+vnoremap('<leader>,i', ':lua require("spectre").open_visual()<CR><CR><Space>60<C-w><<CR><C-w>r', 'silent')
 
 -- Miscellaneous
 nmap('<leader>\\', ':w|:source %|:PaqInstall<CR>', 'silent')
