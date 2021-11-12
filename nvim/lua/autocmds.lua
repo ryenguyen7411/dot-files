@@ -19,3 +19,5 @@ augroup(
 
 cmd('au TextYankPost * lua vim.highlight.on_yank {on_visual = false}')
 cmd('au FileType scss setl iskeyword+=@-@')
+cmd('au FileType javascriptreact setl commentstring={/*\\ %s\\ */}')
+

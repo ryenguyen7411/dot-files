@@ -2,63 +2,63 @@ local cmd = vim.cmd
 local g = vim.g
 local map = vim.api.nvim_set_keymap
 
-g.mapleader = ','
+g.mapleader = ' '
 
-map('n', 'j', 'gjzz', {})
-map('n', 'k', 'gkzz', {})
-map('x', 'j', 'gjzz', {})
-map('x', 'k', 'gkzz', {})
-map('n', '<C-j>', '5j', {})
-map('n', '<C-k>', '5k', {})
-map('x', '<C-j>', '5j', {})
-map('x', '<C-k>', '5k', {})
+-- Center navigation
+nmap('j', 'gjzz')
+nmap('k', 'gkzz')
+xmap('j', 'gjzz')
+xmap('k', 'gkzz')
+nmap('<C-j>', '5j')
+nmap('<C-k>', '5k')
+xmap('<C-j>', '5j')
+xmap('<C-k>', '5k')
 
-map('n', '#', '#zz', {})
-map('n', '*', '*zz', {})
-map('n', 'n', 'nzz', {})
-map('n', 'N', 'Nzz', {})
-map('n', 'G', 'Gzz', {})
+nmap('#', '#zz')
+nmap('*', '*zz')
+nmap('n', 'nzz')
+nmap('N', 'Nzz')
+nmap('G', 'Gzz')
 
-map('n', '{', '{zz', {})
-map('n', '}', '}zz', {})
-map('x', '{', '{zz', {})
-map('x', '}', '}zz', {})
+nmap('{', '{zz')
+nmap('}', '}zz')
+xmap('{', '{zz')
+xmap('}', '}zz')
 
 -- Map redo to U (undo is u)
-map('n', 'U', '<C-R>', { noremap=true })
+nmap('U', '<C-R>')
 
 -- Yank to Vim + OS clipboard
-map('n', 'y', '"*y', { noremap=true })
-map('x', 'y', '"*y', { noremap=true })
+nnoremap('y', '"*y')
+xnoremap('y', '"*y')
+nnoremap('Y', ':%y+<CR>')
 
 -- Fast save / quit
-map('n', '<leader>w', ':w!<CR>', { silent=true })
-map('n', '<leader>qq', ':bp|bd #<CR>', { silent=true })
+nmap('<leader>w', ':w!<CR>', 'silent')
+nmap('<leader>qq', ':bp|bd #<CR>', 'silent')
+nnoremap('<leader><BS>', ':%bdelete!<CR>', 'silent')
 
 -- Visual mode: shifting > and <, move line up and down
-map('v', '<', '<gv', {})
-map('v', '>', '>gv', {})
-map('v', 'J', ':m \'>+1<CR>gv=gvzz', {})
-map('v', 'K', ':m \'<-2<CR>gv=gvzz', {})
+vmap('<', '<gv')
+vmap('>', '>gv')
+vmap('J', ':m \'>+1<CR>gv=gvzz')
+vmap('K', ':m \'<-2<CR>gv=gvzz')
 
 -- Split resize current pane
-map('n', 'zh', '<C-w>h', {})
-map('n', 'zl', '<C-w>l', {})
-map('n', 'zj', ' 5<C-w><', {})
-map('n', 'zk', ' 5<C-w>>', {})
-map('n', 'zb', '<C-w>=', {})
-map('n', 'zn', ':vs<CR>,ff', { silent=true })
-map('n', 'zm', '<C-w>q', {})
-
--- Expand emmet
-map('i', 'z<Tab>', '<C-Y>,', { silent=true })
+nmap('zh', '<C-w>h')
+nmap('zl', '<C-w>l')
+nmap('zj', '<Space>5<C-w><')
+nmap('zk', '<Space>5<C-w>>')
+nmap('zb', '<C-w>=')
+nmap('zn', ':vs<CR><Space>,;', 'silent')
+nmap('zm', '<C-w>q')
 
 -- Fold / unfold code
-map('v', 'zf', 'zfzz', {})
-map('v', 'zo', 'zozz', {})
+vmap('zf', 'zfzz')
+vmap('zo', 'zozz')
 
 -- -- Go to normal mode if k is preceded by j.
--- map('i', '<expr>k' EscapeInsertOrNot(), {})
+-- imap('<expr>k' EscapeInsertOrNot())
 -- function EscapeInsertOrNot() {}
 --   if col('.') <= 1
 --     return ''
@@ -73,49 +73,70 @@ map('v', 'zo', 'zozz', {})
 --   end
 -- end
 
--- Telescope
-map('n', '<leader>ff', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>', { silent=true })
-map('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', { silent=true })
-map('n', '<leader>fp', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>', { silent=true })
-map('n', '<leader>fx', '<cmd>lua require("telescope.builtin").file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true })<cr>', { silent=true })
-map('n', '<leader>fb', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>', { silent=true })
-map('n', '<leader>fa', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>', { silent=true })
-map('n', '<leader>fh', '<cmd>lua require("telescope.builtin").help_tags()<cr>', { silent=true })
+-- Plugin: emmet-vim
+imap(',g', '<Plug>(emmet-expand-abbr)', 'silent')
 
--- GoTo code navigation.
-map('n', '<F12>', '<Plug>(coc-definition)', { silent=true })
-map('n', 'gi', '<Plug>(coc-implementation)', { silent=true })
-map('n', 'gr', '<Plug>(coc-references)', { silent=true })
-map('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', { silent=true })
-map('n', '[g', '<Plug>(coc-diagnostic-prev)', { silent=true })
-map('n', ']g', '<Plug>(coc-diagnostic-next)', { silent=true })
-map('n', '<space>f', '<Plug>(coc-format-selected)', { silent=true })
-map('x', '<space>f', '<Plug>(coc-format-selected)', { silent=true })
--- map('n', 'K', show_documentation(), { silent=true })
-map('n', '<leader>o', ':call CocAction("runCommand", "tsserver.organizeImports")<CR>', { silent=true })
+-- Plugin: vim-startify
+nmap('<F6>', ':Startify<CR>', 'silent')
 
-function show_documentation()
-  local filetype = vim.bo.filetype
-  if filetype == "vim" or filetype == "help" then
-    vim.api.nvim_command("h " .. vim.fn.expand("<cword>"))
-  elseif vim.fn["coc#rpc#ready"]() then
-    vim.fn.CocActionAsync("doHover")
-  else
-    vim.api.nvim_command(
-      "!" .. vim.bo.keywordprg .. " " .. vim.fn.expand("<cword>")
-    )
-  end
-end
+-- Plugin: coc.nvim
+nmap('<leader>,c', ':CocConfig<CR>', 'silent')
+-- nmap('<F12>', '<Plug>(coc-definition)', 'silent')
+nmap('<leader>,n', '<Plug>(coc-diagnostic-prev)<CR>zz', 'silent')
+nmap('<leader>,m', '<Plug>(coc-diagnostic-next)<CR>zz', 'silent')
+nmap('<leader>,o', ':call CocAction("runCommand", "tsserver.organizeImports")<CR>', 'silent')
+-- nmap('<leader>ck', show_documentation(), 'silent')
+-- nmap('<space>f', '<Plug>(coc-format-selected)', 'silent')
+-- nmap('gi', '<Plug>(coc-implementation)', 'silent')
+-- nmap('gr', '<Plug>(coc-references)', 'silent')
+-- nmap('<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', 'silent')
 
--- Miscellaneous
-map('n', '<leader>\\', ':w|:source %|:PaqInstall<CR>', { silent=true })
-map('n', '<leader>=', ':e! ~/.config/nvim/init.lua<CR>', { silent=true })
-map('n', '<leader>n', ':enew<CR>', { silent=true })
-map('n', '<leader><cr>', ':noh<CR>', { silent=true })
+-- function show_documentation()
+--   local filetype = vim.bo.filetype
+--   if filetype == "vim" or filetype == "help" then
+--     vim.api.nvim_command("h " .. vim.fn.expand("<cword>"))
+--   elseif vim.fn["coc#rpc#ready"]() then
+--     vim.fn.CocActionAsync("doHover")
+--   else
+--     vim.api.nvim_command(
+--       "!" .. vim.bo.keywordprg .. " " .. vim.fn.expand("<cword>")
+--     )
+--   end
+-- end
+
+-- Plugin: telescope.nvim
+nmap('<leader>,;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>', 'silent')
+nmap('<leader>,j', '<cmd>lua require("telescope.builtin").live_grep()<cr>', 'silent')
+nmap('<leader>,l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>', 'silent')
+nmap('<leader>,k', '<cmd>lua require("telescope.builtin").file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true })<cr>', 'silent')
+nmap('<leader>,b', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>', 'silent')
+nmap('<leader>,h', '<cmd>lua require("telescope.builtin").help_tags()<cr>', 'silent')
 
 -- Git blame
-map('n', '<leader>b', ':ToggleBlameLine<CR>', { silent=true })
+nmap('<leader>b', ':ToggleBlameLine<CR>', 'silent')
+
+-- Diffview
+nmap('<leader>,d', ':DiffviewOpen<CR>', 'silent')
+nmap('<leader>,s', ':DiffviewClose<CR>', 'silent')
+nmap('<leader>,p', ':DiffviewToggleFiles<CR>', 'silent')
+nmap('<leader>,f', ':DiffviewFileHistory<CR>', 'silent')
+
+-- Plugin: any-jump
+nmap('<F12>', ':AnyJump<CR>', 'silent')
+nmap('<F8>', ':AnyJumpLastResults<CR>', 'silent')
+
+-- Plugin: nvim-spectre
+-- open plugin -> set smaller pane -> switch pane side
+nnoremap('<leader>,i', ':lua require("spectre").open()<CR><Space>60<C-w><<CR><C-w>r', 'silent')
+vnoremap('<leader>,i', ':lua require("spectre").open_visual()<CR><CR><Space>60<C-w><<CR><C-w>r', 'silent')
+
+-- Miscellaneous
+nmap('<leader>\\', ':w|:source %|:PaqInstall<CR>', 'silent')
+nmap('<leader>=', ':e! ~/.config/nvim/init.lua<CR>', 'silent')
+nmap('<leader>n', ':enew<CR>', 'silent')
+nmap('<leader><cr>', ':nohl<CR><C-L>', 'silent')
 
 -- Vim profiling
-map('n', '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>', { silent=true })
-map('n', '<leader>vs', ':profile pause<CR>:e! ~/profile.nvim.log<CR>', { silent=true })
+nmap('<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>', 'silent')
+nmap('<leader>vs', ':profile pause<CR>:e! ~/profile.nvim.log<CR>', 'silent')
+

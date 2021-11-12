@@ -1,99 +1,84 @@
-require('paq') {
-  "savq/paq-nvim"; -- Let Paq manage itself
+local fn = vim.fn
+local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
 
-  'jiangmiao/auto-pairs';
-  {'neoclide/coc.nvim', branch='release'};
-  'mattn/emmet-vim';
-  'Yggdroot/indentLine';
-  'itchyny/lightline.vim';
-  -- 'windwp/nvim-autopairs';
-  -- 'neovim/nvim-lspconfig';
-  {'nvim-treesitter/nvim-treesitter', run=':TSUpdate'};
-  'windwp/nvim-ts-autotag';
-  'p00f/nvim-ts-rainbow';
-  'nvim-lua/plenary.nvim';
-  'nvim-lua/popup.nvim';
-  'nvim-telescope/telescope.nvim';
-  'nvim-telescope/telescope-project.nvim';
-  'tomasiser/vim-code-dark';
-  'tpope/vim-commentary';
-  -- 'tpope/vim-fugitive';
-  'mhinz/vim-startify';
-  'tpope/vim-surround';
-  'tveskag/nvim-blame-line';
-  'ThePrimeagen/vim-be-good';
-}
+if fn.empty(fn.glob(install_path)) > 0 then
+  packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+end
 
-local previewers = require('telescope.previewers')
-local bad_files = function (filepath)
-  local _bad = { 'metadata/.*%.json' } -- Put all filetypes that slow you down in this array
-  for _, v in ipairs(_bad) do
-    if filepath:match(v) then
-      return false
+require('packer').startup(function(use)
+  -- Packer can manage itself
+  use 'wbthomason/packer.nvim'
+
+  use 'nvim-lua/plenary.nvim'
+  use 'nvim-lua/popup.nvim'
+
+  use 'mhinz/vim-startify'
+  use 'itchyny/lightline.vim'
+  use 'folke/tokyonight.nvim'
+  use 'b0o/mapx.nvim'
+
+  use {
+    'nvim-telescope/telescope.nvim', cmd='Telescope',
+    requires = {
+      {'nvim-telescope/telescope-project.nvim'},
+      {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
+    },
+    setup = function()
+      require('plugins.telescope').setup()
     end
+  }
+  use {
+    'nvim-treesitter/nvim-treesitter', run=':TSUpdate',
+    after='telescope.nvim',
+    setup = function()
+      require('plugins.treesitter').setup()
+    end
+  }
+
+  use {'JoosepAlviste/nvim-ts-context-commentstring', event='BufRead'}
+  use {'neoclide/coc.nvim', branch='release', event='BufRead'}
+  use {'p00f/nvim-ts-rainbow', event='BufRead'}
+  use {'tpope/vim-commentary', event='BufRead'}
+  use {'tpope/vim-repeat', event='BufRead'}
+  use {'tpope/vim-surround', event='BufRead'}
+  use {'Yggdroot/indentLine', event='BufRead'}
+  use {
+    'windwp/nvim-autopairs', event='BufRead',
+    setup = function()
+      require('plugins.autopair').setup()
+    end
+  }
+  use {
+    'windwp/nvim-spectre', event='BufRead',
+    setup = function()
+      require('spectre').setup()
+    end
+  }
+  use {'windwp/nvim-ts-autotag', event='BufRead'}
+
+  use {'mattn/emmet-vim', event='InsertEnter'}
+  use {'tveskag/nvim-blame-line', cmd='ToggleBlameLine'}
+  use {
+    'sindrets/diffview.nvim', cmd={'DiffviewOpen','DiffviewFileHistory'},
+    setup = function()
+      require('plugins.diffview').setup()
+    end
+  }
+  use {'ryenguyen7411/any-jump.vim'}
+
+  -- 'neovim/nvim-lspconfig'
+  -- use 'tomasiser/vim-code-dark'
+  -- use 'tpope/vim-fugitive'
+
+  -- Automatically set up your configuration after cloning packer.nvim
+  if packer_bootstrap then
+    require('packer').sync()
   end
-  return true
-end
+end)
 
-local preview_maker = function (filepath, bufnr, opts)
-  opts = opts or {}
-  if opts.use_ft_detect == nil then opts.use_ft_detect = true end
-  opts.use_ft_detect = opts.use_ft_detect == false and false or bad_files(filepath)
-  previewers.buffer_previewer_maker(filepath, bufnr, opts)
-end
-
--- Setup Telescope
-require('telescope').setup {
-  defaults = {
-    vimgrep_arguments = {
-      'rg',
-      '--hidden',
-      '--color=never',
-      '--no-heading',
-      '--with-filename',
-      '--line-number',
-      '--column',
-      '--smart-case'
-    },
-    file_ignore_patterns = {
-      ".git/",
-    },
-    buffer_previewer_maker = preview_maker,
-  },
-  pickers = {
-    buffers = {
-      show_all_buffers = true,
-      sort_lastused = true,
-      mappings = {
-        i = {
-          ["<c-d>"] = "delete_buffer",
-        },
-        n = {
-          ["<c-d>"] = "delete_buffer",
-        }
-      }
-    }
-  },
+require('mapx').setup{
+  global = true
 }
-require('telescope').load_extension('project')
-
--- Setup Treesitter
-require('nvim-treesitter.configs').setup {
-  highlight = {
-    enable = true,
-  },
-  autotag = {
-    enable = true,
-  },
-  rainbow = {
-    enable = true,
-    extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
-    max_file_lines = 1000, -- Do not enable for files with more than 1000 lines, int
-  },
-}
-
--- require('nvim-autopairs').setup()
--- require('lspconfig').tsserver.setup{}
 
 require('settings')    -- lua/settings.lua
 require('autocmds')    -- lua/autocmds.lua
