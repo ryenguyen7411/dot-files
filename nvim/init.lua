@@ -15,7 +15,7 @@ require('packer').startup(function(use)
   use 'mhinz/vim-startify'
   use 'itchyny/lightline.vim'
   use 'folke/tokyonight.nvim'
-  use 'b0o/mapx.nvim'
+  use 'svermeulen/vimpeccable'
 
   use {
     'nvim-telescope/telescope.nvim', cmd='Telescope',
@@ -55,8 +55,8 @@ require('packer').startup(function(use)
     end
   }
   use {'windwp/nvim-ts-autotag', event='BufRead'}
-
   use {'mattn/emmet-vim', event='InsertEnter'}
+
   use {'tveskag/nvim-blame-line', cmd='ToggleBlameLine'}
   use {
     'sindrets/diffview.nvim', cmd={'DiffviewOpen','DiffviewFileHistory'},
@@ -64,7 +64,12 @@ require('packer').startup(function(use)
       require('plugins.diffview').setup()
     end
   }
-  use {'ryenguyen7411/any-jump.vim'}
+  use 'ryenguyen7411/any-jump.vim'
+
+  -- use {
+  --   'neovim/nvim-lspconfig',
+  --   'williamboman/nvim-lsp-installer',
+  -- }
 
   -- 'neovim/nvim-lspconfig'
   -- use 'tomasiser/vim-code-dark'
@@ -75,10 +80,6 @@ require('packer').startup(function(use)
     require('packer').sync()
   end
 end)
-
-require('mapx').setup{
-  global = true
-}
 
 require('settings')    -- lua/settings.lua
 require('autocmds')    -- lua/autocmds.lua

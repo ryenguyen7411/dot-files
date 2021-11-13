@@ -34,7 +34,6 @@ alias n='sudo n'
 
 ## tmux
 alias ts='tmux new -s'
-alias ts='tmux new -s'
 alias tr='tmux a -t'
 
 ## git
