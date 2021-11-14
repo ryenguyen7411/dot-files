@@ -11,6 +11,8 @@
   "eslint.quiet": true,
   "eslint.format.enable": true,
   "stylelintplus.autoFixOnSave": true,
-  "stylua.styluaPath": "/Users/ryeng/.cargo/bin/stylua"
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false
 }
 

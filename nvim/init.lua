@@ -12,66 +12,108 @@ require('packer').startup(function(use)
   use 'nvim-lua/plenary.nvim'
   use 'nvim-lua/popup.nvim'
 
-  use 'mhinz/vim-startify'
-  use 'itchyny/lightline.vim'
-  use 'folke/tokyonight.nvim'
-  use 'svermeulen/vimpeccable'
-
   use {
-    'nvim-telescope/telescope.nvim', cmd='Telescope',
-    requires = {
-      {'nvim-telescope/telescope-project.nvim'},
-      {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
-    },
-    setup = function()
-      require('plugins.telescope').setup()
-    end
-  }
-  use {
-    'nvim-treesitter/nvim-treesitter', run=':TSUpdate',
-    after='telescope.nvim',
-    setup = function()
-      require('plugins.treesitter').setup()
+    'ryenguyen7411/any-jump.vim', branch='develop', event='BufRead',
+    config = function()
+      require('plugins.anyjump').setup()
     end
   }
 
-  use {'JoosepAlviste/nvim-ts-context-commentstring', event='BufRead'}
-  use {'neoclide/coc.nvim', branch='release', event='BufRead'}
-  use {'p00f/nvim-ts-rainbow', event='BufRead'}
-  use {'tpope/vim-commentary', event='BufRead'}
-  use {'tpope/vim-repeat', event='BufRead'}
-  use {'tpope/vim-surround', event='BufRead'}
-  use {'Yggdroot/indentLine', event='BufRead'}
   use {
-    'windwp/nvim-autopairs', event='BufRead',
-    setup = function()
-      require('plugins.autopair').setup()
+    'neoclide/coc.nvim', branch='release', event='VimEnter',
+    config = function()
+      require('plugins.coc').setup()
     end
   }
-  use {
-    'windwp/nvim-spectre', event='BufRead',
-    setup = function()
-      require('spectre').setup()
-    end
-  }
-  use {'windwp/nvim-ts-autotag', event='BufRead'}
-  use {'mattn/emmet-vim', event='InsertEnter'}
 
-  use {'tveskag/nvim-blame-line', cmd='ToggleBlameLine'}
   use {
-    'sindrets/diffview.nvim', cmd={'DiffviewOpen','DiffviewFileHistory'},
-    setup = function()
+    'sindrets/diffview.nvim', event='VimEnter',
+    config = function()
       require('plugins.diffview').setup()
     end
   }
-  use 'ryenguyen7411/any-jump.vim'
+
+  use {
+    'mattn/emmet-vim', event='BufRead',
+    config = function()
+      require('plugins.emmet').setup()
+    end
+  }
+
+  use {'Yggdroot/indentLine', event='BufRead'}
+
+  use 'itchyny/lightline.vim'
+
+  use 'folke/tokyonight.nvim'
+
+  use {
+    'windwp/nvim-autopairs', event='BufRead',
+    config = function()
+      require('plugins.autopair').setup()
+    end
+  }
+
+  use {
+    'tveskag/nvim-blame-line', event='BufRead',
+    config = function()
+      require('plugins.blameline').setup()
+    end
+  }
 
   -- use {
   --   'neovim/nvim-lspconfig',
   --   'williamboman/nvim-lsp-installer',
   -- }
 
-  -- 'neovim/nvim-lspconfig'
+  use {
+    'windwp/nvim-spectre', event='VimEnter',
+    config = function()
+      require('plugins.spectre').setup()
+    end
+  }
+
+  use {'windwp/nvim-ts-autotag', event='BufRead'}
+
+  use {
+    'nvim-treesitter/nvim-treesitter', run=':TSUpdate', event='VimEnter',
+    config = function()
+      require('plugins.treesitter').setup()
+    end
+  }
+
+  use {'nvim-telescope/telescope-project.nvim', event='VimEnter'}
+
+  use {'nvim-telescope/telescope-fzf-native.nvim', run='make', event='VimEnter'}
+
+  use {
+    'nvim-telescope/telescope.nvim',
+    after = {'telescope-project.nvim', 'telescope-fzf-native.nvim'},
+    config = function()
+      require('plugins.telescope').setup()
+    end
+  }
+
+  use {'JoosepAlviste/nvim-ts-context-commentstring', event='BufRead'}
+
+  use {'p00f/nvim-ts-rainbow', event='BufRead'}
+
+  use {
+    'mhinz/vim-startify',
+    config = function()
+      require('plugins.startify').setup()
+    end
+  }
+
+  use {'tpope/vim-commentary', event='BufRead'}
+
+  use {'tpope/vim-repeat', event='BufRead'}
+
+  use {'tpope/vim-surround', event='BufRead'}
+
+  use 'svermeulen/vimpeccable'
+
+  use 'thinca/vim-quickrun'
+
   -- use 'tomasiser/vim-code-dark'
   -- use 'tpope/vim-fugitive'
 

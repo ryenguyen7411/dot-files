@@ -69,7 +69,7 @@ g.indentLine_char = '┆'
 g.indentLine_faster = 1
 
 -- coc.nvim
-g.coc_global_extensions = { 'coc-css', 'coc-eslint', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-stylua', 'coc-tsserver' }
+g.coc_global_extensions = { 'coc-css', 'coc-eslint8', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
 
 -- vim-startify
 g.startify_change_to_dir = 0
@@ -89,6 +89,7 @@ g.tokyonight_colors = {
 g.any_jump_window_top_offset = 8
 g.any_jump_disable_default_keybindings = 1
 
+
 cmd('filetype on')
 cmd('colorscheme tokyonight')
 cmd('au VimEnter * highlight Normal ctermbg=NONE guibg=NONE')
@@ -98,3 +99,4 @@ cmd('au VimEnter * highlight SignColumn ctermbg=NONE guibg=NONE')
 cmd('au VimEnter * highlight EndOfBuffer ctermbg=NONE guibg=NONE')
 cmd('au VimEnter * highlight Folded ctermfg=yellow')
 cmd('au VimEnter * highlight NormalFloat ctermbg=NONE guibg=NONE')
+
