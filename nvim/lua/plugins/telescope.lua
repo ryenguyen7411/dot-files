@@ -32,7 +32,8 @@ M.setup = function ()
         '--with-filename',
         '--line-number',
         '--column',
-        '--smart-case'
+        '--smart-case',
+        '--fixed-strings'
       },
       file_ignore_patterns = {
         ".git/",
@@ -76,6 +77,7 @@ M.setup = function ()
     }
   }
   require('telescope').load_extension('fzf')
+  require('telescope').load_extension('file_browser')
 
   M.mapping()
 end
@@ -84,6 +86,7 @@ M.mapping = function()
   v.nmap({'silent'}, '<leader>;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>')
   v.nmap({'silent'}, '<leader>j', '<cmd>lua require("telescope.builtin").live_grep()<cr>')
   v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>')
+  -- v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ hidden=true, dir_icon="" })<CR>')
   v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope.builtin").file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true })<cr>')
   v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>')
   v.nmap({'silent'}, '<leader>,h', '<cmd>lua require("telescope.builtin").help_tags()<cr>')

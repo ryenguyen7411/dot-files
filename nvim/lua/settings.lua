@@ -99,4 +99,3 @@ cmd('au VimEnter * highlight SignColumn ctermbg=NONE guibg=NONE')
 cmd('au VimEnter * highlight EndOfBuffer ctermbg=NONE guibg=NONE')
 cmd('au VimEnter * highlight Folded ctermfg=yellow')
 cmd('au VimEnter * highlight NormalFloat ctermbg=NONE guibg=NONE')
-

@@ -83,11 +83,13 @@ require('packer').startup(function(use)
 
   use {'nvim-telescope/telescope-project.nvim', event='VimEnter'}
 
+  use {'nvim-telescope/telescope-file-browser.nvim', event='VimEnter'}
+
   use {'nvim-telescope/telescope-fzf-native.nvim', run='make', event='VimEnter'}
 
   use {
     'nvim-telescope/telescope.nvim',
-    after = {'telescope-project.nvim', 'telescope-fzf-native.nvim'},
+    after = {'telescope-project.nvim', 'telescope-file-browser.nvim', 'telescope-fzf-native.nvim'},
     config = function()
       require('plugins.telescope').setup()
     end
