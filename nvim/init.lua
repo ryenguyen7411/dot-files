@@ -19,12 +19,12 @@ require('packer').startup(function(use)
     end
   }
 
-  use {
-    'neoclide/coc.nvim', branch='release', event='VimEnter',
-    config = function()
-      require('plugins.coc').setup()
-    end
-  }
+  -- use {
+  --   'neoclide/coc.nvim', branch='release', event='VimEnter',
+  --   config = function()
+  --     require('plugins.coc').setup()
+  --   end
+  -- }
 
   use {
     'sindrets/diffview.nvim', event='VimEnter',
