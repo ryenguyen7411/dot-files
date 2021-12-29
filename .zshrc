@@ -20,6 +20,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 
 export PATH=$PATH:/usr/local/sbin
 export PATH=$PATH:/usr/local/opt/libtool/libexec/gnubin
+export PATH=$PATH:/usr/local/opt/gnu-sed/libexec/gnubin
 
 export LDFLAGS="-L/usr/local/opt/libffi/lib"
 export CPPFLAGS="-I/usr/local/opt/libffi/include"
@@ -33,7 +34,6 @@ alias vi='nvim'
 alias n='sudo n'
 
 ## tmux
-alias ts='tmux new -s'
 alias ts='tmux new -s'
 alias tr='tmux a -t'
 
