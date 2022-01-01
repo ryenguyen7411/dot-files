@@ -22,3 +22,4 @@ cmd('au BufRead,BufNewFile *.hbs set filetype=html')
 cmd('au FileType scss setl iskeyword+=@-@')
 cmd('au FileType javascriptreact setl commentstring={/*\\ %s\\ */}')
 
+cmd('au VimEnter * cd %:p:h')
