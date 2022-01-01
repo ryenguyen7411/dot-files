@@ -5,119 +5,140 @@ if fn.empty(fn.glob(install_path)) > 0 then
   packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
 end
 
+vim.cmd [[
+  augroup Packer
+    autocmd!
+    autocmd BufWritePost init.lua luafile %
+    autocmd BufWritePost init.lua PackerCompile
+  augroup end
+]]
+
 require('packer').startup(function(use)
   -- Packer can manage itself
-  use 'wbthomason/packer.nvim'
+  use { 'wbthomason/' .. 'packer.nvim' }
 
-  use 'nvim-lua/plenary.nvim'
-  use 'nvim-lua/popup.nvim'
+  use { 'nvim-lua/' .. 'plenary.nvim' }
+  use { 'nvim-lua/' .. 'popup.nvim' }
 
   use {
-    'ryenguyen7411/any-jump.vim', branch='develop', event='BufRead',
+    'ryenguyen7411/' .. 'any-jump.vim',
+    branch='develop', event='BufRead',
     config = function()
       require('plugins.anyjump').setup()
     end
   }
 
   use {
-    'neoclide/coc.nvim', branch='release', event='VimEnter',
+    'neoclide/' .. 'coc.nvim',
+    branch='release', event='VimEnter',
     config = function()
       require('plugins.coc').setup()
     end
   }
 
   use {
-    'sindrets/diffview.nvim', event='VimEnter',
+    'sindrets/' .. 'diffview.nvim',
+    event='VimEnter',
     config = function()
       require('plugins.diffview').setup()
     end
   }
 
   use {
-    'mattn/emmet-vim', event='BufRead',
+    'mattn/' .. 'emmet-vim',
+    event='BufRead',
     config = function()
       require('plugins.emmet').setup()
     end
   }
 
-  use {'Yggdroot/indentLine', event='BufRead'}
+  use {
+    'lukas-reineke/' .. 'indent-blankline.nvim',
+    event='BufRead',
+    config = function()
+      require('plugins.indent_blankline').setup()
+    end
+  }
 
-  use 'itchyny/lightline.vim'
-
-  use 'folke/tokyonight.nvim'
+  use { 'itchyny/' .. 'lightline.vim' }
 
   use {
-    'windwp/nvim-autopairs', event='BufRead',
+    'windwp/' .. 'nvim-autopairs',
+    event='BufRead',
     config = function()
       require('plugins.autopair').setup()
     end
   }
 
   use {
-    'tveskag/nvim-blame-line', event='BufRead',
+    'tveskag/' .. 'nvim-blame-line',
+    event='BufRead',
     config = function()
       require('plugins.blameline').setup()
     end
   }
 
-  -- use {
-  --   'neovim/nvim-lspconfig',
-  --   'williamboman/nvim-lsp-installer',
-  -- }
+  use {
+    'neovim/' .. 'nvim-lspconfig',
+    config = function()
+      require('plugins.lspconfig_setup').setup()
+    end
+  }
 
   use {
-    'windwp/nvim-spectre', event='VimEnter',
+    'windwp/' .. 'nvim-spectre',
+    event='VimEnter',
     config = function()
       require('plugins.spectre').setup()
     end
   }
 
-  use {'windwp/nvim-ts-autotag', event='BufRead'}
-
   use {
-    'nvim-treesitter/nvim-treesitter', run=':TSUpdate', event='VimEnter',
+    'nvim-treesitter/' .. 'nvim-treesitter',
+    run=':TSUpdate', event='VimEnter',
     config = function()
       require('plugins.treesitter').setup()
     end
   }
 
-  use {'nvim-telescope/telescope-project.nvim', event='VimEnter'}
+  use {'windwp/' .. 'nvim-ts-autotag', event='BufRead'}
 
-  use {'nvim-telescope/telescope-file-browser.nvim', event='VimEnter'}
+  use {'JoosepAlviste/' .. 'nvim-ts-context-commentstring', event='BufRead'}
 
-  use {'nvim-telescope/telescope-fzf-native.nvim', run='make', event='VimEnter'}
+  use {'p00f/' .. 'nvim-ts-rainbow', event='BufRead'}
+
+  use {'nvim-telescope/' .. 'telescope-file-browser.nvim', event='VimEnter'}
+
+  use {'nvim-telescope/' .. 'telescope-fzf-native.nvim', run='make', event='VimEnter'}
+
+  use {'nvim-telescope/' .. 'telescope-project.nvim', event='VimEnter'}
 
   use {
-    'nvim-telescope/telescope.nvim',
-    after = {'telescope-project.nvim', 'telescope-file-browser.nvim', 'telescope-fzf-native.nvim'},
+    'nvim-telescope/' .. 'telescope.nvim',
+    after = { 'telescope-project.nvim', 'telescope-file-browser.nvim', 'telescope-fzf-native.nvim' },
     config = function()
       require('plugins.telescope').setup()
     end
   }
 
-  use {'JoosepAlviste/nvim-ts-context-commentstring', event='BufRead'}
-
-  use {'p00f/nvim-ts-rainbow', event='BufRead'}
+  use { 'folke/' .. 'tokyonight.nvim' }
 
   use {
-    'mhinz/vim-startify',
+    'mhinz/' .. 'vim-startify',
     config = function()
       require('plugins.startify').setup()
     end
   }
 
-  use {'tpope/vim-commentary', event='BufRead'}
+  use {'tpope/' .. 'vim-commentary', event='BufRead'}
 
-  use {'tpope/vim-repeat', event='BufRead'}
+  use { 'thinca/' .. 'vim-quickrun' }
 
-  use {'tpope/vim-surround', event='BufRead'}
+  use {'tpope/' .. 'vim-repeat', event='BufRead'}
 
-  use 'svermeulen/vimpeccable'
+  use {'tpope/' .. 'vim-surround', event='BufRead'}
 
-  use 'thinca/vim-quickrun'
-
-  -- use 'tomasiser/vim-code-dark'
-  -- use 'tpope/vim-fugitive'
+  use { 'svermeulen/' .. 'vimpeccable' }
 
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then
@@ -128,3 +149,4 @@ end)
 require('settings')    -- lua/settings.lua
 require('autocmds')    -- lua/autocmds.lua
 require('mappings')    -- lua/mappings.lua
+
