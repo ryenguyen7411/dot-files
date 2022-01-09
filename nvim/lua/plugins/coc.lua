@@ -8,7 +8,7 @@ end
 
 M.mapping = function()
   v.nmap({'silent'}, '<leader>,c', ':CocConfig<CR>')
-  v.nmap({'silent'}, '<leader>o', ':call CocAction("runCommand", "tsserver.organizeImports")<CR>')
+  -- v.nmap({'silent'}, '<leader>o', ':call CocAction("runCommand", "tsserver.organizeImports")<CR>')
 end
 
 return M

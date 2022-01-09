@@ -24,7 +24,7 @@ M.setup = function()
       vim.cmd([[
         augroup LspEslint
         autocmd! * <buffer>
-        autocmd BufWritePre <buffer> EslintFixAll
+        autocmd BufWritePost <buffer> EslintFixAll
         augroup END
       ]])
     end,
@@ -40,7 +40,7 @@ M.setup = function()
       vim.cmd([[
         augroup LspStylelint
         autocmd! * <buffer>
-        autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+        autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()
         augroup END
       ]])
       M.attach(client, bufnr)

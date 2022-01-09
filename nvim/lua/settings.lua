@@ -64,6 +64,26 @@ for _, plugin in pairs(disabled_built_ins) do
    g["loaded_" .. plugin] = 1
 end
 
+local transparents = {
+  'Normal',
+  'NonText',
+  'LineNr',
+  'SignColumn',
+  'EndOfBuffer',
+  'NormalFloat',
+  'FloatBorder',
+  'TelescopeNormal',
+  'TelescopeBorder',
+}
+
+for _, part in pairs(transparents) do
+  cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
+end
+
+-- Plugin: any-jump
+g.any_jump_window_top_offset = 8
+g.any_jump_disable_default_keybindings = 1
+
 -- -- coc.nvim
 -- g.coc_global_extensions = { 'coc-css', 'coc-eslint8', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
 
@@ -81,17 +101,5 @@ g.tokyonight_colors = {
   }
 }
 
--- Plugin: any-jump
-g.any_jump_window_top_offset = 8
-g.any_jump_disable_default_keybindings = 1
-
-
 cmd('filetype on')
 cmd('colorscheme tokyonight')
-cmd('au VimEnter * highlight Normal ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight NonText ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight LineNr ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight SignColumn ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight EndOfBuffer ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight Folded ctermfg=yellow')
-cmd('au VimEnter * highlight NormalFloat ctermbg=NONE guibg=NONE')
