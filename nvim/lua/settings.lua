@@ -64,8 +64,8 @@ for _, plugin in pairs(disabled_built_ins) do
    g["loaded_" .. plugin] = 1
 end
 
--- coc.nvim
-g.coc_global_extensions = { 'coc-css', 'coc-eslint8', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
+-- -- coc.nvim
+-- g.coc_global_extensions = { 'coc-css', 'coc-eslint8', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
 
 -- vim-startify
 g.startify_change_to_dir = 0

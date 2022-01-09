@@ -28,13 +28,13 @@ require('packer').startup(function(use)
     end
   }
 
-  use {
-    'neoclide/' .. 'coc.nvim',
-    branch='release', event='VimEnter',
-    config = function()
-      require('plugins.coc').setup()
-    end
-  }
+  -- use {
+  --   'neoclide/' .. 'coc.nvim',
+  --   branch='release', event='VimEnter',
+  --   config = function()
+  --     require('plugins.coc').setup()
+  --   end
+  -- }
 
   use {
     'sindrets/' .. 'diffview.nvim',
@@ -78,15 +78,18 @@ require('packer').startup(function(use)
     end
   }
 
+  use { 'jose-elias-alvarez/' .. 'nvim-lsp-ts-utils' }
+
   use {
     'neovim/' .. 'nvim-lspconfig',
+    after = { 'nvim-lsp-ts-utils' },
     config = function()
       require('plugins.lspconfig_setup').setup()
     end
   }
 
   use {
-    'windwp/' .. 'nvim-spectre',
+    'nvim-pack/' .. 'nvim-spectre',
     event='VimEnter',
     config = function()
       require('plugins.spectre').setup()
