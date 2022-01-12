@@ -70,7 +70,7 @@ require('packer').startup(function(use)
     end
   }
 
-  use { 'jose-elias-alvarez/' .. 'nvim-lsp-ts-utils' }
+  use { 'jose-elias-alvarez/' .. 'nvim-lsp-ts-utils', event='VimEnter' }
 
   use {
     'neovim/' .. 'nvim-lspconfig',
@@ -127,7 +127,12 @@ require('packer').startup(function(use)
 
   use {'tpope/' .. 'vim-commentary', event='BufRead'}
 
-  use { 'thinca/' .. 'vim-quickrun' }
+  use {
+    'thinca/' .. 'vim-quickrun',
+    config = function()
+      require('plugins.quickrun').setup()
+    end
+  }
 
   use {'tpope/' .. 'vim-repeat', event='BufRead'}
 

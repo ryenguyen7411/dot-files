@@ -17,6 +17,7 @@ o.lazyredraw = true
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
 cmd('set noshowmode')
+cmd('set cursorline')
 
 o.number = true
 o.relativenumber = true
@@ -99,6 +100,10 @@ g.tokyonight_colors = {
   diff = {
     text = '#3b4f77'
   }
+}
+
+g.quickrun_config = {
+  outputter = 'outputter/loclist'
 }
 
 cmd('filetype on')

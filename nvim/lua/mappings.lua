@@ -65,33 +65,6 @@ v.vmap('zo', 'zozz')
 v.nmap({'silent'}, '<Tab>', ':bnext<CR>')
 v.nmap({'silent'}, '<S-Tab>', ':bprevious<CR>')
 
--- Curl Runner
-v.nnoremap({'silent'}, '<leader>p', function ()
-  local path = vim.fn.expand('%:p:h')
-  if string.find(path, '/notes') then
-    vim.cmd('lua require("telescope.builtin").live_grep({ cwd="~/notes" })')
-  else
-    vim.cmd('tabnew ~/notes/curl.sh')
-  end
-end)
-v.vmap({'silent'}, '<CR>', ':QuickRun<CR><C-w>l')
-
--- -- Go to normal mode if k is preceded by j.
--- imap('<expr>k' EscapeInsertOrNot())
--- function EscapeInsertOrNot() {}
---   if col('.') <= 1
---     return ''
---   end
-
---   let pre_cursor = getline('.')[:col('.')-2]
---   let pre_char = strcharpart(pre_cursor, strchars(pre_cursor)-1)
---   if pre_char ==# 'j'
---     return "\b\e"
---   else
---     return 'k'
---   end
--- end
-
 -- Miscellaneous
 v.nmap({'silent'}, '<leader>\\', ':w|:source %|:PackerInstall<CR>')
 v.nmap({'silent'}, '<leader>=', ':e! ~/.config/nvim/init.lua<CR>')

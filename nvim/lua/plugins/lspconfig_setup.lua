@@ -4,7 +4,16 @@ local lspconfig = require('lspconfig')
 local M = {}
 
 M.setup = function()
-  vim.diagnostic.config({ virtual_text = false })
+  vim.diagnostic.config({
+    float = {
+      source = 'always',
+      border = 'rounded',
+      focus = false,
+    },
+    severity_sort = true,
+    virtual_text = false,
+  })
+  vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
 
   lspconfig.tsserver.setup({
     on_attach = function(client, bufnr)
@@ -22,10 +31,10 @@ M.setup = function()
   lspconfig.eslint.setup({
     on_attach = function(client)
       vim.cmd([[
-        augroup LspEslint
+      augroup LspEslint
         autocmd! * <buffer>
         autocmd BufWritePost <buffer> EslintFixAll
-        augroup END
+      augroup END
       ]])
     end,
     settings = {
@@ -38,10 +47,10 @@ M.setup = function()
   lspconfig.stylelint_lsp.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[
-        augroup LspStylelint
+      augroup LspStylelint
         autocmd! * <buffer>
         autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()
-        augroup END
+      augroup END
       ]])
       M.attach(client, bufnr)
     end,

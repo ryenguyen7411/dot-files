@@ -11,15 +11,19 @@ function augroup(name, autocmds)
   cmd('augroup END')
 end
 
+cmd [[
+augroup Packer
+  autocmd!
+  autocmd BufWritePost init.lua luafile %
+  autocmd BufWritePost init.lua PackerCompile
+augroup end
+]]
+
 cmd('au VimEnter * cd %:p:h')
 cmd('au TextYankPost * lua vim.highlight.on_yank {on_visual = false}')
 
-cmd('au BufEnter *.hbs set filetype=html')
+cmd('au VimEnter * match TODO /\\s\\+$/')
+cmd('au InsertLeave * match TODO /\\s\\+$/')
+cmd('au InsertEnter * match NONE /\\s\\+$/')
 
-cmd [[
-  augroup Packer
-    autocmd!
-    autocmd BufWritePost init.lua luafile %
-    autocmd BufWritePost init.lua PackerCompile
-  augroup end
-]]
+cmd('au BufEnter *.hbs set filetype=html')

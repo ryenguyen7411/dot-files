@@ -86,9 +86,9 @@ M.mapping = function()
   v.nmap({'silent'}, '<leader>;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>')
   v.nmap({'silent'}, '<leader>j', '<cmd>lua require("telescope.builtin").live_grep()<cr>')
   v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>')
-  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="" })<CR>')
+  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="" })<cr>')
   v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>')
-  v.nmap({'silent'}, '<leader>,h', '<cmd>lua require("telescope.builtin").help_tags()<cr>')
+  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope oldfiles cwd_only=true<cr>')
 end
 
 return M
