@@ -27,3 +27,4 @@ cmd('au InsertLeave * match TODO /\\s\\+$/')
 cmd('au InsertEnter * match NONE /\\s\\+$/')
 
 cmd('au BufEnter *.hbs set filetype=html')
+cmd('au BufEnter *.cshtml set filetype=html')

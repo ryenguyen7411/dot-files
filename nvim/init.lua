@@ -5,7 +5,7 @@ if fn.empty(fn.glob(install_path)) > 0 then
   packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
 end
 
-require('packer').startup(function(use)
+require('packer').startup({ function(use)
   -- Packer can manage itself
   use { 'wbthomason/' .. 'packer.nvim' }
 
@@ -19,14 +19,6 @@ require('packer').startup(function(use)
       require('plugins.anyjump').setup()
     end
   }
-
-  -- use {
-  --   'neoclide/' .. 'coc.nvim',
-  --   branch='release', event='VimEnter',
-  --   config = function()
-  --     require('plugins.coc').setup()
-  --   end
-  -- }
 
   use {
     'sindrets/' .. 'diffview.nvim',
@@ -53,6 +45,13 @@ require('packer').startup(function(use)
   }
 
   use { 'itchyny/' .. 'lightline.vim' }
+
+  use {
+    'echasnovski/' .. 'mini.nvim', branch = 'stable',
+    config = function()
+      require('plugins.mini').setup()
+    end
+  }
 
   use {
     'windwp/' .. 'nvim-autopairs',
@@ -116,6 +115,13 @@ require('packer').startup(function(use)
     end
   }
 
+  use {
+    'RRethy/nvim-base16',
+    config = function()
+      require('plugins.themer').setup()
+    end
+  }
+
   use { 'folke/' .. 'tokyonight.nvim' }
 
   use {
@@ -125,7 +131,7 @@ require('packer').startup(function(use)
     end
   }
 
-  use {'tpope/' .. 'vim-commentary', event='BufRead'}
+  -- use {'tpope/' .. 'vim-commentary', event='BufRead'}
 
   use {
     'thinca/' .. 'vim-quickrun',
@@ -144,7 +150,14 @@ require('packer').startup(function(use)
   if packer_bootstrap then
     require('packer').sync()
   end
-end)
+end,
+config = {
+  display = {
+    open_fn = function()
+      return require('packer.util').float({ border = 'single' })
+    end
+  }
+}})
 
 require('settings')    -- lua/settings.lua
 require('autocmds')    -- lua/autocmds.lua

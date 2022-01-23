@@ -16,8 +16,8 @@ o.lazyredraw = true
 
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
+o.cursorline = true
 cmd('set noshowmode')
-cmd('set cursorline')
 
 o.number = true
 o.relativenumber = true
@@ -85,14 +85,13 @@ end
 g.any_jump_window_top_offset = 8
 g.any_jump_disable_default_keybindings = 1
 
--- -- coc.nvim
--- g.coc_global_extensions = { 'coc-css', 'coc-eslint8', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
-
 -- vim-startify
 g.startify_change_to_dir = 0
 
 -- lightline
-cmd('let g:lightline = { "colorscheme": "tokyonight" }')
+g.lightline = {
+  colorscheme = "tokyonight"
+}
 
 -- tokyonight
 g.tokyonight_transparent = true

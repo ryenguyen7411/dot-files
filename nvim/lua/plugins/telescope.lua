@@ -3,6 +3,8 @@ local v = require('vimp')
 local M = {}
 
 M.setup = function ()
+  local fb_actions = require "telescope".extensions.file_browser.actions
+
   local previewers = require('telescope.previewers')
   local bad_files = function (filepath)
     local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min' } -- Put all filetypes that slow you down in this array
@@ -74,6 +76,17 @@ M.setup = function ()
         override_file_sorter = true, -- override the file sorter
         case_mode = "smart_case", -- or "ignore_case" or "respect_case"
       },
+      file_browser = {
+        mappings = {
+          ['i'] = {
+            ['<C-e>'] = fb_actions.create,
+            ['<C-r>'] = fb_actions.rename,
+            ['<C-p>'] = fb_actions.move,
+            ['<C-y>'] = fb_actions.copy,
+            ['<C-d>'] = fb_actions.remove,
+          },
+        }
+      }
     }
   }
   require('telescope').load_extension('fzf')

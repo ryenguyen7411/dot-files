@@ -61,6 +61,8 @@ M.setup = function()
       },
     },
   })
+
+  M.mapping()
 end
 
 M.attach = function(client, bufnr)
@@ -70,6 +72,10 @@ M.attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gm', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>o', '<cmd>TSLspOrganize<CR>', opts)
+end
+
+M.mapping = function()
+  v.nmap({'silent'}, '<leader>u', '<cmd>LspStop<CR>|<cmd>LspStart<CR>')
 end
 
 return M
