@@ -30,9 +30,13 @@ v.xmap('}', '}zz')
 v.nmap('U', '<C-R>')
 
 -- Yank to Vim + OS clipboard
+v.nnoremap({'silent'}, 'YY', ':%y+<CR>')
 v.nnoremap('y', '"*y')
 v.xnoremap('y', '"*y')
-v.nnoremap({'silent'}, 'YY', ':%y+<CR>')
+v.nnoremap('d', '"*d')
+v.xnoremap('d', '"*d')
+v.nnoremap('x', '"*x')
+v.xnoremap('x', '"*x')
 
 -- Fast save / quit
 v.nmap({'silent'}, '<leader>w', ':w!<CR>')

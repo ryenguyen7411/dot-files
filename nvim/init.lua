@@ -46,12 +46,12 @@ require('packer').startup({ function(use)
 
   use { 'itchyny/' .. 'lightline.vim' }
 
-  use {
-    'echasnovski/' .. 'mini.nvim', branch = 'stable',
-    config = function()
-      require('plugins.mini').setup()
-    end
-  }
+  -- use {
+  --   'echasnovski/' .. 'mini.nvim', branch = 'stable',
+  --   config = function()
+  --     require('plugins.mini').setup()
+  --   end
+  -- }
 
   use {
     'windwp/' .. 'nvim-autopairs',
@@ -89,6 +89,7 @@ require('packer').startup({ function(use)
 
   use {
     'nvim-treesitter/' .. 'nvim-treesitter',
+    commit = '668de0951a36ef17016074f1120b6aacbe6c4515',
     run=':TSUpdate', event='VimEnter',
     config = function()
       require('plugins.treesitter').setup()
@@ -124,14 +125,14 @@ require('packer').startup({ function(use)
 
   use { 'folke/' .. 'tokyonight.nvim' }
 
+  use { 'tpope/' .. 'vim-commentary', event='BufRead' }
+
   use {
     'mhinz/' .. 'vim-startify',
     config = function()
       require('plugins.startify').setup()
     end
   }
-
-  -- use {'tpope/' .. 'vim-commentary', event='BufRead'}
 
   use {
     'thinca/' .. 'vim-quickrun',

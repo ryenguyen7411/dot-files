@@ -33,7 +33,7 @@ M.setup = function()
       vim.cmd([[
       augroup LspEslint
         autocmd! * <buffer>
-        autocmd BufWritePost <buffer> EslintFixAll
+        autocmd BufWritePre <buffer> EslintFixAll
       augroup END
       ]])
     end,
@@ -49,7 +49,7 @@ M.setup = function()
       vim.cmd([[
       augroup LspStylelint
         autocmd! * <buffer>
-        autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()
+        autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
       augroup END
       ]])
       M.attach(client, bufnr)
@@ -61,6 +61,17 @@ M.setup = function()
       },
     },
   })
+  lspconfig.dartls.setup({
+    on_attach = function(client, bufnr)
+      vim.cmd([[
+      augroup FlutterFormat
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+      augroup END
+      ]])
+      M.attach(client, bufnr)
+    end,
+  })
 
   M.mapping()
 end
@@ -71,11 +82,12 @@ M.attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gn', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gm', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>o', '<cmd>TSLspOrganize<CR>', opts)
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader>u', '<cmd>LspStop<CR>|<cmd>LspStart<CR>')
+  -- vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>o', '<cmd>TSLspOrganize<CR>', opts)
+  v.nmap({'silent'}, '<leader>o', '<cmd>TSLspOrganize<CR>')
+  v.nmap({'silent'}, '<leader>u', '<cmd>LspStop<CR>|<cmd>LspStart<CR>|<cmd>LspInfo<CR>')
 end
 
 return M

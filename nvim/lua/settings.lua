@@ -29,6 +29,7 @@ o.mousemodel = 'popup_setpos'
 cmd('let $LANG=\'en_US.UTF-8\'')
 o.encoding = 'utf-8'
 o.fileencoding = 'utf-8'
+o.backupcopy = 'yes'
 
 -- Fix backspace indent
 o.backspace = 'indent,eol,start'
