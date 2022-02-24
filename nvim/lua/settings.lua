@@ -16,6 +16,7 @@ o.lazyredraw = true
 
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
+o.cursorline = true
 cmd('set noshowmode')
 
 o.number = true
@@ -28,6 +29,7 @@ o.mousemodel = 'popup_setpos'
 cmd('let $LANG=\'en_US.UTF-8\'')
 o.encoding = 'utf-8'
 o.fileencoding = 'utf-8'
+o.backupcopy = 'yes'
 
 -- Fix backspace indent
 o.backspace = 'indent,eol,start'
@@ -64,14 +66,33 @@ for _, plugin in pairs(disabled_built_ins) do
    g["loaded_" .. plugin] = 1
 end
 
--- coc.nvim
-g.coc_global_extensions = { 'coc-css', 'coc-eslint8', 'coc-html', 'coc-json', 'coc-stylelintplus', 'coc-tsserver' }
+local transparents = {
+  'Normal',
+  'NonText',
+  'LineNr',
+  'SignColumn',
+  'EndOfBuffer',
+  'NormalFloat',
+  'FloatBorder',
+  'TelescopeNormal',
+  'TelescopeBorder',
+}
+
+for _, part in pairs(transparents) do
+  cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
+end
+
+-- Plugin: any-jump
+g.any_jump_window_top_offset = 8
+g.any_jump_disable_default_keybindings = 1
 
 -- vim-startify
 g.startify_change_to_dir = 0
 
 -- lightline
-cmd('let g:lightline = { "colorscheme": "tokyonight" }')
+g.lightline = {
+  colorscheme = "tokyonight"
+}
 
 -- tokyonight
 g.tokyonight_transparent = true
@@ -81,17 +102,9 @@ g.tokyonight_colors = {
   }
 }
 
--- Plugin: any-jump
-g.any_jump_window_top_offset = 8
-g.any_jump_disable_default_keybindings = 1
-
+g.quickrun_config = {
+  outputter = 'outputter/loclist'
+}
 
 cmd('filetype on')
 cmd('colorscheme tokyonight')
-cmd('au VimEnter * highlight Normal ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight NonText ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight LineNr ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight SignColumn ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight EndOfBuffer ctermbg=NONE guibg=NONE')
-cmd('au VimEnter * highlight Folded ctermfg=yellow')
-cmd('au VimEnter * highlight NormalFloat ctermbg=NONE guibg=NONE')

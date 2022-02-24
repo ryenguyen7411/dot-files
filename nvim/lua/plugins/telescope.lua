@@ -3,6 +3,8 @@ local v = require('vimp')
 local M = {}
 
 M.setup = function ()
+  local fb_actions = require "telescope".extensions.file_browser.actions
+
   local previewers = require('telescope.previewers')
   local bad_files = function (filepath)
     local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min' } -- Put all filetypes that slow you down in this array
@@ -74,6 +76,17 @@ M.setup = function ()
         override_file_sorter = true, -- override the file sorter
         case_mode = "smart_case", -- or "ignore_case" or "respect_case"
       },
+      file_browser = {
+        mappings = {
+          ['i'] = {
+            ['<C-e>'] = fb_actions.create,
+            ['<C-r>'] = fb_actions.rename,
+            ['<C-p>'] = fb_actions.move,
+            ['<C-y>'] = fb_actions.copy,
+            ['<C-d>'] = fb_actions.remove,
+          },
+        }
+      }
     }
   }
   require('telescope').load_extension('fzf')
@@ -86,9 +99,9 @@ M.mapping = function()
   v.nmap({'silent'}, '<leader>;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>')
   v.nmap({'silent'}, '<leader>j', '<cmd>lua require("telescope.builtin").live_grep()<cr>')
   v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>')
-  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="" })<CR>')
+  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="", respect_gitignore=false, grouped=true })<cr>')
   v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>')
-  v.nmap({'silent'}, '<leader>,h', '<cmd>lua require("telescope.builtin").help_tags()<cr>')
+  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope oldfiles cwd_only=true<cr>')
 end
 
 return M

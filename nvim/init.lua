@@ -5,15 +5,7 @@ if fn.empty(fn.glob(install_path)) > 0 then
   packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
 end
 
-vim.cmd [[
-  augroup Packer
-    autocmd!
-    autocmd BufWritePost init.lua luafile %
-    autocmd BufWritePost init.lua PackerCompile
-  augroup end
-]]
-
-require('packer').startup(function(use)
+require('packer').startup({ function(use)
   -- Packer can manage itself
   use { 'wbthomason/' .. 'packer.nvim' }
 
@@ -25,14 +17,6 @@ require('packer').startup(function(use)
     branch='develop', event='BufRead',
     config = function()
       require('plugins.anyjump').setup()
-    end
-  }
-
-  use {
-    'neoclide/' .. 'coc.nvim',
-    branch='release', event='VimEnter',
-    config = function()
-      require('plugins.coc').setup()
     end
   }
 
@@ -62,6 +46,13 @@ require('packer').startup(function(use)
 
   use { 'itchyny/' .. 'lightline.vim' }
 
+  -- use {
+  --   'echasnovski/' .. 'mini.nvim', branch = 'stable',
+  --   config = function()
+  --     require('plugins.mini').setup()
+  --   end
+  -- }
+
   use {
     'windwp/' .. 'nvim-autopairs',
     event='BufRead',
@@ -78,15 +69,18 @@ require('packer').startup(function(use)
     end
   }
 
+  use { 'jose-elias-alvarez/' .. 'nvim-lsp-ts-utils', event='VimEnter' }
+
   use {
     'neovim/' .. 'nvim-lspconfig',
+    after = { 'nvim-lsp-ts-utils' },
     config = function()
       require('plugins.lspconfig_setup').setup()
     end
   }
 
   use {
-    'windwp/' .. 'nvim-spectre',
+    'nvim-pack/' .. 'nvim-spectre',
     event='VimEnter',
     config = function()
       require('plugins.spectre').setup()
@@ -95,6 +89,7 @@ require('packer').startup(function(use)
 
   use {
     'nvim-treesitter/' .. 'nvim-treesitter',
+    commit = '668de0951a36ef17016074f1120b6aacbe6c4515',
     run=':TSUpdate', event='VimEnter',
     config = function()
       require('plugins.treesitter').setup()
@@ -121,7 +116,16 @@ require('packer').startup(function(use)
     end
   }
 
+  use {
+    'RRethy/nvim-base16',
+    config = function()
+      require('plugins.themer').setup()
+    end
+  }
+
   use { 'folke/' .. 'tokyonight.nvim' }
+
+  use { 'tpope/' .. 'vim-commentary', event='BufRead' }
 
   use {
     'mhinz/' .. 'vim-startify',
@@ -130,9 +134,12 @@ require('packer').startup(function(use)
     end
   }
 
-  use {'tpope/' .. 'vim-commentary', event='BufRead'}
-
-  use { 'thinca/' .. 'vim-quickrun' }
+  use {
+    'thinca/' .. 'vim-quickrun',
+    config = function()
+      require('plugins.quickrun').setup()
+    end
+  }
 
   use {'tpope/' .. 'vim-repeat', event='BufRead'}
 
@@ -144,7 +151,14 @@ require('packer').startup(function(use)
   if packer_bootstrap then
     require('packer').sync()
   end
-end)
+end,
+config = {
+  display = {
+    open_fn = function()
+      return require('packer.util').float({ border = 'single' })
+    end
+  }
+}})
 
 require('settings')    -- lua/settings.lua
 require('autocmds')    -- lua/autocmds.lua

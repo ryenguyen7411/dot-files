@@ -24,8 +24,9 @@ export PATH=$PATH:/usr/local/opt/gnu-sed/libexec/gnubin
 
 export LDFLAGS="-L/usr/local/opt/libffi/lib"
 export CPPFLAGS="-I/usr/local/opt/libffi/include"
-
 export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+
+export PATH="$PATH:$HOME/flutter/bin"
 
 # User configuration
 alias vi='nvim'
@@ -72,3 +73,8 @@ alias lf='ls -d .* --color=auto'
 alias zshr='source ~/.zshrc && clear'
 alias tmuxr='tmux source-file ~/.tmux.conf'
 killp () { kill $(lsof -ti:$1) }
+
+alias otp='~/otp-cli/otp-cli'
+
+export PNPM_HOME="/Users/ryeng/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
