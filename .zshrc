@@ -74,5 +74,7 @@ alias zshr='source ~/.zshrc && clear'
 alias tmuxr='tmux source-file ~/.tmux.conf'
 killp () { kill $(lsof -ti:$1) }
 
+alias otp='~/otp-cli/otp-cli'
+
 export PNPM_HOME="/Users/ryeng/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"

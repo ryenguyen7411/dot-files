@@ -4,6 +4,9 @@ window:
   # Window decorations
   decorations: buttonless
 
+  # Background opacity
+  opacity: 0.95
+
   # Startup Mode (changes require restart)
   startup_mode: Maximized
 
@@ -73,9 +76,6 @@ colors:
 # Bell
 # The bell is rung every time the BEL control character is received.
 #bell:
-
-# Background opacity
-background_opacity: 0.95
 
 # Live config reload (changes require restart)
 live_config_reload: true
