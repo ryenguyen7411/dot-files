@@ -3,10 +3,8 @@
 window:
   # Window decorations
   decorations: buttonless
-
   # Background opacity
   opacity: 0.95
-
   # Startup Mode (changes require restart)
   startup_mode: Maximized
 
@@ -23,19 +21,10 @@ font:
   family: SourceCodePro+Powerline+Awesome+Regular
   size: 14.0
 
-  # Offset is the extra space around each character. `offset.y` can be thought
-  # of as modifying the line spacing, and `offset.x` as modifying the letter
-  # spacing.
+  # Offset is the extra space around each character.
   offset:
     x: 1
-    y: 1
-
-  # Glyph offset determines the locations of the glyphs within their cells with
-  # the default being at the bottom. Increasing `x` moves the glyph to the
-  # right, increasing `y` moves the glyph upward.
-  #glyph_offset:
-  #  x: 0
-  #  y: 0
+    y: 0
 
   # Thin stroke font rendering (macOS only)
   use_thin_strokes: true
@@ -79,6 +68,13 @@ colors:
 
 # Live config reload (changes require restart)
 live_config_reload: true
+
+shell:
+  program: /bin/zsh
+  args:
+    - -l
+    - -c
+    - "tmux attach || tmux"
 
 # Bindings are always filled by default, but will be replaced when a new
 # binding with the same triggers is defined. To unset a default binding, it can

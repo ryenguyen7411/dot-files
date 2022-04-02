@@ -64,6 +64,7 @@ rhard() { gac; git reset --hard HEAD~"$1" }
 
 ## exit
 alias :q='exit'
+alias zm='exit'
 
 ## Colorize the ls output ##
 alias ls='ls -a --color=auto'
@@ -73,6 +74,10 @@ alias lf='ls -d .* --color=auto'
 alias zshr='source ~/.zshrc && clear'
 alias tmuxr='tmux source-file ~/.tmux.conf'
 killp () { kill $(lsof -ti:$1) }
+
+## pretty curl
+curl () { command curl ${@:1} | json_pp }
+curlw () { command curl ${@:1} }
 
 alias otp='~/otp-cli/otp-cli'
 

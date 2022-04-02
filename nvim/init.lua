@@ -46,13 +46,6 @@ require('packer').startup({ function(use)
 
   use { 'itchyny/' .. 'lightline.vim' }
 
-  -- use {
-  --   'echasnovski/' .. 'mini.nvim', branch = 'stable',
-  --   config = function()
-  --     require('plugins.mini').setup()
-  --   end
-  -- }
-
   use {
     'windwp/' .. 'nvim-autopairs',
     event='BufRead',

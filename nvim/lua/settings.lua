@@ -102,9 +102,5 @@ g.tokyonight_colors = {
   }
 }
 
-g.quickrun_config = {
-  outputter = 'outputter/loclist'
-}
-
 cmd('filetype on')
 cmd('colorscheme tokyonight')
