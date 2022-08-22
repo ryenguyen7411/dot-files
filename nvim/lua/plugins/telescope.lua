@@ -35,10 +35,12 @@ M.setup = function ()
         '--line-number',
         '--column',
         '--smart-case',
-        '--fixed-strings'
+        '--fixed-strings',
+        '--sort-files',
       },
       file_ignore_patterns = {
-        ".git/",
+        '.git/',
+        -- 'node_modules/',
       },
       buffer_previewer_maker = preview_maker,
       disable_devicons = true
@@ -57,7 +59,24 @@ M.setup = function ()
         }
       },
       find_files = {
-        disable_devicons = true
+        disable_devicons = true,
+        find_command = {
+          'fd',
+          '--type',
+          'f',
+          '--color=never',
+          '--hidden',
+          '--follow',
+          '--no-ignore-vcs',
+          '--exclude=node_modules',
+          '--exclude=.git',
+          '--exclude=dist*',
+          '--exclude=build',
+          '--exclude=.idea/',
+          '--exclude=Pods/',
+          '--exclude=.gradle',
+          '--exclude=.next',
+        },
       },
       file_browser = {
         disable_devicons = true
@@ -96,12 +115,12 @@ M.setup = function ()
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader>;', '<cmd>lua require("telescope.builtin").find_files({ hidden=true })<cr>')
+  v.nmap({'silent'}, '<leader>;', '<cmd>lua require("telescope.builtin").find_files()<cr>')
   v.nmap({'silent'}, '<leader>j', '<cmd>lua require("telescope.builtin").live_grep()<cr>')
   v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>')
   v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="", respect_gitignore=false, grouped=true })<cr>')
   v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ sort_lastused=true, default_selection_index=2 })<cr>')
-  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope oldfiles cwd_only=true<cr>')
+  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope resume<cr>')
 end
 
 return M

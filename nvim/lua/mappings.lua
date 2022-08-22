@@ -37,6 +37,7 @@ v.nnoremap('d', '"*d')
 v.xnoremap('d', '"*d')
 v.nnoremap('x', '"*x')
 v.xnoremap('x', '"*x')
+v.xnoremap('p', '"_dP')
 
 -- Fast save / quit
 v.nmap({'silent'}, '<leader>w', ':w!<CR>')
@@ -74,7 +75,7 @@ v.nmap({'silent'}, '<leader><BS>j', ':e! ~/.config/nvim/init.lua<CR>')
 v.nmap({'silent'}, '<leader>n', ':enew<CR>')
 v.nmap({'silent'}, '<leader><cr>', ':nohl<CR><C-L>')
 v.nmap({'silent'}, '<leader><BS><CR>', ':%bdelete!<CR>')
-v.nmap({'silent'}, '<leader><BS><BS>', 'ggdG:w<CR><C-w>q')
+v.nnoremap({'silent'}, '<leader><BS><BS>', 'ggdG:w<CR><C-w>q')
 
 -- Vim profiling
 v.nmap({'silent'}, '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>')

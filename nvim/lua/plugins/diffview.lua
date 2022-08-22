@@ -26,7 +26,7 @@ end
 
 M.mapping = function()
   v.nmap({'silent'}, '<leader>r', ':DiffviewOpen<CR>')
-  v.nmap({'silent'}, '<leader>f', ':DiffviewFileHistory<CR>')
+  v.nmap({'silent'}, '<leader>f', ':DiffviewFileHistory %<CR>')
 end
 
 return M

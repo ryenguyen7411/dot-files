@@ -82,7 +82,6 @@ require('packer').startup({ function(use)
 
   use {
     'nvim-treesitter/' .. 'nvim-treesitter',
-    commit = '668de0951a36ef17016074f1120b6aacbe6c4515',
     run=':TSUpdate', event='VimEnter',
     config = function()
       require('plugins.treesitter').setup()
@@ -139,6 +138,13 @@ require('packer').startup({ function(use)
   use {'tpope/' .. 'vim-surround', event='BufRead'}
 
   use { 'svermeulen/' .. 'vimpeccable' }
+
+  -- use {
+  --   'nacro90/' .. 'numb.nvim',
+  --   config = function()
+  --     require('numb').setup()
+  --   end
+  -- }
 
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then

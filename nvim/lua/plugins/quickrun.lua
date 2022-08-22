@@ -9,7 +9,7 @@ end
 M.mapping = function()
   local notes = '~/notes'
   local curl = notes .. '/curl.sh'
-  local output = notes .. '/output.json'
+  local output = notes .. '/output/output.json'
 
   -- Curl Runner
   v.nnoremap({'silent'}, '<leader>p', function ()
@@ -22,7 +22,8 @@ M.mapping = function()
   end)
 
   -- 1. QuickRun save to output, 2. vsplit output file, 3. format then save
-  v.vmap({'silent'}, '<CR>', ':QuickRun -outputter file:name=' .. output .. ':append=0<CR>|:vs ' .. output .. '<CR>|gfgg|:w<CR>')
+  v.nmap({'silent'}, '\\', '{V}|:QuickRun -outputter file:name=' .. output .. ':append=0<CR>|:vs ' .. output .. '<CR>gfgg|:w<CR>')
+  v.nmap({'silent'}, ']\\', '{V}|:QuickRun -outputter file:name=' .. output .. ':append=0<CR>|:vs ' .. output .. '<CR>:w<CR>')
 end
 
 return M

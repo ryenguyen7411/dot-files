@@ -27,7 +27,6 @@ end
 M.mapping = function()
   -- open plugin -> set smaller pane -> switch pane side
   v.nnoremap({'silent'}, '<leader>i', ':lua require("spectre").open()<CR><Space>60<C-w><<CR><C-w>r')
-  v.vnoremap({'silent'}, '<leader>i', ':lua require("spectre").open_visual()<CR><CR><Space>60<C-w><<CR><C-w>r')
 end
 
 return M

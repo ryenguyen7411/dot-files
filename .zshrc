@@ -40,7 +40,7 @@ alias tr='tmux a -t'
 alias gac='git add --all && clear'
 alias gcm='git checkout master && git pull && clear'
 alias gcd='git checkout develop && git pull && clear'
-alias gcg='git add --all && git stash && git checkout staging && git reset --hard origin/staging && clear'
+alias gcg='git add --all && git stash && git checkout staging && git fetch && git reset --hard origin/staging && clear'
 alias gcs='gac && stash && git checkout release-loship && git pull && clear'
 alias gcss='gac && stash && git checkout release && git pull && clear'
 alias gct='gac && git commit -m "temp" --no-verify && clear'
@@ -73,13 +73,20 @@ alias lf='ls -d .* --color=auto'
 ## helper
 alias zshr='source ~/.zshrc && clear'
 alias tmuxr='tmux source-file ~/.tmux.conf'
-killp () { kill $(lsof -ti:$1) }
+killp() { kill $(lsof -ti:$1) }
 
-## pretty curl
-curl () { command curl ${@:1} | json_pp }
-curlw () { command curl ${@:1} }
+alias otp='~/otp-cli/otp-cli clip'
+alias otpshow='~/otp-cli/otp-cli show'
 
-alias otp='~/otp-cli/otp-cli'
+senv() {
+  if [ "$1" = "which" ]; then
+    ~/env env;
+  elif [ "$1" = "prod" ]; then
+    rm -rf ~/env && ln -s ~/notes/env/prod.sh ~/env;
+  else
+    rm -rf ~/env && ln -s ~/notes/env/dev.sh ~/env;
+  fi
+}
 
 export PNPM_HOME="/Users/ryeng/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
