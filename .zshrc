@@ -84,9 +84,9 @@ senv() {
   if [ "$1" = "which" ]; then
     ~/env env;
   elif [ "$1" = "prod" ]; then
-    rm -rf ~/env && ln -s ~/notes/env/prod.sh ~/env;
+    rm -rf ~/env && ln -s ~/notes/env/prod ~/env;
   else
-    rm -rf ~/env && ln -s ~/notes/env/dev.sh ~/env;
+    rm -rf ~/env && ln -s ~/notes/env/dev ~/env;
   fi
 }
 

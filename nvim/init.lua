@@ -13,32 +13,28 @@ require('packer').startup({ function(use)
   use { 'nvim-lua/' .. 'popup.nvim' }
 
   use {
-    'ryenguyen7411/' .. 'any-jump.vim',
-    branch='develop', event='BufRead',
+    'ryenguyen7411/' .. 'any-jump.vim', branch='develop', event='BufRead',
     config = function()
       require('plugins.anyjump').setup()
     end
   }
 
   use {
-    'sindrets/' .. 'diffview.nvim',
-    event='VimEnter',
+    'sindrets/' .. 'diffview.nvim', event='VimEnter',
     config = function()
       require('plugins.diffview').setup()
     end
   }
 
   use {
-    'mattn/' .. 'emmet-vim',
-    event='BufRead',
+    'mattn/' .. 'emmet-vim', event='BufRead',
     config = function()
       require('plugins.emmet').setup()
     end
   }
 
   use {
-    'lukas-reineke/' .. 'indent-blankline.nvim',
-    event='BufRead',
+    'lukas-reineke/' .. 'indent-blankline.nvim', event='BufRead',
     config = function()
       require('plugins.indent_blankline').setup()
     end
@@ -47,16 +43,14 @@ require('packer').startup({ function(use)
   use { 'itchyny/' .. 'lightline.vim' }
 
   use {
-    'windwp/' .. 'nvim-autopairs',
-    event='BufRead',
+    'windwp/' .. 'nvim-autopairs', event='BufRead',
     config = function()
       require('plugins.autopair').setup()
     end
   }
 
   use {
-    'tveskag/' .. 'nvim-blame-line',
-    event='BufRead',
+    'tveskag/' .. 'nvim-blame-line', event='BufRead',
     config = function()
       require('plugins.blameline').setup()
     end
@@ -73,8 +67,7 @@ require('packer').startup({ function(use)
   }
 
   use {
-    'nvim-treesitter/' .. 'nvim-treesitter',
-    run=':TSUpdate', event='VimEnter',
+    'nvim-treesitter/' .. 'nvim-treesitter', run=':TSUpdate', event='VimEnter',
     config = function()
       require('plugins.treesitter').setup()
     end

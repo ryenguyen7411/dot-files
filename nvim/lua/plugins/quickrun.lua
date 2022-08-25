@@ -11,19 +11,15 @@ M.mapping = function()
   local curl = notes .. '/curl.sh'
   local output = notes .. '/output/output.json'
 
-  -- Curl Runner
-  v.nnoremap({'silent'}, '<leader>p', function ()
-    local path = vim.fn.expand('%:p:h')
-    if string.find(path, '/notes') then
-      vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", default_text = vim.fn.getline(".") })')
-    else
-      vim.cmd('tabnew ' .. curl)
-    end
-  end)
+  local visual = '{V}'
+  local add_quotes = ':s/\\v "(.*)"/ \'"\'"\\1"\'"\'/g<CR>'
+  local add_echo = ':s/\\vcurl/echo curl/g<CR>'
+  local quickrun = ':QuickRun -outputter file:name=' .. output .. ':append=0<CR>'
+  local show_formatted_output = ':vs ' .. output .. '<CR>gfgg|:w<CR>'
 
   -- 1. QuickRun save to output, 2. vsplit output file, 3. format then save
-  v.nmap({'silent'}, '\\', '{V}|:QuickRun -outputter file:name=' .. output .. ':append=0<CR>|:vs ' .. output .. '<CR>gfgg|:w<CR>')
-  v.nmap({'silent'}, ']\\', '{V}|:QuickRun -outputter file:name=' .. output .. ':append=0<CR>|:vs ' .. output .. '<CR>:w<CR>')
+  v.nmap({'silent'}, ']\\', visual .. add_quotes .. 'gv' .. add_echo .. ':noh<CR>\\')
+  v.nmap({'silent'}, '\\', visual .. quickrun .. show_formatted_output)
 end
 
 return M
