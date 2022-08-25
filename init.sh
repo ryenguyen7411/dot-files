@@ -19,3 +19,8 @@ fi
 if [ ! -e ~/.tmux.conf.local ]; then
   ln -s "$(pwd)/.tmux.conf.local" ~/.tmux.conf.local
 fi
+
+# kitty
+if [ ! -e ~/.config/kitty/kitty.conf ]; then
+  ln -s "$(pwd)/kitty.conf" ~/.config/kitty/kitty.conf
+fi

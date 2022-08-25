@@ -15,7 +15,7 @@ M.mapping = function()
   v.nnoremap({'silent'}, '<leader>p', function ()
     local path = vim.fn.expand('%:p:h')
     if string.find(path, '/notes') then
-      vim.cmd('lua require("telescope.builtin").live_grep({ cwd="' .. notes .. '" })')
+      vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", default_text = vim.fn.getline(".") })')
     else
       vim.cmd('tabnew ' .. curl)
     end

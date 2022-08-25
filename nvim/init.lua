@@ -73,14 +73,6 @@ require('packer').startup({ function(use)
   }
 
   use {
-    'nvim-pack/' .. 'nvim-spectre',
-    event='VimEnter',
-    config = function()
-      require('plugins.spectre').setup()
-    end
-  }
-
-  use {
     'nvim-treesitter/' .. 'nvim-treesitter',
     run=':TSUpdate', event='VimEnter',
     config = function()
@@ -108,13 +100,6 @@ require('packer').startup({ function(use)
     end
   }
 
-  use {
-    'RRethy/nvim-base16',
-    config = function()
-      require('plugins.themer').setup()
-    end
-  }
-
   use { 'folke/' .. 'tokyonight.nvim' }
 
   use { 'tpope/' .. 'vim-commentary', event='BufRead' }
@@ -139,12 +124,12 @@ require('packer').startup({ function(use)
 
   use { 'svermeulen/' .. 'vimpeccable' }
 
-  -- use {
-  --   'nacro90/' .. 'numb.nvim',
-  --   config = function()
-  --     require('numb').setup()
-  --   end
-  -- }
+  use {
+    'nacro90/' .. 'numb.nvim',
+    config = function()
+      require('numb').setup()
+    end
+  }
 
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then

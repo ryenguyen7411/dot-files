@@ -6,6 +6,7 @@ M.setup = function()
   local cb = require('diffview.config').diffview_callback
   require('diffview').setup{
     use_icons = false,
+    enhanced_diff_hl = true,
     key_bindings = {
       view = {
         ['<Leader>r'] = cb('focus_files'),

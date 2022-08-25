@@ -29,7 +29,9 @@ export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
 export PATH="$PATH:$HOME/flutter/bin"
 
 # User configuration
-alias vi='nvim'
+# alias vi='nvim'
+alias vi='~/nvim-macos/bin/nvim'
+alias suvi='sudo ~/nvim-macos/bin/nvim'
 alias n='sudo n'
 
 ## tmux
@@ -90,3 +92,9 @@ senv() {
 
 export PNPM_HOME="/Users/ryeng/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+if [ -v $TMUX ]; then
+  tmux attach || tmux
+fi
