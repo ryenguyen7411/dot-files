@@ -15,21 +15,17 @@ M.setup = function()
   })
   vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
 
-  -- lspconfig.tsserver.setup({
-  --   on_attach = function(client, bufnr)
-  --     -- client.server_capabilities.document_formatting = false
-  --     -- client.server_capabilities.document_range_formatting = false
+  lspconfig.tsserver.setup({
+    on_attach = function(client, bufnr)
+      client.server_capabilities.documentFormattingProvider = false
+      client.server_capabilities.documentRangeFormattingProvider = false
 
-  --     local ts_utils = require('nvim-lsp-ts-utils')
-  --     ts_utils.setup({})
-  --     ts_utils.setup_client(client)
-
-  --     M.attach(client, bufnr)
-  --   end,
-  --   handlers = {['textDocument/publishDiagnostics'] = function(...) end}
-  -- })
+      M.attach(client, bufnr)
+    end,
+    handlers = {['textDocument/publishDiagnostics'] = function(...) end}
+  })
   lspconfig.eslint.setup({
-    on_attach = function(client)
+    on_attach = function(client, bufnr)
       vim.cmd([[
       augroup LspEslint
         autocmd! * <buffer>
@@ -37,9 +33,7 @@ M.setup = function()
       augroup END
       ]])
 
-      local ts_utils = require('nvim-lsp-ts-utils')
-      ts_utils.setup({})
-      ts_utils.setup_client(client)
+      M.attach(client, bufnr)
     end,
     settings = {
       codeActionOnSave = {
@@ -56,6 +50,7 @@ M.setup = function()
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
       augroup END
       ]])
+
       M.attach(client, bufnr)
     end,
     settings = {
@@ -73,6 +68,7 @@ M.setup = function()
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
       augroup END
       ]])
+
       M.attach(client, bufnr)
     end,
   })
@@ -92,10 +88,10 @@ M.attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gm', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gf', '<cmd>lua vim.lsp.buf.formatting_sync()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gk', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader>o', '<cmd>TSLspOrganize<CR>')
   v.nmap({'silent'}, '<leader>u', '<cmd>LspStop<CR>|<cmd>LspStart<CR>|<cmd>LspInfo<CR>')
 end
 

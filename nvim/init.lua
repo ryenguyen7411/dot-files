@@ -56,11 +56,8 @@ require('packer').startup({ function(use)
     end
   }
 
-  use { 'jose-elias-alvarez/' .. 'nvim-lsp-ts-utils', event='VimEnter' }
-
   use {
     'neovim/' .. 'nvim-lspconfig',
-    after = { 'nvim-lsp-ts-utils' },
     config = function()
       require('plugins.lspconfig_setup').setup()
     end
