@@ -37,11 +37,11 @@ v.nnoremap('d', '"*d')
 v.xnoremap('d', '"*d')
 v.nnoremap('x', '"*x')
 v.xnoremap('x', '"*x')
+v.xnoremap('p', '"_dP')
 
 -- Fast save / quit
 v.nmap({'silent'}, '<leader>w', ':w!<CR>')
 v.nmap({'silent'}, '<leader>qq', ':bp|bd #<CR>')
-v.nnoremap({'silent'}, '<leader><BS>', ':%bdelete!<CR>')
 
 -- Keep the cursor in place while joining lines
 v.nnoremap('J', 'mzJ`z')
@@ -70,10 +70,12 @@ v.nmap({'silent'}, '<Tab>', ':bnext<CR>')
 v.nmap({'silent'}, '<S-Tab>', ':bprevious<CR>')
 
 -- Miscellaneous
-v.nmap({'silent'}, '<leader>\\', ':w|:source %|:PackerInstall<CR>')
-v.nmap({'silent'}, '<leader>=', ':e! ~/.config/nvim/init.lua<CR>')
+v.nmap({'silent'}, '<leader><BS>i', ':w|:source %|:PackerInstall<CR>')
+v.nmap({'silent'}, '<leader><BS>j', ':e! ~/.config/nvim/init.lua<CR>')
 v.nmap({'silent'}, '<leader>n', ':enew<CR>')
 v.nmap({'silent'}, '<leader><cr>', ':nohl<CR><C-L>')
+v.nmap({'silent'}, '<leader><BS><CR>', ':%bdelete!<CR>')
+v.nnoremap({'silent'}, '<leader><BS><BS>', 'ggdG:w<CR><C-w>q')
 
 -- Vim profiling
 v.nmap({'silent'}, '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>')

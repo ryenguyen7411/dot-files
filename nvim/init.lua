@@ -13,32 +13,28 @@ require('packer').startup({ function(use)
   use { 'nvim-lua/' .. 'popup.nvim' }
 
   use {
-    'ryenguyen7411/' .. 'any-jump.vim',
-    branch='develop', event='BufRead',
+    'ryenguyen7411/' .. 'any-jump.vim', branch='develop', event='BufRead',
     config = function()
       require('plugins.anyjump').setup()
     end
   }
 
   use {
-    'sindrets/' .. 'diffview.nvim',
-    event='VimEnter',
+    'sindrets/' .. 'diffview.nvim', event='VimEnter',
     config = function()
       require('plugins.diffview').setup()
     end
   }
 
   use {
-    'mattn/' .. 'emmet-vim',
-    event='BufRead',
+    'mattn/' .. 'emmet-vim', event='BufRead',
     config = function()
       require('plugins.emmet').setup()
     end
   }
 
   use {
-    'lukas-reineke/' .. 'indent-blankline.nvim',
-    event='BufRead',
+    'lukas-reineke/' .. 'indent-blankline.nvim', event='BufRead',
     config = function()
       require('plugins.indent_blankline').setup()
     end
@@ -46,51 +42,29 @@ require('packer').startup({ function(use)
 
   use { 'itchyny/' .. 'lightline.vim' }
 
-  -- use {
-  --   'echasnovski/' .. 'mini.nvim', branch = 'stable',
-  --   config = function()
-  --     require('plugins.mini').setup()
-  --   end
-  -- }
-
   use {
-    'windwp/' .. 'nvim-autopairs',
-    event='BufRead',
+    'windwp/' .. 'nvim-autopairs', event='BufRead',
     config = function()
       require('plugins.autopair').setup()
     end
   }
 
   use {
-    'tveskag/' .. 'nvim-blame-line',
-    event='BufRead',
+    'tveskag/' .. 'nvim-blame-line', event='BufRead',
     config = function()
       require('plugins.blameline').setup()
     end
   }
 
-  use { 'jose-elias-alvarez/' .. 'nvim-lsp-ts-utils', event='VimEnter' }
-
   use {
     'neovim/' .. 'nvim-lspconfig',
-    after = { 'nvim-lsp-ts-utils' },
     config = function()
       require('plugins.lspconfig_setup').setup()
     end
   }
 
   use {
-    'nvim-pack/' .. 'nvim-spectre',
-    event='VimEnter',
-    config = function()
-      require('plugins.spectre').setup()
-    end
-  }
-
-  use {
-    'nvim-treesitter/' .. 'nvim-treesitter',
-    commit = '668de0951a36ef17016074f1120b6aacbe6c4515',
-    run=':TSUpdate', event='VimEnter',
+    'nvim-treesitter/' .. 'nvim-treesitter', run=':TSUpdate', event='VimEnter',
     config = function()
       require('plugins.treesitter').setup()
     end
@@ -113,13 +87,6 @@ require('packer').startup({ function(use)
     after = { 'telescope-project.nvim', 'telescope-file-browser.nvim', 'telescope-fzf-native.nvim' },
     config = function()
       require('plugins.telescope').setup()
-    end
-  }
-
-  use {
-    'RRethy/nvim-base16',
-    config = function()
-      require('plugins.themer').setup()
     end
   }
 
@@ -146,6 +113,13 @@ require('packer').startup({ function(use)
   use {'tpope/' .. 'vim-surround', event='BufRead'}
 
   use { 'svermeulen/' .. 'vimpeccable' }
+
+  use {
+    'nacro90/' .. 'numb.nvim',
+    config = function()
+      require('numb').setup()
+    end
+  }
 
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then

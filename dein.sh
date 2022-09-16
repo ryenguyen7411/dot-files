@@ -19,3 +19,8 @@ fi
 if [ -e ~/.tmux.conf.local ]; then
   rm ~/.tmux.conf.local
 fi
+
+# Kitty
+if [ -e ~/.config/kitty/kitty.conf ]; then
+  rm ~/.config/kitty/kitty.conf
+fi

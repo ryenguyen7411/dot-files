@@ -13,6 +13,7 @@ o.hidden = true
 o.updatetime = 250
 o.autoread = true
 o.lazyredraw = true
+o.laststatus = 3
 
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
@@ -100,10 +101,6 @@ g.tokyonight_colors = {
   diff = {
     text = '#3b4f77'
   }
-}
-
-g.quickrun_config = {
-  outputter = 'outputter/loclist'
 }
 
 cmd('filetype on')
