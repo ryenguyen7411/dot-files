@@ -13,6 +13,7 @@ o.hidden = true
 o.updatetime = 250
 o.autoread = true
 o.lazyredraw = true
+o.laststatus = 3
 
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"

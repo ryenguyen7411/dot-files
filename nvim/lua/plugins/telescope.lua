@@ -103,6 +103,7 @@ M.setup = function ()
           '--exclude=Pods/',
           '--exclude=.gradle',
           '--exclude=.next',
+          '--exclude=vendor/bundle/'
         },
       },
     },
