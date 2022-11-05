@@ -9,6 +9,13 @@ M.setup = function()
   require('diffview').setup{
     use_icons = false,
     enhanced_diff_hl = true,
+    view = {
+      merge_tool = {
+        -- Config for conflicted files in diff views during a merge or rebase.
+        layout = "diff3_mixed",
+        disable_diagnostics = true,
+      },
+    },
     key_bindings = {
       view = {
         ['<Leader>r'] = actions.focus_files,

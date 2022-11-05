@@ -77,6 +77,12 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   })
+  lspconfig.vimls.setup{
+    on_attach = function(client, bufnr)
+      require("aerial").on_attach(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  }
 
   M.mapping()
 end
@@ -87,7 +93,10 @@ M.attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gn', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gm', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gf', '<cmd>lua vim.lsp.buf.formatting_sync()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
+
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '[[', '<cmd>AerialPrev<CR>', {})
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', ']]', '<cmd>AerialNext<CR>', {})
 end
 
 M.mapping = function()

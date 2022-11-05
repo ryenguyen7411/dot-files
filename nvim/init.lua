@@ -121,6 +121,31 @@ require('packer').startup({ function(use)
     end
   }
 
+  use { 'AndrewRadev/splitjoin.vim' }
+
+  use {
+    'stevearc/' .. 'aerial.nvim',
+    config = function()
+      require('aerial').setup({
+        backends = {"lsp", "treesitter"},
+        layout = {
+          default_direction = 'prefer_left'
+        },
+      })
+    end
+  }
+
+  -- use {
+  --   'axkirillov/' .. 'easypick.nvim',
+  --   after = 'telescope.nvim',
+  --   config = function()
+  --     require('easypick').setup({
+  --       pickers = {
+  --       }
+  --     })
+  --   end
+  -- }
+
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then
     require('packer').sync()

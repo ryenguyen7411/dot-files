@@ -29,16 +29,15 @@ M.setup = function ()
     defaults = {
       vimgrep_arguments = {
         'rg',
-        '--hidden',
+        '-FHLSn.',
         '--color=never',
-        '--no-heading',
-        '--with-filename',
-        '--line-number',
         '--column',
-        '--smart-case',
-        '--fixed-strings',
+        '--no-heading',
         '--sort-files',
         '--trim',
+        '--no-ignore',
+        '--ignore-file',
+        os.getenv("HOME") .. '/.config/rg/.rgignore',
       },
       file_ignore_patterns = {
         '.git/',
@@ -88,22 +87,13 @@ M.setup = function ()
       find_files = {
         find_command = {
           'fd',
-          '--type',
-          'f',
+          '-FHIL',
+          '--type=f',
           '--color=never',
-          '--hidden',
-          '--follow',
-          '--strip-cwd-prefix', -- Remove ./ prefix in find_files
-          '--no-ignore-vcs',
-          '--exclude=node_modules',
-          '--exclude=.git',
-          '--exclude=dist*',
-          '--exclude=build',
-          '--exclude=.idea/',
-          '--exclude=Pods/',
-          '--exclude=.gradle',
-          '--exclude=.next',
-          '--exclude=vendor/bundle/'
+          '--strip-cwd-prefix',
+          '--no-ignore',
+          '--ignore-file',
+          os.getenv("HOME") .. '/.config/fd/.fdignore',
         },
       },
     },
@@ -132,6 +122,8 @@ M.setup = function ()
   }
   require('telescope').load_extension('fzf')
   require('telescope').load_extension('file_browser')
+  require('telescope').load_extension('aerial')
+  -- require('telescope').load_extension('live_grep_args')
 
   M.mapping()
 end
@@ -145,6 +137,7 @@ M.mapping = function()
       vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find curl" })')
     else
       vim.cmd('lua require("telescope.builtin").find_files()')
+      -- vim.cmd('Easypick find_files')
     end
   end)
   v.nnoremap({'silent'}, '<leader>j', function ()
@@ -164,6 +157,8 @@ M.mapping = function()
   v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="", respect_gitignore=false, grouped=true })<cr>')
   v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<cr>')
   v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope resume<cr>')
+  v.nmap({'silent'}, '<leader>a', '<cmd>Telescope aerial<CR>')
 end
 
 return M
+

@@ -11,14 +11,15 @@ o.splitright = true
 
 o.hidden = true
 o.updatetime = 250
-o.autoread = true
-o.lazyredraw = true
+ o.autoread = true
+-- o.lazyredraw = true
 o.laststatus = 3
 
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
 o.cursorline = true
 cmd('set noshowmode')
+cmd('set cmdheight=0')
 
 o.number = true
 o.relativenumber = true
@@ -68,15 +69,34 @@ for _, plugin in pairs(disabled_built_ins) do
 end
 
 local transparents = {
-  'Normal',
-  'NonText',
-  'LineNr',
-  'SignColumn',
-  'EndOfBuffer',
+  "Normal",
+  "NormalNC",
+  "Comment",
+  "Constant",
+  "Special",
+  "Identifier",
+  "Statement",
+  "PreProc",
+  "Type",
+  "Underlined",
+  "Todo",
+  "String",
+  "Function",
+  "Conditional",
+  "Repeat",
+  "Operator",
+  "Structure",
+  "LineNr",
+  "NonText",
+  "SignColumn",
+  "CursorLineNr",
+  "EndOfBuffer",
+
   'NormalFloat',
   'FloatBorder',
   'TelescopeNormal',
   'TelescopeBorder',
+  'TelescopeMultiSelection',
 }
 
 for _, part in pairs(transparents) do

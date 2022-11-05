@@ -310,13 +310,6 @@ bind ` send-prefix -2
 
 # disable tmux status line
 set -g status off
-
-# switch panes using Alt-arrow without prefix
-bind -n M-Left select-pane -L
-bind -n M-Right select-pane -R
-bind -n M-Up select-pane -U
-bind -n M-Down select-pane -D
-
 set -g base-index 1
 set -g status-keys vi
 setw -g mode-keys vi
@@ -324,16 +317,13 @@ setw -g monitor-activity on
 
 # Pane helper
 bind-key | split-window -h
-bind-key M-j resize-pane -D
-bind-key M-k resize-pane -U
-bind-key M-h resize-pane -L
-bind-key M-l resize-pane -R
 
-# Use Shift-arrow keys without prefix key to switch panes
-bind -n S-Left select-pane -L
-bind -n S-Right select-pane -R
-bind -n S-Up select-pane -U
-bind -n S-Down select-pane -D
+bind-key -r -T prefix       H                    resize-pane -L 10
+bind-key -r -T prefix       J                    resize-pane -D 10
+bind-key -r -T prefix       K                    resize-pane -U 10
+bind-key -r -T prefix       L                    resize-pane -R 10
+
+unbind C-l
 
 # Alt arrow to switch windows
 bind -n M-Left  previous-window
