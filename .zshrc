@@ -85,11 +85,27 @@ senv() {
   fi
 }
 
+ConsoleLogWriter() {
+
+}
+
+StringLogParser() {
+  echo "abcdef"
+}
+
+GcLog() {
+  read -r curl
+
+  content="$(StringLogParser("$curl"))"
+  echo "hello world" $content
+}
+
 export PNPM_HOME="/Users/ryeng/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.rbenv/shims:${PATH}"
+export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
 
 if [ -v $TMUX ]; then
   tmux attach || tmux

@@ -1,7 +1,8 @@
 # Wordpress.
 # Themes
-/wp-content/themes/*
-!/wp-content/themes/loshipblog/
+# /wp-content/themes/*
+# !/wp-content/themes/loshipblog/
+# !/wp-content/themes/supportcenter/
 
 # Uploads
 /wp-content/uploads/*
@@ -21,6 +22,12 @@ yarn-error.log
 
 # Build files
 **/*/dist/*
+
+# Remix Run
+#
+.cache/
+/build
+/public/build
 
 ###
 .git

@@ -1,6 +1,5 @@
 local v = require('vimp')
 local lspconfig = require('lspconfig')
-
 local M = {}
 
 M.setup = function()
@@ -19,10 +18,10 @@ M.setup = function()
     on_attach = function(client, bufnr)
       client.server_capabilities.documentFormattingProvider = false
       client.server_capabilities.documentRangeFormattingProvider = false
-
       M.attach(client, bufnr)
     end,
-    handlers = {['textDocument/publishDiagnostics'] = function(...) end}
+    autostart = false,
+    -- handlers = {['textDocument/publishDiagnostics'] = function(...) end}
   })
   lspconfig.eslint.setup({
     on_attach = function(client, bufnr)
@@ -32,7 +31,6 @@ M.setup = function()
         autocmd BufWritePre <buffer> EslintFixAll
       augroup END
       ]])
-
       M.attach(client, bufnr)
     end,
     settings = {
@@ -50,7 +48,6 @@ M.setup = function()
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
       augroup END
       ]])
-
       M.attach(client, bufnr)
     end,
     settings = {
@@ -63,7 +60,7 @@ M.setup = function()
   lspconfig.dartls.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[
-      augroup FlutterFormat
+      augroup LspFlutter
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
       augroup END
@@ -83,6 +80,64 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   }
+  lspconfig.intelephense.setup({
+    on_attach = function(client, bufnr)
+      vim.cmd([[
+      augroup PhpLint
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
+      augroup END
+      ]])
+      M.attach(client, bufnr)
+    end,
+  })
+  -- lspconfig.diagnosticls.setup{
+  --   on_attach = function(client, bufnr)
+  --     vim.cmd([[
+  --     augroup LspCustomlint
+  --       autocmd! * <buffer>
+  --       autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
+  --     augroup END
+  --     ]])
+  --     M.attach(client, bufnr)
+  --   end,
+  --   init_options = {
+  --     filetypes = {
+  --       php = {"phpcs"},
+  --     },
+  --     linters = {
+  --       phpcs = {
+  --         sourceName = "phpcs",
+  --         command = "phpcs",
+  --         args = {"--standard=.phplint.xml", "--report=emacs", "-s", "-"},
+  --         debounce = 300,
+  --         formatLines = 1,
+  --         formatPattern = {
+  --           "^.*:(\\d+):(\\d+):\\s+(.*)\\s+-\\s+(.*)(\\r|\\n)*$",
+  --           { line = 1, column = 2, message = 4, security = 3 }
+  --         },
+  --         securities = {
+  --           error = "error",
+  --           warning = "warning",
+  --         },
+  --         rootPatterns = { '.phplint.xml' },
+  --         requiredFiles = { '.phplint.xml' },
+  --       },
+  --     },
+  --     formatFiletypes = {
+  --       php = {"phpcbf"},
+  --     },
+  --     formatters = {
+  --       phpcbf = {
+  --         command = "phpcbf",
+  --         args = {'--standard=.phplint.xml', vim.api.nvim_buf_get_name(0), "-"},
+  --         ignoreExitCode = true,
+  --         rootPatterns = { '.phplint.xml' },
+  --         requiredFiles = { '.phplint.xml' },
+  --       },
+  --     },
+  --   },
+  -- }
 
   M.mapping()
 end
@@ -100,7 +155,7 @@ M.attach = function(client, bufnr)
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader>u', '<cmd>LspStop<CR>|<cmd>LspStart<CR>|<cmd>LspInfo<CR>')
+  v.nmap({'silent'}, '<leader>u', '<cmd>LspStop<CR>|<cmd>LspStart<CR>')
 end
 
 return M
