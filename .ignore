@@ -1,0 +1,41 @@
+# Wordpress.
+# Themes
+# /wp-content/themes/*
+# !/wp-content/themes/loshipblog/
+# !/wp-content/themes/supportcenter/
+
+# Uploads
+/wp-content/uploads/*
+
+# Log files
+*.log
+
+# OSX
+#
+.DS_Store
+
+# node.js
+#
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build files
+**/*/dist/*
+
+# Remix Run
+#
+.cache/
+/build
+/public/build
+
+###
+.git
+dist*
+build
+.idea/
+Pods/
+.gradle
+.next
+vendor/bundle/
+.cxx/

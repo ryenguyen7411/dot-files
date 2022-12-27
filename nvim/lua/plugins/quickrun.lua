@@ -19,7 +19,7 @@ M.mapping = function()
   local show_formatted_output = ':vs ' .. output .. '<CR>gfgg|:w<CR>'
 
   -- 1. QuickRun save to output, 2. vsplit output file, 3. format then save
-  v.nmap({'silent'}, ']\\', visual .. add_quotes .. add_echo .. ':noh<CR>' .. visual .. quickrun .. 'uj' .. show_formatted_output)
+  v.nmap({'silent'}, ']\\', visual .. add_quotes .. add_echo .. ':noh<CR>' .. visual .. quickrun .. 'ju' .. show_formatted_output)
   v.nmap({'silent'}, '\\', visual .. quickrun .. 'j' .. show_formatted_output)
 end
 

@@ -9,7 +9,7 @@ M.setup = function ()
 
   local preview_maker = function (filepath, bufnr, opts)
     local bad_files = function (filepath)
-      local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min' } -- Put all filetypes that slow you down in this array
+      local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min', 'build/' } -- Put all filetypes that slow you down in this array
       for _, v in ipairs(_bad) do
         if filepath:match(v) then
           return false
@@ -29,19 +29,18 @@ M.setup = function ()
     defaults = {
       vimgrep_arguments = {
         'rg',
-        '--hidden',
+        '-FHLSn.',
         '--color=never',
-        '--no-heading',
-        '--with-filename',
-        '--line-number',
         '--column',
-        '--smart-case',
-        '--fixed-strings',
+        '--no-heading',
         '--sort-files',
         '--trim',
+        '--no-ignore',
+        '--ignore-file',
+        os.getenv("HOME") .. '/.config/rg/.rgignore',
       },
       file_ignore_patterns = {
-        '.git/',
+        -- '.git/',
       },
       buffer_previewer_maker = preview_maker,
       preview = {
@@ -58,7 +57,7 @@ M.setup = function ()
             end
 
             vim.fn.jobstart(
-              { 'catimg', '-w 150', filepath },
+              { 'viu', filepath },
               { on_stdout = send_output, stdout_buffered = true }
             )
           else
@@ -88,28 +87,20 @@ M.setup = function ()
       find_files = {
         find_command = {
           'fd',
-          '--type',
-          'f',
+          '-FHIL',
+          '--type=f',
           '--color=never',
-          '--hidden',
-          '--follow',
-          '--strip-cwd-prefix', -- Remove ./ prefix in find_files
-          '--no-ignore-vcs',
-          '--exclude=node_modules',
-          '--exclude=.git',
-          '--exclude=dist*',
-          '--exclude=build',
-          '--exclude=.idea/',
-          '--exclude=Pods/',
-          '--exclude=.gradle',
-          '--exclude=.next',
-          '--exclude=vendor/bundle/'
+          '--strip-cwd-prefix',
+          '--no-ignore',
+          '--ignore-file',
+          os.getenv("HOME") .. '/.config/fd/.fdignore',
         },
       },
     },
     extensions = {
       project = {
-        hidden_files = true
+        hidden_files = true,
+        -- sync_with_nvim_tree = true
       },
       fzf = {
         fuzzy = true, -- false will only do exact matching
@@ -126,12 +117,19 @@ M.setup = function ()
             ['<C-y>'] = fb_actions.copy,
             ['<C-d>'] = fb_actions.remove,
           },
-        }
+        },
+        hidden = true,
+        respect_gitignore = false,
+        dir_icon = "",
+        grouped = true,
+        select_buffer = true,
+        display_stat = false,
       }
     }
   }
   require('telescope').load_extension('fzf')
   require('telescope').load_extension('file_browser')
+  require('telescope').load_extension('project')
 
   M.mapping()
 end
@@ -160,10 +158,10 @@ M.mapping = function()
     vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", default_text = ".sh", prompt_title = "Select curl" })')
   end)
 
-  v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<cr>')
-  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h"), hidden=true, dir_icon="", respect_gitignore=false, grouped=true })<cr>')
-  v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<cr>')
-  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope resume<cr>')
+  v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>')
+  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>')
+  v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>')
+  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope resume<CR>')
 end
 
 return M

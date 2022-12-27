@@ -22,16 +22,11 @@ export PATH=$PATH:/usr/local/sbin
 export PATH=$PATH:/usr/local/opt/libtool/libexec/gnubin
 export PATH=$PATH:/usr/local/opt/gnu-sed/libexec/gnubin
 
-export LDFLAGS="-L/usr/local/opt/libffi/lib"
-export CPPFLAGS="-I/usr/local/opt/libffi/include"
-export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
-
 export PATH="$PATH:$HOME/flutter/bin"
 
 # User configuration
-# alias vi='nvim'
-alias vi='~/nvim-macos/bin/nvim'
-alias suvi='sudo ~/nvim-macos/bin/nvim'
+alias vi='nvim'
+alias suvi='sudo nvim'
 alias n='sudo n'
 
 ## tmux
@@ -90,11 +85,29 @@ senv() {
   fi
 }
 
+ConsoleLogWriter() {
+
+}
+
+StringLogParser() {
+  echo "abcdef"
+}
+
+GcLog() {
+  read -r curl
+
+  content="$(StringLogParser("$curl"))"
+  echo "hello world" $content
+}
+
 export PNPM_HOME="/Users/ryeng/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+export PATH="$HOME/.rbenv/shims:${PATH}"
+export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
 
 if [ -v $TMUX ]; then
   tmux attach || tmux
 fi
+

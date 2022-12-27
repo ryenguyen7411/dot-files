@@ -1,11 +1,17 @@
-local fn = vim.fn
-local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-
-if fn.empty(fn.glob(install_path)) > 0 then
-  packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+local ensure_packer = function()
+  local fn = vim.fn
+  local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+  if fn.empty(fn.glob(install_path)) > 0 then
+    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+    vim.cmd [[packadd packer.nvim]]
+    return true
+  end
+  return false
 end
 
-require('packer').startup({ function(use)
+local packer_bootstrap = ensure_packer()
+
+require('packer').startup({function(use)
   -- Packer can manage itself
   use { 'wbthomason/' .. 'packer.nvim' }
 
@@ -21,6 +27,7 @@ require('packer').startup({ function(use)
 
   use {
     'sindrets/' .. 'diffview.nvim', event='VimEnter',
+    commit='bd6c0c2df6c00a72342f631a58e1ea28549b6ac8',
     config = function()
       require('plugins.diffview').setup()
     end
@@ -63,6 +70,8 @@ require('packer').startup({ function(use)
     end
   }
 
+  -- use { 'nvim-treesitter/playground', after='nvim-treesitter' }
+
   use {
     'nvim-treesitter/' .. 'nvim-treesitter', run=':TSUpdate', event='VimEnter',
     config = function()
@@ -90,7 +99,12 @@ require('packer').startup({ function(use)
     end
   }
 
-  use { 'folke/' .. 'tokyonight.nvim' }
+  use {
+    'folke/' .. 'tokyonight.nvim',
+    config = function()
+      require('plugins.theme').tokyonight()
+    end
+  }
 
   use { 'tpope/' .. 'vim-commentary', event='BufRead' }
 
@@ -114,13 +128,6 @@ require('packer').startup({ function(use)
 
   use { 'svermeulen/' .. 'vimpeccable' }
 
-  use {
-    'nacro90/' .. 'numb.nvim',
-    config = function()
-      require('numb').setup()
-    end
-  }
-
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then
     require('packer').sync()
@@ -137,4 +144,3 @@ config = {
 require('settings')    -- lua/settings.lua
 require('autocmds')    -- lua/autocmds.lua
 require('mappings')    -- lua/mappings.lua
-

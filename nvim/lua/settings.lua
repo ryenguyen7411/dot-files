@@ -11,14 +11,15 @@ o.splitright = true
 
 o.hidden = true
 o.updatetime = 250
-o.autoread = true
-o.lazyredraw = true
+ o.autoread = true
+-- o.lazyredraw = true
 o.laststatus = 3
 
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
 o.cursorline = true
 cmd('set noshowmode')
+cmd('set cmdheight=0')
 
 o.number = true
 o.relativenumber = true
@@ -67,22 +68,6 @@ for _, plugin in pairs(disabled_built_ins) do
    g["loaded_" .. plugin] = 1
 end
 
-local transparents = {
-  'Normal',
-  'NonText',
-  'LineNr',
-  'SignColumn',
-  'EndOfBuffer',
-  'NormalFloat',
-  'FloatBorder',
-  'TelescopeNormal',
-  'TelescopeBorder',
-}
-
-for _, part in pairs(transparents) do
-  cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
-end
-
 -- Plugin: any-jump
 g.any_jump_window_top_offset = 8
 g.any_jump_disable_default_keybindings = 1
@@ -90,18 +75,5 @@ g.any_jump_disable_default_keybindings = 1
 -- vim-startify
 g.startify_change_to_dir = 0
 
--- lightline
-g.lightline = {
-  colorscheme = "tokyonight"
-}
-
--- tokyonight
-g.tokyonight_transparent = true
-g.tokyonight_colors = {
-  diff = {
-    text = '#3b4f77'
-  }
-}
-
 cmd('filetype on')
-cmd('colorscheme tokyonight')
+
