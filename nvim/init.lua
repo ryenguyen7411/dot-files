@@ -27,7 +27,6 @@ require('packer').startup({function(use)
 
   use {
     'sindrets/' .. 'diffview.nvim', event='VimEnter',
-    commit='bd6c0c2df6c00a72342f631a58e1ea28549b6ac8',
     config = function()
       require('plugins.diffview').setup()
     end
@@ -69,8 +68,6 @@ require('packer').startup({function(use)
       require('plugins.lspconfig_setup').setup()
     end
   }
-
-  -- use { 'nvim-treesitter/playground', after='nvim-treesitter' }
 
   use {
     'nvim-treesitter/' .. 'nvim-treesitter', run=':TSUpdate', event='VimEnter',
