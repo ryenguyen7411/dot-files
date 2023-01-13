@@ -20,8 +20,7 @@ M.setup = function()
       client.server_capabilities.documentRangeFormattingProvider = false
       M.attach(client, bufnr)
     end,
-    autostart = false,
-    -- handlers = {['textDocument/publishDiagnostics'] = function(...) end}
+    filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
   })
   lspconfig.eslint.setup({
     on_attach = function(client, bufnr)
