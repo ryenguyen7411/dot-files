@@ -11,11 +11,6 @@ function augroup(name, autocmds)
   cmd('augroup END')
 end
 
-augroup('PackerAutoCompile', {
-  'autocmd BufWritePost init.lua luafile %',
-  'autocmd BufWritePost init.lua PackerCompile',
-})
-
 cmd('au VimEnter * cd %:p:h')
 cmd('au TextYankPost * lua vim.highlight.on_yank {on_visual = false}')
 

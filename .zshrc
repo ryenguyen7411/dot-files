@@ -24,6 +24,9 @@ export PATH=$PATH:/usr/local/opt/gnu-sed/libexec/gnubin
 
 export PATH="$PATH:$HOME/flutter/bin"
 
+export VSToolsPath="/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/xbuild/Microsoft/VisualStudio/v15.0/"
+export VisualStudioVersion="15.0"
+
 # User configuration
 alias vi='nvim'
 alias suvi='sudo nvim'
