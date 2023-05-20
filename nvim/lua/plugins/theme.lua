@@ -37,6 +37,8 @@ M.tokyonight = function()
       hl['@constant.builtin'] = hl['@constant']
 --       hl['@namespace'] = hl['@constructor']
 --       hl['@string.regex'] = hl['@string']
+
+      hl['DiagnosticUnderlineWarn'] = { sp = c.warning }
     end,
   })
 

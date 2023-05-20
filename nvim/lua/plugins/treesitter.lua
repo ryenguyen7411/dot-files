@@ -12,7 +12,10 @@ M.setup = function()
     },
     rainbow = {
       enable = true,
-      extended_mode = true,
+      query = {
+        javascript = 'rainbow-tags-react',
+        tsx = 'rainbow-tags-react',
+      },
     },
     context_commentstring = {
       enable = true

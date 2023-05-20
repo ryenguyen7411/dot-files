@@ -31,8 +31,10 @@ yarn-error.log
 
 ###
 .git
-dist*
+dist
+dist-server
 build
+.build
 .idea/
 Pods/
 .gradle
