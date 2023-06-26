@@ -122,7 +122,7 @@ require('lazy').setup({
 
   {'tpope/' .. 'vim-surround', event='BufRead'},
 
-  { 'svermeulen/' .. 'vimpeccable' }
+  { 'svermeulen/' .. 'vimpeccable' },
 }, {
   ui = {
     icons = {
