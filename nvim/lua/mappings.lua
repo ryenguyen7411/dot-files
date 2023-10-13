@@ -46,6 +46,7 @@ v.xnoremap('p', '"_dP')
 -- Fast save / quit
 v.nmap({'silent'}, '<leader>w', ':w!<CR>')
 v.nmap({'silent'}, '<leader>qq', ':bp|bd #<CR>')
+v.imap({'silent'}, ':w', '<Esc>:w<CR>')
 
 -- Keep the cursor in place while joining lines
 v.nnoremap('J', 'mzJ`z')

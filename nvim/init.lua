@@ -16,11 +16,11 @@ end
 local lazy_bootstrap = ensure_lazy()
 
 require('lazy').setup({
-  { 'nvim-lua/' .. 'plenary.nvim', priority=1000 },
-  { 'nvim-lua/' .. 'popup.nvim', priority=1000 },
+  { 'nvim-lua/' .. 'plenary.nvim', priority=1000, lazy=false },
+  { 'nvim-lua/' .. 'popup.nvim', priority=1000, lazy=false },
 
   {
-    'ryenguyen7411/' .. 'any-jump.vim', branch='develop', event='BufRead',
+    'ryenguyen7411/' .. 'any-jump.vim', event='BufRead',
     config = function()
       require('plugins.anyjump').setup()
     end
@@ -81,7 +81,7 @@ require('lazy').setup({
 
   {'JoosepAlviste/' .. 'nvim-ts-context-commentstring', event='BufRead'},
 
-  {'p00f/' .. 'nvim-ts-rainbow', event='BufRead'},
+  {'HiPhish/' .. 'nvim-ts-rainbow2', event='BufRead'},
 
   {
     'nvim-telescope/' .. 'telescope.nvim', event='VimEnter',

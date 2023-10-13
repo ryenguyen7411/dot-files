@@ -41,6 +41,7 @@ alias gac='git add --all && clear'
 alias gcm='git checkout master && git pull && clear'
 alias gcd='git checkout develop && git pull && clear'
 alias gcg='git add --all && git stash && git checkout staging && git fetch && git reset --hard origin/staging && clear'
+alias gcu='git add --all && git stash && git checkout uat && git fetch && git reset --hard origin/uat && clear'
 alias gcs='gac && stash && git checkout release-loship && git pull && clear'
 alias gcss='gac && stash && git checkout release && git pull && clear'
 alias gct='gac && git commit -m "temp" --no-verify && clear'
@@ -109,6 +110,8 @@ export PATH="$PNPM_HOME:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.rbenv/shims:${PATH}"
 export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
+
+export LANG=en_US.UTF-8
 
 if [ -v $TMUX ]; then
   tmux attach || tmux
