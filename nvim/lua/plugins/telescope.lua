@@ -9,7 +9,7 @@ M.setup = function ()
 
   local preview_maker = function (filepath, bufnr, opts)
     local bad_files = function (filepath)
-      local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min', 'build/' } -- Put all filetypes that slow you down in this array
+      local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min', 'build/', '.next', '.nuxt' } -- Put all filetypes that slow you down in this array
       for _, v in ipairs(_bad) do
         if filepath:match(v) then
           return false

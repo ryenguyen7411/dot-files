@@ -1,8 +1,9 @@
 # Wordpress.
 # Themes
-# /wp-content/themes/*
-# !/wp-content/themes/loshipblog/
-# !/wp-content/themes/supportcenter/
+/wp-content/themes/*
+!/wp-content/themes/loshipblog/
+!/wp-content/themes/supportcenter/
+!/wp-content/themes/landingpage/
 
 # Uploads
 /wp-content/uploads/*
@@ -41,3 +42,7 @@ Pods/
 .next
 vendor/bundle/
 .cxx/
+
+to-be-copy/
+
+.expo

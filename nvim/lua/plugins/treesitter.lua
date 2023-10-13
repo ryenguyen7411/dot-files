@@ -39,11 +39,22 @@ M.setup = function()
       },
     }
   }
+  M.rainbow()
   M.mapping()
 end
 
 M.mapping = function()
   v.nmap({'silent'}, '<leader><leader>', ':if exists("g:syntax_on")<Bar>syntax off<Bar>else<Bar>syntax on<Bar>endif<CR>|:TSToggle highlight<CR>|:TSToggle rainbow<CR>')
+end
+
+M.rainbow = function()
+	vim.cmd('highlight TSRainbowRed     guifg=#db4b4b')
+	vim.cmd('highlight TSRainbowOrange  guifg=#ff9e64')
+	vim.cmd('highlight TSRainbowYellow  guifg=#e0d60d')
+	vim.cmd('highlight TSRainbowGreen   guifg=#1abc9c')
+	vim.cmd('highlight TSRainbowCyan    guifg=#2ac3de')
+	vim.cmd('highlight TSRainbowBlue    guifg=#326bc7')
+	vim.cmd('highlight TSRainbowViolet  guifg=#9d7cd8')
 end
 
 return M

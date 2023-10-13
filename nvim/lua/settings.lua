@@ -1,4 +1,3 @@
-local cmd = vim.cmd
 local g = vim.g
 local o = vim.opt
 
@@ -18,8 +17,8 @@ o.laststatus = 3
 o.fillchars = 'eob: '
 o.whichwrap:append "<>hl"
 o.cursorline = true
-cmd('set noshowmode')
-cmd('set cmdheight=0')
+vim.cmd('set noshowmode')
+vim.cmd('set cmdheight=0')
 
 o.number = true
 o.relativenumber = true
@@ -28,7 +27,7 @@ o.mouse = 'a'
 o.mousemodel = 'popup_setpos'
 
 -- Encoding
-cmd('let $LANG=\'en_US.UTF-8\'')
+vim.cmd('let $LANG=\'en_US.UTF-8\'')
 o.encoding = 'utf-8'
 o.fileencoding = 'utf-8'
 o.backupcopy = 'yes'
@@ -72,8 +71,11 @@ end
 g.any_jump_window_top_offset = 8
 g.any_jump_disable_default_keybindings = 1
 
--- vim-startify
+-- Plugin: vim-startify
 g.startify_change_to_dir = 0
 
-cmd('filetype on')
+vim.cmd('filetype on')
 
+-- Plugin: git-blame
+g.gitblame_enabled = 0
+g.gitblame_message_template = ' <author> • <sha> • <date> • <summary>'

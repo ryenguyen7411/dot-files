@@ -56,6 +56,18 @@ M.setup = function()
       },
     },
   })
+  lspconfig.tailwindcss.setup({
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+    settings = {
+      tailwindCSS = {
+        lint = {
+          recommendedVariantOrder = 'error',
+        },
+      },
+    },
+  })
   lspconfig.dartls.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[
