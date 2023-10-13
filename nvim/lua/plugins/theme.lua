@@ -1,16 +1,15 @@
-local cmd = vim.cmd
 local g = vim.g
 local v = require('vimp')
 
 local M = {}
 
 function augroup(name, autocmds)
-  cmd('augroup ' .. name)
-  cmd('autocmd!')
+  vim.cmd('augroup ' .. name)
+  vim.cmd('autocmd!')
   for _, autocmd in ipairs(autocmds) do
-    cmd('autocmd ' .. autocmd)
+    vim.cmd('autocmd ' .. autocmd)
   end
-  cmd('augroup END')
+  vim.cmd('augroup END')
 end
 
 M.setup = function()
@@ -78,7 +77,7 @@ M.tokyonight = function()
   }
 
   for _, part in pairs(transparents) do
-    cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
+    vim.cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
   end
 
   vim.cmd('colorscheme tokyonight')

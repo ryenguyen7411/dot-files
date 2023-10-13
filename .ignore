@@ -44,3 +44,5 @@ vendor/bundle/
 .cxx/
 
 to-be-copy/
+
+.expo

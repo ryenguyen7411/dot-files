@@ -321,9 +321,9 @@ setw -g monitor-activity on
 bind-key | split-window -h
 
 bind-key -r -T prefix       H                    resize-pane -L 100
-bind-key -r -T prefix       J                    resize-pane -D 10
+bind-key -r -T prefix       J                    resize-pane -D 50
 bind-key -r -T prefix       K                    resize-pane -U 100
-bind-key -r -T prefix       L                    resize-pane -R 10
+bind-key -r -T prefix       L                    resize-pane -R 50
 
 unbind C-l
 

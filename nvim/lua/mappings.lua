@@ -1,6 +1,5 @@
 local v = require('vimp')
 
-local cmd = vim.cmd
 local g = vim.g
 
 g.mapleader = ' '
@@ -49,7 +48,7 @@ v.nmap({'silent'}, '<leader>qq', ':bp|bd #<CR>')
 v.imap({'silent'}, ':w', '<Esc>:w<CR>')
 
 -- Keep the cursor in place while joining lines
-v.nnoremap('J', 'mzJ`z')
+-- v.nnoremap('J', 'mzJ`z')
 
 -- Visual mode: shifting > and <, move line up and down
 v.vmap('<', '<gv')
@@ -82,8 +81,8 @@ v.nmap({'silent'}, '<leader>n', ':enew<CR>')
 v.nmap({'silent'}, '<leader><CR>', ':nohl<CR><C-l>zz')
 -- v.nmap({'silent'}, '<leader><CR>', ':TSHighlightCapturesUnderCursor<CR>')
 v.xmap({'silent'}, '<leader><CR>', '<C-l>zz')
-v.nmap({'silent'}, '<leader><BS><CR>', ':%bdelete!<CR><CR>')
-v.nnoremap({'silent'}, '<leader><BS><BS>', 'ggdG:w<CR><C-w>q')
+v.nmap({'silent'}, '0\\', ':%bdelete!<CR><CR>')
+v.nnoremap({'silent'}, '00', 'ggdG:w<CR><C-w>q')
 
 -- Vim profiling
 v.nmap({'silent'}, '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>')

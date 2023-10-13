@@ -56,12 +56,12 @@ require('lazy').setup({
     end
   },
 
-  {
-    'tveskag/' .. 'nvim-blame-line', event='BufRead',
-    config = function()
-      require('plugins.blameline').setup()
-    end
-  },
+  -- {
+  --   'tveskag/' .. 'nvim-blame-line', event='BufRead',
+  --   config = function()
+  --     require('plugins.blameline').setup()
+  --   end
+  -- },
 
   {
     'neovim/' .. 'nvim-lspconfig',
@@ -123,22 +123,16 @@ require('lazy').setup({
   {'tpope/' .. 'vim-surround', event='BufRead'},
 
   { 'svermeulen/' .. 'vimpeccable' },
-}, {
-  ui = {
-    icons = {
-      cmd = "⌘",
-      config = "🛠",
-      event = "📅",
-      ft = "📂",
-      init = "⚙",
-      keys = "🗝",
-      plugin = "🔌",
-      runtime = "💻",
-      source = "📄",
-      start = "🚀",
-      task = "📌",
-      lazy = "💤 ",
-    },
+
+  -- { 'm4xshen/' .. 'hardtime.nvim', opts = {} },
+
+  { 'nvim-tree/' .. 'nvim-web-devicons' },
+
+  {
+    'f-person/' .. 'git-blame.nvim', event='BufRead',
+    config = function()
+      require('plugins.blameline').setup()
+    end
   },
 })
 

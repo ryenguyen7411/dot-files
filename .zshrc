@@ -39,9 +39,12 @@ alias tr='tmux a -t'
 ## git
 alias gac='git add --all && clear'
 alias gcm='git checkout master && git pull && clear'
+alias gcmm='git checkout main && git pull && clear'
+alias gcbb='git checkout beta && git pull && clear'
 alias gcd='git checkout develop && git pull && clear'
 alias gcg='git add --all && git stash && git checkout staging && git fetch && git reset --hard origin/staging && clear'
 alias gcu='git add --all && git stash && git checkout uat && git fetch && git reset --hard origin/uat && clear'
+alias gcgg='git add --all && git stash && git checkout stg && git fetch && git reset --hard origin/stg && clear'
 alias gcs='gac && stash && git checkout release-loship && git pull && clear'
 alias gcss='gac && stash && git checkout release && git pull && clear'
 alias gct='gac && git commit -m "temp" --no-verify && clear'
@@ -62,6 +65,8 @@ alias skip='git update-index --skip-worktree'
 alias nskip='git update-index --no-skip-worktree'
 reset() { git reset HEAD~"$1" }
 rhard() { gac; git reset --hard HEAD~"$1" }
+
+git-cherry() { git cherry -v $1 | tail -n 50 | awk '/^\+/ {print "\033[31m" $0 "\033[39m"} /^\-/ {print "\033[32m" $0 "\033[39m"}' }
 
 ## exit
 alias :q='exit'
@@ -117,3 +122,10 @@ if [ -v $TMUX ]; then
   tmux attach || tmux
 fi
 
+
+# bun completions
+[ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
