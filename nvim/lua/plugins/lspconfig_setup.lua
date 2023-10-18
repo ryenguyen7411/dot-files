@@ -68,6 +68,8 @@ M.setup = function()
       },
     },
   })
+  lspconfig.html.setup {
+  }
   lspconfig.dartls.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[
