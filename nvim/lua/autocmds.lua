@@ -23,18 +23,18 @@ augroup('HighlightExtraWhitespace', {
 vim.cmd('au BufEnter *.hbs set filetype=html')
 vim.cmd('au BufEnter *.cshtml set filetype=html')
 
--- disable syntax highlighting in big files
-function DisableSyntaxTreesitter()
-  print("Big file, disabling syntax, treesitter and folding")
-  if vim.fn.exists(':TSToggle') then
-    vim.cmd('TSToggle highlight')
-    vim.cmd('TSToggle rainbow')
-  end
+-- -- disable syntax highlighting in big files
+-- function DisableSyntaxTreesitter()
+--   print("Big file, disabling syntax, treesitter and folding")
+--   if vim.fn.exists(':TSToggle') then
+--     vim.cmd('TSToggle highlight')
+--     vim.cmd('TSToggle rainbow')
+--   end
 
-  vim.cmd('syntax off')
-end
+--   vim.cmd('syntax off')
+-- end
 
-vim.cmd('augroup BigFileDisable')
-vim.cmd('autocmd!')
-vim.cmd('autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > 1000 * 1024 | :lua DisableSyntaxTreesitter() | endif')
-vim.cmd('augroup END')
+-- vim.cmd('augroup BigFileDisable')
+-- vim.cmd('autocmd!')
+-- vim.cmd('autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > 1000 * 1024 | :lua DisableSyntaxTreesitter() | endif')
+-- vim.cmd('augroup END')

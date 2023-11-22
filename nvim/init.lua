@@ -134,6 +134,8 @@ require('lazy').setup({
       require('plugins.blameline').setup()
     end
   },
+
+  { 'will133/' .. 'vim-dirdiff' }
 })
 
 require('settings')    -- lua/settings.lua

@@ -24,12 +24,10 @@ M.setup = function()
   })
   lspconfig.eslint.setup({
     on_attach = function(client, bufnr)
-      vim.cmd([[
-      augroup LspEslint
+      vim.cmd([[ augroup LspEslint
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> EslintFixAll
-      augroup END
-      ]])
+      augroup END ]])
       M.attach(client, bufnr)
     end,
     settings = {
@@ -41,12 +39,10 @@ M.setup = function()
   })
   lspconfig.stylelint_lsp.setup({
     on_attach = function(client, bufnr)
-      vim.cmd([[
-      augroup LspStylelint
+      vim.cmd([[ augroup LspStylelint
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
-      augroup END
-      ]])
+      augroup END ]])
       M.attach(client, bufnr)
     end,
     settings = {
@@ -56,20 +52,27 @@ M.setup = function()
       },
     },
   })
-  lspconfig.tailwindcss.setup({
+  lspconfig.volar.setup{
+    on_attach = function(client, bufnr)
+      vim.cmd([[ augroup LspVolar
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
+      augroup END ]])
+      M.attach(client, bufnr)
+    end,
+    filetypes = {'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json'}
+  }
+
+  lspconfig.html.setup {
     on_attach = function(client, bufnr)
       M.attach(client, bufnr)
     end,
-    settings = {
-      tailwindCSS = {
-        lint = {
-          recommendedVariantOrder = 'error',
-        },
-      },
-    },
-  })
-  lspconfig.html.setup {
   }
+  lspconfig.jsonls.setup({
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  })
   lspconfig.dartls.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[
@@ -79,11 +82,6 @@ M.setup = function()
       augroup END
       ]])
 
-      M.attach(client, bufnr)
-    end,
-  })
-  lspconfig.jsonls.setup({
-    on_attach = function(client, bufnr)
       M.attach(client, bufnr)
     end,
   })
@@ -104,53 +102,6 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   })
-  -- lspconfig.diagnosticls.setup{
-  --   on_attach = function(client, bufnr)
-  --     vim.cmd([[
-  --     augroup LspCustomlint
-  --       autocmd! * <buffer>
-  --       autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
-  --     augroup END
-  --     ]])
-  --     M.attach(client, bufnr)
-  --   end,
-  --   init_options = {
-  --     filetypes = {
-  --       php = {"phpcs"},
-  --     },
-  --     linters = {
-  --       phpcs = {
-  --         sourceName = "phpcs",
-  --         command = "phpcs",
-  --         args = {"--standard=.phplint.xml", "--report=emacs", "-s", "-"},
-  --         debounce = 300,
-  --         formatLines = 1,
-  --         formatPattern = {
-  --           "^.*:(\\d+):(\\d+):\\s+(.*)\\s+-\\s+(.*)(\\r|\\n)*$",
-  --           { line = 1, column = 2, message = 4, security = 3 }
-  --         },
-  --         securities = {
-  --           error = "error",
-  --           warning = "warning",
-  --         },
-  --         rootPatterns = { '.phplint.xml' },
-  --         requiredFiles = { '.phplint.xml' },
-  --       },
-  --     },
-  --     formatFiletypes = {
-  --       php = {"phpcbf"},
-  --     },
-  --     formatters = {
-  --       phpcbf = {
-  --         command = "phpcbf",
-  --         args = {'--standard=.phplint.xml', vim.api.nvim_buf_get_name(0), "-"},
-  --         ignoreExitCode = true,
-  --         rootPatterns = { '.phplint.xml' },
-  --         requiredFiles = { '.phplint.xml' },
-  --       },
-  --     },
-  --   },
-  -- }
 
   M.mapping()
 end
