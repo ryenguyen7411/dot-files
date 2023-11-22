@@ -7,23 +7,6 @@ M.setup = function ()
   local fb_actions = require "telescope".extensions.file_browser.actions
   local previewers = require('telescope.previewers')
 
-  local preview_maker = function (filepath, bufnr, opts)
-    local bad_files = function (filepath)
-      local _bad = { 'metadata/.*%.json', 'html2pdf.bundle.min', 'build/', '.next', '.nuxt' } -- Put all filetypes that slow you down in this array
-      for _, v in ipairs(_bad) do
-        if filepath:match(v) then
-          return false
-        end
-      end
-      return true
-    end
-
-    opts = opts or {}
-    if opts.use_ft_detect == nil then opts.use_ft_detect = true end
-    opts.use_ft_detect = opts.use_ft_detect == false and false or bad_files(filepath)
-    previewers.buffer_previewer_maker(filepath, bufnr, opts)
-  end
-
   -- Setup Telescope
   require('telescope').setup {
     defaults = {
@@ -42,7 +25,6 @@ M.setup = function ()
       file_ignore_patterns = {
         -- '.git/',
       },
-      buffer_previewer_maker = preview_maker,
       preview = {
         mime_hook = function(filepath, bufnr, opts)
           local split_path = vim.split(filepath:lower(), '.', { plain = true })

@@ -17,9 +17,6 @@ M.setup = function()
         tsx = 'rainbow-tags-react',
       },
     },
-    context_commentstring = {
-      enable = true
-    },
     playground = {
       enable = true,
       disable = {},
@@ -39,6 +36,9 @@ M.setup = function()
       },
     }
   }
+
+  vim.g.skip_ts_context_commentstring_module = true
+
   M.rainbow()
   M.mapping()
 end
