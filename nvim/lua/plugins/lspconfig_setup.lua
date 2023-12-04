@@ -20,6 +20,14 @@ M.setup = function()
       client.server_capabilities.documentRangeFormattingProvider = false
       M.attach(client, bufnr)
     end,
+    root_dir = function(fname)
+      if lspconfig.util.root_pattern('.vue-project')(fname) then
+        return false
+      else
+        return lspconfig.util.root_pattern('package.json')(fname)
+      end
+    end,
+    single_file_support = false,
     filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
   })
   lspconfig.eslint.setup({
@@ -37,6 +45,7 @@ M.setup = function()
       },
     },
   })
+  lspconfig.quick_lint_js.setup({})
   lspconfig.stylelint_lsp.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[ augroup LspStylelint
@@ -60,6 +69,8 @@ M.setup = function()
       augroup END ]])
       M.attach(client, bufnr)
     end,
+    root_dir = lspconfig.util.root_pattern('.vue-project'),
+    single_file_support = false,
     filetypes = {'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json'}
   }
 
@@ -102,6 +113,25 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   })
+
+  require('lspconfig.ui.windows').default_options = {
+    border = "single"
+  }
+  vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+    vim.lsp.handlers.hover, {
+      border = "single"
+    }
+  )
+
+  vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+    vim.lsp.handlers.signature_help, {
+      border = "single"
+    }
+  )
+
+  vim.diagnostic.config{
+    float={border="single"}
+  }
 
   M.mapping()
 end
