@@ -125,10 +125,8 @@ fi
 
 # bun completions
 [ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
+[ -s "/Users/tan.nguyen2/.bun/_bun" ] && source "/Users/tan.nguyen2/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-# bun completions
-[ -s "/Users/tan.nguyen2/.bun/_bun" ] && source "/Users/tan.nguyen2/.bun/_bun"

@@ -1,7 +1,7 @@
 # This is Git's per-user configuration file.
 [user]
 # Please adapt and uncomment the following lines:
-	name = Tan Nguyen
-	email = tan.nguyen2@be.com.vn
+	name = Rye Nguyen
+	email = ryenguyen7411@gmail.com
 [alias]
 	rm-merged = !git branch --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" { print $1 }' | xargs -r git branch -D

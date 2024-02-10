@@ -41,6 +41,13 @@ require('lazy').setup({
   },
 
   {
+    'f-person/' .. 'git-blame.nvim', event='BufRead',
+    config = function()
+      require('plugins.blameline').setup()
+    end
+  },
+
+  {
     'lukas-reineke/' .. 'indent-blankline.nvim', event='BufRead',
     main = 'ibl',
     config = function()
@@ -56,13 +63,6 @@ require('lazy').setup({
       require('plugins.autopair').setup()
     end
   },
-
-  -- {
-  --   'tveskag/' .. 'nvim-blame-line', event='BufRead',
-  --   config = function()
-  --     require('plugins.blameline').setup()
-  --   end
-  -- },
 
   {
     'neovim/' .. 'nvim-lspconfig',
@@ -83,6 +83,8 @@ require('lazy').setup({
   {'JoosepAlviste/' .. 'nvim-ts-context-commentstring', event='BufRead'},
 
   {'HiPhish/' .. 'nvim-ts-rainbow2', event='BufRead'},
+
+  { 'nvim-tree/' .. 'nvim-web-devicons' },
 
   {
     'nvim-telescope/' .. 'telescope.nvim', event='VimEnter',
@@ -126,15 +128,6 @@ require('lazy').setup({
   { 'svermeulen/' .. 'vimpeccable' },
 
   -- { 'm4xshen/' .. 'hardtime.nvim', opts = {} },
-
-  { 'nvim-tree/' .. 'nvim-web-devicons' },
-
-  {
-    'f-person/' .. 'git-blame.nvim', event='BufRead',
-    config = function()
-      require('plugins.blameline').setup()
-    end
-  },
 
   { 'will133/' .. 'vim-dirdiff' }
 })
