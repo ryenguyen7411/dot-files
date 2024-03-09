@@ -1,89 +1,88 @@
-local v = require('vimp')
-
 local g = vim.g
 
 g.mapleader = ' '
 
 -- Center navigation
-v.nmap('j', 'gj')
-v.nmap('k', 'gk')
-v.xmap('j', 'gj')
-v.xmap('k', 'gk')
-v.nmap('<C-j>', '5j')
-v.nmap('<C-k>', '5k')
-v.xmap('<C-j>', '5j')
-v.xmap('<C-k>', '5k')
+vim.api.nvim_set_keymap('n', 'j', 'gj', { silent = true })
+vim.api.nvim_set_keymap('n', 'k', 'gk', { silent = true })
+vim.api.nvim_set_keymap('x', 'j', 'gj', { silent = true })
+vim.api.nvim_set_keymap('x', 'k', 'gk', { silent = true })
+vim.api.nvim_set_keymap('n', '<C-j>', '5j', { silent = true })
+vim.api.nvim_set_keymap('n', '<C-k>', '5k', { silent = true })
+vim.api.nvim_set_keymap('x', '<C-j>', '5j', { silent = true })
+vim.api.nvim_set_keymap('x', '<C-k>', '5k', { silent = true })
 
-v.nmap('#', '#zz')
-v.nmap('*', '*zz')
-v.nmap('n', 'nzz')
-v.nmap('N', 'Nzz')
-v.nmap('G', 'Gzz')
+vim.api.nvim_set_keymap('n', '#', '#zz', { silent = true })
+vim.api.nvim_set_keymap('n', '*', '*zz', { silent = true })
+vim.api.nvim_set_keymap('n', 'n', 'nzz', { silent = true })
+vim.api.nvim_set_keymap('n', 'N', 'Nzz', { silent = true })
+vim.api.nvim_set_keymap('n', 'G', 'Gzz', { silent = true })
 
 -- Exclude trailing whitespace + end of line
-v.nmap('$', 'g_')
-v.xmap('$', 'g_')
+vim.api.nvim_set_keymap('n', '$', 'g_', { silent = true })
+vim.api.nvim_set_keymap('x', '$', 'g_', { silent = true })
 
-v.nmap('{', '{zz')
-v.nmap('}', '}zz')
-v.xmap('{', '{zz')
-v.xmap('}', '}zz')
+vim.api.nvim_set_keymap('n', '{', '{zz', { silent = true })
+vim.api.nvim_set_keymap('n', '}', '}zz', { silent = true })
+vim.api.nvim_set_keymap('x', '{', '{zz', { silent = true })
+vim.api.nvim_set_keymap('x', '}', '}zz', { silent = true })
 
 -- Map redo to U (undo is u)
-v.nmap('U', '<C-R>')
+vim.api.nvim_set_keymap('n', 'U', '<C-R>', { silent = true })
 
 -- Yank to Vim + OS clipboard
-v.nnoremap({'silent'}, 'YY', 'gg"*yG')
-v.nnoremap('y', '"*y')
-v.xnoremap('y', '"*y')
-v.nnoremap('d', '"*d')
-v.xnoremap('d', '"*d')
-v.nnoremap('x', '"*x')
-v.xnoremap('x', '"*x')
-v.xnoremap('p', '"_dP')
+vim.api.nvim_set_keymap('n', 'YY', 'gg"*yG', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('n', 'y', '"*y', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('x', 'y', '"*y', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('n', 'd', '"*d', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('x', 'd', '"*d', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('n', 'x', '"*x', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('x', 'x', '"*x', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('x', 'p', '"_dP', { silent = true, noremap = true })
 
 -- Fast save / quit
-v.nmap({'silent'}, '<leader>w', ':w!<CR>')
-v.nmap({'silent'}, '<leader>qq', ':bp|bd #<CR>')
-v.imap({'silent'}, ':w', '<Esc>:w<CR>')
+vim.api.nvim_set_keymap('n', '<leader>w', ':w!<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '<leader>qq', ':bp|bd #<CR>', { silent = true })
+vim.api.nvim_set_keymap('i', ':w', '<Esc>:w|<CR>jk', { silent = true })
 
 -- Keep the cursor in place while joining lines
--- v.nnoremap('J', 'mzJ`z')
+-- vim.api.nvim_set_keymap('n', 'J', 'mzJ`z', { silent = true })
 
 -- Visual mode: shifting > and <, move line up and down
-v.vmap('<', '<gv')
-v.vmap('>', '>gv')
-v.vmap('J', ':m \'>+1<CR><CR>gv')
-v.vmap('K', ':m \'<-2<CR><CR>gv')
+vim.api.nvim_set_keymap('v', '<', '<gv', { silent = true })
+vim.api.nvim_set_keymap('v', '>', '>gv', { silent = true })
+vim.api.nvim_set_keymap('v', 'J', ':m \'>+1<CR><CR>gv', { silent = true })
+vim.api.nvim_set_keymap('v', 'K', ':m \'<-2<CR><CR>gv', { silent = true })
 
 -- Split resize current pane
-v.nmap('zh', '<C-w>h')
-v.nmap('zl', '<C-w>l')
-v.nmap('zj', '<C-w>j')
-v.nmap('zk', '<C-w>k')
-v.nmap('z<BS>', '<Space>15<C-w><')
-v.nmap('z<CR>', '<Space>15<C-w>>')
-v.nmap('zb', '<C-w>=')
-v.nmap('z|', ':vsplit<CR>')
-v.nmap('z-', ':split<CR>')
-v.nmap('zm', '<C-w>q')
+vim.api.nvim_set_keymap('n', 'zh', '<C-w>h', { silent = true })
+vim.api.nvim_set_keymap('n', 'zl', '<C-w>l', { silent = true })
+vim.api.nvim_set_keymap('n', 'zj', '<C-w>j', { silent = true })
+vim.api.nvim_set_keymap('n', 'zk', '<C-w>k', { silent = true })
+vim.api.nvim_set_keymap('n', 'z<BS>', '<Space>15<C-w><', { silent = true })
+vim.api.nvim_set_keymap('n', 'z<CR>', '<Space>15<C-w>>', { silent = true })
+vim.api.nvim_set_keymap('n', 'zb', '<C-w>=', { silent = true })
+vim.api.nvim_set_keymap('n', 'z|', ':vsplit<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', 'z-', ':split<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', 'zm', '<C-w>q', { silent = true })
 
 -- Fold / unfold code
-v.vmap('zf', 'zfzz')
-v.vmap('zo', 'zozz')
+vim.api.nvim_set_keymap('v', 'zf', 'zfzz', { silent = true })
+vim.api.nvim_set_keymap('v', 'zo', 'zozz', { silent = true })
+vim.api.nvim_set_keymap('n', 'zo', 'zozz', { silent = true })
 
 -- Switch buffer with Tab
-v.nmap({'silent'}, '<Tab>', ':bnext<CR>')
-v.nmap({'silent'}, '<S-Tab>', ':bprevious<CR>')
+vim.api.nvim_set_keymap('n', '<Tab>', ':bnext<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '<S-Tab>', ':bprevious<CR>', { silent = true })
 
 -- Miscellaneous
-v.nmap({'silent'}, '<leader>n', ':enew<CR>')
-v.nmap({'silent'}, '<leader><CR>', ':nohl<CR><C-l>zz')
--- v.nmap({'silent'}, '<leader><CR>', ':TSHighlightCapturesUnderCursor<CR>')
-v.xmap({'silent'}, '<leader><CR>', '<C-l>zz')
-v.nmap({'silent'}, '0\\', ':%bdelete!<CR><CR>')
-v.nnoremap({'silent'}, '00', 'ggdG:w<CR><C-w>q')
+vim.api.nvim_set_keymap('n', '<leader>n', ':enew<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '<leader><CR>', ':nohl<CR><C-l>zz', { silent = true })
+vim.api.nvim_set_keymap('x', '<leader><CR>', '<C-l>zz', { silent = true })
+-- vim.api.nvim_set_keymap('n', '<leader><CR>', ':TSHighlightCapturesUnderCursor<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '0\\', ':%bdelete!<CR><CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
 
 -- Vim profiling
-v.nmap({'silent'}, '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>')
-v.nmap({'silent'}, '<leader>vs', ':profile pause<CR>:e! ~/profile.nvim.log<CR>')
+vim.api.nvim_set_keymap('n', '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '<leader>vs', ':profile pause<CR>:e! ~/profile.nvim.log<CR>', { silent = true })

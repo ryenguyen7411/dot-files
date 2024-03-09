@@ -1,4 +1,3 @@
-local v = require('vimp')
 local g = vim.g
 
 local M = {}
@@ -8,7 +7,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader>,b', ':GitBlameToggle<CR>')
+  vim.api.nvim_set_keymap('n', '<leader>,b', ':GitBlameToggle<CR>', { silent = true })
 end
 
 return M

@@ -1,4 +1,3 @@
-local v = require('vimp')
 local lspconfig = require('lspconfig')
 local M = {}
 
@@ -150,7 +149,7 @@ M.attach = function(client, bufnr)
 end
 
 M.mapping = function()
-  -- v.nmap({'silent'}, '<leader>bu', ':LspStop<CR>|:LspStart<CR>')
+  -- vim.api.nvim_set_keymap('n', '<leader>bu', ':LspStop<CR>:LspStart<CR>', { silent = true })
 end
 
 return M

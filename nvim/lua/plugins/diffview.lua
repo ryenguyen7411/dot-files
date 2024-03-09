@@ -1,5 +1,3 @@
-local v = require('vimp')
-
 local M = {}
 
 M.setup = function()
@@ -36,8 +34,8 @@ M.setup = function()
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader>r', ':DiffviewOpen<CR>')
-  v.nmap({'silent'}, '<leader>f', ':DiffviewFileHistory %<CR>')
+  vim.api.nvim_set_keymap('n', '<leader>r', ':DiffviewOpen<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>f', ':DiffviewFileHistory %<CR>', { silent = true })
 end
 
 return M

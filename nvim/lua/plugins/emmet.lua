@@ -1,5 +1,3 @@
-local v = require('vimp')
-
 local M = {}
 
 M.setup = function()
@@ -7,7 +5,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  v.imap({'silent'}, ',g', '<Plug>(emmet-expand-abbr)')
+  vim.api.nvim_set_keymap('i', '<C-j>', '<Plug>(emmet-expand-abbr)', { noremap = false })
 end
 
 return M

@@ -1,5 +1,3 @@
-local v = require('vimp')
-
 local M = {}
 
 M.setup = function()
@@ -7,8 +5,8 @@ M.setup = function()
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<F12>', ':AnyJump<CR>')
-  v.nmap({'silent'}, '<F8>', ':AnyJumpLastResults<CR>')
+  vim.api.nvim_set_keymap('n', '<F12>', ':AnyJump<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<F8>', ':AnyJumpLastResults<CR>', { silent = true })
 end
 
 return M

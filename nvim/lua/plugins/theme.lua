@@ -1,5 +1,4 @@
 local g = vim.g
-local v = require('vimp')
 
 local M = {}
 

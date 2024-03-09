@@ -1,4 +1,3 @@
-local v = require('vimp')
 local M = {}
 
 M.setup = function()
@@ -44,7 +43,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<leader><leader>', ':if exists("g:syntax_on")<Bar>syntax off<Bar>else<Bar>syntax on<Bar>endif<CR>|:TSToggle highlight<CR>|:TSToggle rainbow<CR>')
+  vim.api.nvim_set_keymap('n', '<leader><leader>', ':if exists("g:syntax_on")<Bar>syntax off<Bar>else<Bar>syntax on<Bar>endif<CR>|:TSToggle highlight<CR>|:TSToggle rainbow<CR>', { silent = true })
 end
 
 M.rainbow = function()

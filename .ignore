@@ -23,6 +23,7 @@ yarn-error.log
 
 # Build files
 **/*/dist/*
+**/*/dist-server/*
 
 # Remix Run
 #
@@ -32,8 +33,6 @@ yarn-error.log
 
 ###
 .git
-dist
-dist-server
 build
 .build
 .idea/

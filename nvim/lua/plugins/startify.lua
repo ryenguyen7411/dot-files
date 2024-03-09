@@ -1,5 +1,3 @@
-local v = require('vimp')
-
 local M = {}
 
 M.setup = function()
@@ -7,7 +5,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  v.nmap({'silent'}, '<F6>', ':Startify<CR>')
+  vim.api.nvim_set_keymap('n', '<F6>', ':Startify<CR>', { silent = true })
 end
 
 return M

@@ -1,6 +1,25 @@
-local v = require('vimp')
-
 local M = {}
+
+function find_files()
+  local path = vim.fn.expand('%:p:h')
+  if string.find(path, '/notes') then
+    vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find curl" })')
+  else
+    vim.cmd('lua require("telescope.builtin").find_files()')
+  end
+end
+function live_grep()
+  local path = vim.fn.expand('%:p:h')
+  if string.find(path, '/notes') then
+    vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", prompt_title = "Search curl"})')
+  else
+    vim.cmd('lua require("telescope.builtin").live_grep()')
+  end
+end
+function select_curl()
+  local path = vim.fn.expand('%:p:h')
+  vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", default_text = ".sh", prompt_title = "Select curl" })')
+end
 
 M.setup = function ()
   local actions = require("telescope.actions")
@@ -119,31 +138,14 @@ end
 M.mapping = function()
   local notes = '~/notes'
 
-  v.nnoremap({'silent'}, '<leader>;', function ()
-    local path = vim.fn.expand('%:p:h')
-    if string.find(path, '/notes') then
-      vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find curl" })')
-    else
-      vim.cmd('lua require("telescope.builtin").find_files()')
-    end
-  end)
-  v.nnoremap({'silent'}, '<leader>j', function ()
-    local path = vim.fn.expand('%:p:h')
-    if string.find(path, '/notes') then
-      vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", prompt_title = "Search curl"})')
-    else
-      vim.cmd('lua require("telescope.builtin").live_grep()')
-    end
-  end)
-  v.nnoremap({'silent'}, '<leader>p', function ()
-    local path = vim.fn.expand('%:p:h')
-    vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", default_text = ".sh", prompt_title = "Select curl" })')
-  end)
+  vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>p', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
 
-  v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>')
-  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>')
-  v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>')
-  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope resume<CR>')
+  vim.api.nvim_set_keymap('n', '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>\'', '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
 end
 
 return M
