@@ -5,7 +5,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  vim.api.nvim_set_keymap('i', '<C-j>', '<Plug>(emmet-expand-abbr)', { noremap = false })
+  vim.keymap.set('i', '<C-j>', '<Plug>(emmet-expand-abbr)', { noremap = false })
 end
 
 return M

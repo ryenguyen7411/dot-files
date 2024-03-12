@@ -7,7 +7,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  vim.api.nvim_set_keymap('n', '<leader>,b', ':GitBlameToggle<CR>', { silent = true })
+  vim.keymap.set('n', '<leader>,b', ':GitBlameToggle<CR>', { silent = true })
 end
 
 return M

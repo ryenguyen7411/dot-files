@@ -5,7 +5,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  vim.api.nvim_set_keymap('n', '<F6>', ':Startify<CR>', { silent = true })
+  vim.keymap.set('n', '<F6>', ':Startify<CR>', { silent = true })
 end
 
 return M

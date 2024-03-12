@@ -17,8 +17,8 @@ M.mapping = function()
   local show_formatted_output = ':vs ' .. output .. '<CR>gfgg|:w<CR>'
 
   -- 1. QuickRun save to output, 2. vsplit output file, 3. format then save
-  vim.api.nvim_set_keymap('n', ']\\', visual .. add_quotes .. add_echo .. ':noh<CR>' .. visual .. quickrun .. 'ju' .. show_formatted_output, { silent = true })
-  vim.api.nvim_set_keymap('n', '\\', quickrun .. 'j' .. show_formatted_output, { silent = true })
+  vim.keymap.set('n', ']\\', visual .. add_quotes .. add_echo .. ':noh<CR>' .. visual .. quickrun .. 'ju' .. show_formatted_output, { silent = true })
+  vim.keymap.set('n', '\\', quickrun .. 'j' .. show_formatted_output, { silent = true })
 end
 
 return M

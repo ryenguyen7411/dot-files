@@ -34,8 +34,8 @@ M.setup = function()
 end
 
 M.mapping = function()
-  vim.api.nvim_set_keymap('n', '<leader>r', ':DiffviewOpen<CR>', { silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>f', ':DiffviewFileHistory %<CR>', { silent = true })
+  vim.keymap.set('n', '<leader>r', ':DiffviewOpen<CR>', { silent = true })
+  vim.keymap.set('n', '<leader>f', ':DiffviewFileHistory %<CR>', { silent = true })
 end
 
 return M

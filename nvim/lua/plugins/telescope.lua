@@ -138,14 +138,14 @@ end
 M.mapping = function()
   local notes = '~/notes'
 
-  vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>p', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>p', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
 
-  vim.api.nvim_set_keymap('n', '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>\'', '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>\'', '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
 end
 
 return M
