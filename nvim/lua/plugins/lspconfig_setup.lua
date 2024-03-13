@@ -11,7 +11,7 @@ M.setup = function()
     severity_sort = true,
     virtual_text = false,
   })
-  vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
+  -- vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
 
   lspconfig.tsserver.setup({
     on_attach = function(client, bufnr)
@@ -138,8 +138,8 @@ end
 M.attach = function(client, bufnr)
   local opts = { noremap = true, silent = true, buffer = bufnr }
   vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  vim.keymap.set('n', 'gn', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
-  vim.keymap.set('n', 'gm', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+  vim.keymap.set('n', 'gn', '<cmd>lua vim.diagnostic.goto_prev({ float = false })<CR>', opts)
+  vim.keymap.set('n', 'gm', '<cmd>lua vim.diagnostic.goto_next({ float = false })<CR>', opts)
   vim.keymap.set('n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
   vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)

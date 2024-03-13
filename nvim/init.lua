@@ -133,6 +133,31 @@ require('lazy').setup({
 
   { 'github/' .. 'copilot.vim' },
 
+  {
+    'LunarVim/' .. 'bigfile.nvim',
+    opts = {},
+  },
+
+  {
+    "tris203/hawtkeys.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    }
+  },
+
+  {
+    'RaafatTurki/' .. 'corn.nvim',
+    config = function()
+      require('corn').setup({
+        item_preprocess_func = function(item)
+          return item
+        end,
+        blacklisted_modes = { 'i' },
+      })
+    end,
+  },
+
   -- {
   --   "CopilotC-Nvim/CopilotChat.nvim",
   --   branch = "canary",
