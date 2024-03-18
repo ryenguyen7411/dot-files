@@ -143,9 +143,6 @@ M.attach = function(client, bufnr)
   vim.keymap.set('n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
   vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-
-  vim.keymap.set('n', '[[', '<cmd>AerialPrev<CR>', {})
-  vim.keymap.set('n', ']]', '<cmd>AerialNext<CR>', {})
 end
 
 M.mapping = function()

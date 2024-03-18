@@ -18,6 +18,13 @@ local lazy_bootstrap = ensure_lazy()
 require('lazy').setup({
   { 'nvim-lua/' .. 'plenary.nvim', priority=1000, lazy=false },
   { 'nvim-lua/' .. 'popup.nvim', priority=1000, lazy=false },
+  { 'itchyny/' .. 'lightline.vim' },
+  {
+    'folke/' .. 'tokyonight.nvim', priority=1000, lazy=false,
+    config = function()
+      require('plugins.theme').tokyonight()
+    end
+  },
 
   {
     'ryenguyen7411/' .. 'any-jump.vim', event='BufRead',
@@ -27,7 +34,7 @@ require('lazy').setup({
   },
 
   {
-    'sindrets/' .. 'diffview.nvim', event='VimEnter',
+    'sindrets/' .. 'diffview.nvim', event='BufRead',
     config = function()
       require('plugins.diffview').setup()
     end
@@ -55,8 +62,6 @@ require('lazy').setup({
     end
   },
 
-  { 'itchyny/' .. 'lightline.vim' },
-
   {
     'windwp/' .. 'nvim-autopairs', event='BufRead',
     config = function()
@@ -65,7 +70,7 @@ require('lazy').setup({
   },
 
   {
-    'neovim/' .. 'nvim-lspconfig',
+    'neovim/' .. 'nvim-lspconfig', event='VimEnter',
     config = function()
       require('plugins.lspconfig_setup').setup()
     end
@@ -78,13 +83,13 @@ require('lazy').setup({
     end
   },
 
-  {'windwp/' .. 'nvim-ts-autotag', event='BufRead'},
+  { 'windwp/' .. 'nvim-ts-autotag', event='BufRead' },
 
-  {'JoosepAlviste/' .. 'nvim-ts-context-commentstring', event='BufRead'},
+  { 'JoosepAlviste/' .. 'nvim-ts-context-commentstring', event='BufRead' },
 
-  {'HiPhish/' .. 'nvim-ts-rainbow2', event='BufRead'},
+  { 'HiPhish/' .. 'nvim-ts-rainbow2', event='BufRead' },
 
-  { 'nvim-tree/' .. 'nvim-web-devicons' },
+  { 'nvim-tree/' .. 'nvim-web-devicons', event='VimEnter' },
 
   {
     'nvim-telescope/' .. 'telescope.nvim', event='VimEnter',
@@ -98,40 +103,47 @@ require('lazy').setup({
     end
   },
 
-  {
-    'folke/' .. 'tokyonight.nvim', priority=1000, lazy=false,
-    config = function()
-      require('plugins.theme').tokyonight()
-    end
-  },
-
   { 'tpope/' .. 'vim-commentary', event='BufRead' },
 
   {
-    'mhinz/' .. 'vim-startify',
+    'mhinz/' .. 'vim-startify', event='VimEnter',
     config = function()
       require('plugins.startify').setup()
     end
   },
 
   {
-    'thinca/' .. 'vim-quickrun',
+    'thinca/' .. 'vim-quickrun', event='BufRead',
     config = function()
       require('plugins.quickrun').setup()
     end
   },
 
-  {'tpope/' .. 'vim-repeat', event='BufRead'},
+  { 'tpope/' .. 'vim-repeat', event='BufRead' },
 
-  {'tpope/' .. 'vim-surround', event='BufRead'},
+  { 'tpope/' .. 'vim-surround', event='BufRead' },
 
   -- { 'm4xshen/' .. 'hardtime.nvim', opts = {} },
 
   { 'will133/' .. 'vim-dirdiff' },
 
-  { 'justinmk/' .. 'vim-sneak' },
+  { 'justinmk/' .. 'vim-sneak', event='BufRead' },
 
-  { 'github/' .. 'copilot.vim' },
+  {
+    'github/' .. 'copilot.vim',
+    config = function()
+      require('plugins.copilot').setup()
+    end,
+  },
+
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    branch = "canary",
+    dependencies = {
+      { "github/copilot.vim" },
+    },
+    opts = {},
+  },
 
   {
     'LunarVim/' .. 'bigfile.nvim',
@@ -139,15 +151,7 @@ require('lazy').setup({
   },
 
   {
-    "tris203/hawtkeys.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    }
-  },
-
-  {
-    'RaafatTurki/' .. 'corn.nvim',
+    'RaafatTurki/' .. 'corn.nvim', event='BufRead',
     config = function()
       require('corn').setup({
         item_preprocess_func = function(item)
@@ -156,21 +160,6 @@ require('lazy').setup({
         blacklisted_modes = { 'i' },
       })
     end,
-  },
-
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "canary",
-    dependencies = {
-      { "github/copilot.vim" }, -- or github/copilot.vim
-      -- { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
-      -- { "nvim-telescope/telescope.nvim" }, -- for telescope help actions (optional)
-    },
-    opts = {
-      -- debug = true, -- Enable debugging
-      -- See Configuration section for rest
-    },
-    -- See Commands section for default commands if you want to lazy load on them
   },
 })
 
