@@ -1,6 +1,7 @@
 local g = vim.g
 local o = vim.opt
 
+o.scrolloff = 8
 o.tabstop = 2
 o.shiftwidth = 2
 o.expandtab = true

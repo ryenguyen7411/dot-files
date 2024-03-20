@@ -5,7 +5,6 @@ M.setup = function()
   local actions = require("diffview.actions")
 
   require('diffview').setup{
-    use_icons = false,
     enhanced_diff_hl = true,
     view = {
       merge_tool = {
@@ -16,16 +15,17 @@ M.setup = function()
     },
     key_bindings = {
       view = {
-        ['<Leader>r'] = actions.focus_files,
+        ['<leader><CR>'] = '<cmd>DiffviewRefresh<CR>',
+        ['<leader>r'] = '<cmd>DiffviewFocusFiles<CR>',
       },
       file_panel = {
         ['o']         = actions.focus_entry,
-        ['<Leader>r'] = '<Cmd>DiffviewClose<CR>',
+        ['<leader>r'] = '<cmd>DiffviewClose<CR>',
       },
       file_history_panel = {
         ['o']         = actions.focus_entry,
         ['p']         = actions.open_in_diffview,
-        ['<Leader>r'] = '<Cmd>DiffviewClose<CR>',
+        ['<leader>r'] = '<cmd>DiffviewClose<CR>',
       },
     }
   }
@@ -34,8 +34,8 @@ M.setup = function()
 end
 
 M.mapping = function()
-  vim.keymap.set('n', '<leader>r', ':DiffviewOpen<CR>', { silent = true })
-  vim.keymap.set('n', '<leader>f', ':DiffviewFileHistory %<CR>', { silent = true })
+  vim.keymap.set('n', '<leader>r', '<cmd>DiffviewOpen<CR>', { silent = true })
+  vim.keymap.set('n', '<leader>f', '<cmd>DiffviewFileHistory %<CR>', { silent = true })
 end
 
 return M

@@ -18,81 +18,77 @@ local lazy_bootstrap = ensure_lazy()
 require('lazy').setup({
   { 'nvim-lua/' .. 'plenary.nvim', priority=1000, lazy=false },
   { 'nvim-lua/' .. 'popup.nvim', priority=1000, lazy=false },
-  { 'itchyny/' .. 'lightline.vim' },
   {
     'folke/' .. 'tokyonight.nvim', priority=1000, lazy=false,
     config = function()
       require('plugins.theme').tokyonight()
-    end
+    end,
   },
-
   {
-    'ryenguyen7411/' .. 'any-jump.vim', event='BufRead',
+    'mhinz/' .. 'vim-startify',
     config = function()
-      require('plugins.anyjump').setup()
+      require('plugins.startify').setup()
     end
   },
-
+  { 'itchyny/' .. 'lightline.vim' },
   {
-    'sindrets/' .. 'diffview.nvim', event='BufRead',
+    'ryenguyen7411/' .. 'any-jump.vim',
+    keys = {
+      { '<F12>', '<cmd>AnyJump<CR>', desc = 'AnyJump' },
+      { '<F8>', '<cmd>AnyJumpLastResults<CR>', desc = 'AnyJumpLastResults' },
+    },
+  },
+  {
+    'sindrets/' .. 'diffview.nvim',
+    keys = {
+      { '<space>r', '<cmd>DiffviewOpen<CR>', desc = 'DiffviewOpen' },
+      { '<space>f', '<cmd>DiffviewFileHistory %<CR>', desc = 'DiffviewFileHistory' },
+    },
     config = function()
       require('plugins.diffview').setup()
-    end
+    end,
   },
-
   {
     'mattn/' .. 'emmet-vim', event='BufRead',
     config = function()
       require('plugins.emmet').setup()
-    end
+    end,
   },
-
   {
-    'f-person/' .. 'git-blame.nvim', event='BufRead',
-    config = function()
-      require('plugins.blameline').setup()
-    end
+    'f-person/' .. 'git-blame.nvim',
+    keys = {
+      { '<space>,b', '<cmd>GitBlameToggle<CR>', desc = 'GitBlameToggle' },
+    },
   },
-
   {
     'lukas-reineke/' .. 'indent-blankline.nvim', event='BufRead',
-    main = 'ibl',
-    config = function()
-      require('plugins.indent_blankline').setup()
-    end
+    main = 'ibl', opts = {},
   },
-
   {
-    'windwp/' .. 'nvim-autopairs', event='BufRead',
-    config = function()
-      require('plugins.autopair').setup()
-    end
+    'windwp/' .. 'nvim-autopairs', event='InsertEnter',
+    opts = {},
   },
-
   {
-    'neovim/' .. 'nvim-lspconfig', event='VimEnter',
+    'neovim/' .. 'nvim-lspconfig', event='VeryLazy',
     config = function()
       require('plugins.lspconfig_setup').setup()
     end
   },
-
   {
-    'nvim-treesitter/' .. 'nvim-treesitter', build=':TSUpdate', event='VimEnter',
+    'nvim-treesitter/' .. 'nvim-treesitter', event='VeryLazy',
+    build=':TSUpdate',
+    dependencies = {
+      {'JoosepAlviste/' .. 'nvim-ts-context-commentstring'},
+    },
     config = function()
       require('plugins.treesitter').setup()
-    end
+    end,
   },
-
   { 'windwp/' .. 'nvim-ts-autotag', event='BufRead' },
-
-  { 'JoosepAlviste/' .. 'nvim-ts-context-commentstring', event='BufRead' },
-
   { 'HiPhish/' .. 'nvim-ts-rainbow2', event='BufRead' },
-
-  { 'nvim-tree/' .. 'nvim-web-devicons', event='VimEnter' },
-
+  { 'nvim-tree/' .. 'nvim-web-devicons', event='VeryLazy' },
   {
-    'nvim-telescope/' .. 'telescope.nvim', event='VimEnter',
+    'nvim-telescope/' .. 'telescope.nvim', event='VeryLazy',
     dependencies = {
       {'nvim-telescope/' .. 'telescope-file-browser.nvim'},
       {'nvim-telescope/' .. 'telescope-fzf-native.nvim', build='make'},
@@ -102,54 +98,32 @@ require('lazy').setup({
       require('plugins.telescope').setup()
     end
   },
-
   { 'tpope/' .. 'vim-commentary', event='BufRead' },
-
-  {
-    'mhinz/' .. 'vim-startify', event='VimEnter',
-    config = function()
-      require('plugins.startify').setup()
-    end
-  },
-
   {
     'thinca/' .. 'vim-quickrun', event='BufRead',
     config = function()
       require('plugins.quickrun').setup()
     end
   },
-
   { 'tpope/' .. 'vim-repeat', event='BufRead' },
-
   { 'tpope/' .. 'vim-surround', event='BufRead' },
-
-  -- { 'm4xshen/' .. 'hardtime.nvim', opts = {} },
-
   { 'will133/' .. 'vim-dirdiff' },
-
-  { 'justinmk/' .. 'vim-sneak', event='BufRead' },
-
+  { 'justinmk/' .. 'vim-sneak', event='InsertEnter' },
   {
     'github/' .. 'copilot.vim',
     config = function()
       require('plugins.copilot').setup()
     end,
   },
-
   {
     'CopilotC-Nvim/CopilotChat.nvim',
     branch = "canary",
-    dependencies = {
-      { "github/copilot.vim" },
-    },
     opts = {},
   },
-
   {
-    'LunarVim/' .. 'bigfile.nvim',
+    'LunarVim/' .. 'bigfile.nvim', event='BufRead',
     opts = {},
   },
-
   {
     'RaafatTurki/' .. 'corn.nvim', event='BufRead',
     config = function()
@@ -161,6 +135,15 @@ require('lazy').setup({
       })
     end,
   },
+  {
+    'folke/todo-comments.nvim',
+    keys = {
+      { '<space>a', '<cmd>TodoTelescope<CR>', desc = 'TodoTelescope' },
+    },
+    opts = {}
+  },
+
+  -- { 'm4xshen/' .. 'hardtime.nvim', opts = {} },
 })
 
 require('settings')    -- lua/settings.lua
