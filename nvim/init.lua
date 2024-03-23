@@ -140,8 +140,15 @@ require('lazy').setup({
     keys = {
       { '<space>a', '<cmd>TodoTelescope<CR>', desc = 'TodoTelescope' },
     },
-    opts = {}
+    opts = {},
   },
+
+  {
+    'brenoprata10/' .. 'nvim-highlight-colors',
+    config = function()
+      require('plugins.highlight_colors').setup()
+    end,
+  }
 
   -- { 'm4xshen/' .. 'hardtime.nvim', opts = {} },
 })

@@ -11,7 +11,7 @@ o.splitright = true
 
 o.hidden = true
 o.updatetime = 250
- o.autoread = true
+o.autoread = true
 -- o.lazyredraw = true
 o.laststatus = 3
 
@@ -41,6 +41,8 @@ o.hlsearch = true
 o.incsearch = true
 o.ignorecase = true
 o.smartcase = true
+
+o.termguicolors = true
 
 -- disable some builtin vim plugins
 local disabled_built_ins = {

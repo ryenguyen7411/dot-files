@@ -44,7 +44,11 @@ M.setup = function()
       },
     },
   })
-  lspconfig.quick_lint_js.setup({})
+  lspconfig.quick_lint_js.setup({
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  })
   lspconfig.stylelint_lsp.setup({
     on_attach = function(client, bufnr)
       vim.cmd([[ augroup LspStylelint
@@ -112,6 +116,12 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   })
+  lspconfig.astro.setup({
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  })
+
 
   require('lspconfig.ui.windows').default_options = {
     border = "single"

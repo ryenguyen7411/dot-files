@@ -51,8 +51,8 @@ vim.keymap.set('i', ':w', '<Esc>:w|<CR>jk', { silent = true })
 -- Visual mode: shifting > and <, move line up and down
 vim.keymap.set('v', '<', '<gv', { silent = true })
 vim.keymap.set('v', '>', '>gv', { silent = true })
-vim.keymap.set('v', 'J', ':m \'>+1<CR><CR>gv', { silent = true })
-vim.keymap.set('v', 'K', ':m \'<-2<CR><CR>gv', { silent = true })
+vim.keymap.set('v', 'J', ':m \'>+1<CR><CR>gv=gv', { silent = true })
+vim.keymap.set('v', 'K', ':m \'<-2<CR><CR>gv=gv', { silent = true })
 
 -- Split resize current pane
 vim.keymap.set('n', 'zh', '<C-w>h', { silent = true })
