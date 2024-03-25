@@ -11,7 +11,7 @@ function augroup(name, autocmds)
 end
 
 vim.cmd('au VimEnter * cd %:p:h')
-vim.cmd('au TextYankPost * lua vim.highlight.on_yank {on_visual = false}')
+vim.cmd('au TextYankPost * lua vim.highlight.on_yank {}')
 
 augroup('HighlightExtraWhitespace', {
   'highlight ExtraWhitespace guibg=#ffc777',

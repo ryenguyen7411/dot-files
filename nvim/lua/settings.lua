@@ -10,22 +10,18 @@ o.splitbelow = true
 o.splitright = true
 
 o.hidden = true
-o.updatetime = 250
-o.autoread = true
--- o.lazyredraw = true
+o.updatetime = 750
 o.laststatus = 3
 
 o.fillchars = 'eob: '
-o.whichwrap:append "<>hl"
+o.whichwrap:append "<>"
 o.cursorline = true
-vim.cmd('set noshowmode')
-vim.cmd('set cmdheight=0')
+o.cmdheight = 0
 
 o.number = true
 o.relativenumber = true
 o.signcolumn = 'number'
-o.mouse = 'a'
-o.mousemodel = 'popup_setpos'
+o.mouse = ''
 
 -- Encoding
 vim.cmd('let $LANG=\'en_US.UTF-8\'')
@@ -77,8 +73,9 @@ g.any_jump_disable_default_keybindings = 1
 -- Plugin: vim-startify
 g.startify_change_to_dir = 0
 
-vim.cmd('filetype on')
+g.filetype = 'on'
 
 -- Plugin: git-blame
 g.gitblame_enabled = 0
 g.gitblame_message_template = ' <author> • <sha> • <date> • <summary>'
+g.gitblame_date_format = '%r'
