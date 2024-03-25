@@ -65,7 +65,7 @@ require('lazy').setup({
     main = 'ibl', opts = {},
   },
   {
-    'windwp/' .. 'nvim-autopairs', event='InsertEnter',
+    'windwp/' .. 'nvim-autopairs', event='BufRead',
     opts = {},
   },
   {
@@ -108,7 +108,7 @@ require('lazy').setup({
   { 'tpope/' .. 'vim-repeat', event='BufRead' },
   { 'tpope/' .. 'vim-surround', event='BufRead' },
   { 'will133/' .. 'vim-dirdiff' },
-  { 'justinmk/' .. 'vim-sneak', event='InsertEnter' },
+  { 'justinmk/' .. 'vim-sneak', event='BufRead' },
   {
     'github/' .. 'copilot.vim',
     config = function()

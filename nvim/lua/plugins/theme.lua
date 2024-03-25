@@ -37,6 +37,7 @@ M.tokyonight = function()
 --       hl['@string.regex'] = hl['@string']
 
       hl['DiagnosticUnderlineWarn'] = { sp = c.warning }
+      hl['LineNr'] = { fg = '#565f89' }
     end,
   })
 
