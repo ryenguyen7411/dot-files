@@ -136,7 +136,7 @@ require('lazy').setup({
     end,
   },
   {
-    'folke/todo-comments.nvim',
+    'folke/todo-comments.nvim', event='BufRead',
     keys = {
       { '<space>a', '<cmd>TodoTelescope<CR>', desc = 'TodoTelescope' },
     },

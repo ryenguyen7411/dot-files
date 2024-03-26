@@ -40,6 +40,8 @@ o.smartcase = true
 
 o.termguicolors = true
 
+o.langmap = 'ư]ơ[Ơ{Ư}'
+
 -- disable some builtin vim plugins
 local disabled_built_ins = {
   "2html_plugin",
