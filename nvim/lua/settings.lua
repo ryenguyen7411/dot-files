@@ -14,7 +14,7 @@ o.updatetime = 750
 o.laststatus = 3
 
 o.fillchars = 'eob: '
-o.whichwrap:append "<>"
+o.whichwrap:append '<>'
 o.cursorline = true
 o.cmdheight = 0
 
@@ -24,7 +24,7 @@ o.signcolumn = 'number'
 o.mouse = ''
 
 -- Encoding
-vim.cmd('let $LANG=\'en_US.UTF-8\'')
+vim.cmd "let $LANG='en_US.UTF-8'"
 o.encoding = 'utf-8'
 o.fileencoding = 'utf-8'
 o.backupcopy = 'yes'
@@ -44,28 +44,28 @@ o.langmap = 'ư]ơ[Ơ{Ư}'
 
 -- disable some builtin vim plugins
 local disabled_built_ins = {
-  "2html_plugin",
-  "getscript",
-  "getscriptPlugin",
-  "gzip",
-  "logipat",
-  "netrw",
-  "netrwPlugin",
-  "netrwSettings",
-  "netrwFileHandlers",
-  "matchit",
-  "tar",
-  "tarPlugin",
-  "rrhelper",
-  "spellfile_plugin",
-  "vimball",
-  "vimballPlugin",
-  "zip",
-  "zipPlugin",
+  '2html_plugin',
+  'getscript',
+  'getscriptPlugin',
+  'gzip',
+  'logipat',
+  'netrw',
+  'netrwPlugin',
+  'netrwSettings',
+  'netrwFileHandlers',
+  'matchit',
+  'tar',
+  'tarPlugin',
+  'rrhelper',
+  'spellfile_plugin',
+  'vimball',
+  'vimballPlugin',
+  'zip',
+  'zipPlugin',
 }
 
 for _, plugin in pairs(disabled_built_ins) do
-   g["loaded_" .. plugin] = 1
+  g['loaded_' .. plugin] = 1
 end
 
 -- Plugin: any-jump

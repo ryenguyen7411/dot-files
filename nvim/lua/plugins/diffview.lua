@@ -2,14 +2,14 @@ local M = {}
 
 M.setup = function()
   local cb = require('diffview.config').diffview_callback
-  local actions = require("diffview.actions")
+  local actions = require 'diffview.actions'
 
-  require('diffview').setup{
+  require('diffview').setup {
     enhanced_diff_hl = true,
     view = {
       merge_tool = {
         -- Config for conflicted files in diff views during a merge or rebase.
-        layout = "diff3_horizontal",
+        layout = 'diff3_horizontal',
         disable_diagnostics = true,
       },
     },
@@ -19,15 +19,15 @@ M.setup = function()
         ['<leader>r'] = '<cmd>DiffviewFocusFiles<CR>',
       },
       file_panel = {
-        ['o']         = actions.focus_entry,
+        ['o'] = actions.focus_entry,
         ['<leader>r'] = '<cmd>DiffviewClose<CR>',
       },
       file_history_panel = {
-        ['o']         = actions.focus_entry,
-        ['p']         = actions.open_in_diffview,
+        ['o'] = actions.focus_entry,
+        ['p'] = actions.open_in_diffview,
         ['<leader>r'] = '<cmd>DiffviewClose<CR>',
       },
-    }
+    },
   }
 
   M.mapping()

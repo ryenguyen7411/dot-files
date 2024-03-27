@@ -52,8 +52,8 @@ vim.keymap.set('i', ':w', '<Esc>:w|<CR>jk', { silent = true })
 -- Visual mode: shifting > and <, move line up and down
 vim.keymap.set('v', '<', '<gv', { silent = true })
 vim.keymap.set('v', '>', '>gv', { silent = true })
-vim.keymap.set('v', 'J', ':m \'>+1<CR><CR>gv=gv', { silent = true })
-vim.keymap.set('v', 'K', ':m \'<-2<CR><CR>gv=gv', { silent = true })
+vim.keymap.set('v', 'J', ":m '>+1<CR><CR>gv=gv", { silent = true })
+vim.keymap.set('v', 'K', ":m '<-2<CR><CR>gv=gv", { silent = true })
 
 -- Split resize current pane
 vim.keymap.set('n', 'zh', '<C-w>h', { silent = true })
@@ -85,5 +85,10 @@ vim.keymap.set('n', '0\\', ':%bdelete!<CR><CR>', { silent = true })
 vim.keymap.set('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
 
 -- Vim profiling
-vim.keymap.set('n', '<leader>vp', ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>', { silent = true })
+vim.keymap.set(
+  'n',
+  '<leader>vp',
+  ':profile start ~/profile.nvim.log<CR>:profile func *<CR>:profile file *<CR>',
+  { silent = true }
+)
 vim.keymap.set('n', '<leader>vs', ':profile pause<CR>:e! ~/profile.nvim.log<CR>', { silent = true })
