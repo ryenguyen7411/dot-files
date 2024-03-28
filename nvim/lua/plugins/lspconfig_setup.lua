@@ -1,9 +1,8 @@
-local v = require('vimp')
-local lspconfig = require('lspconfig')
+local lspconfig = require 'lspconfig'
 local M = {}
 
 M.setup = function()
-  vim.diagnostic.config({
+  vim.diagnostic.config {
     float = {
       source = 'always',
       border = 'rounded',
@@ -11,47 +10,51 @@ M.setup = function()
     },
     severity_sort = true,
     virtual_text = false,
-  })
-  vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
+  }
+  -- vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
 
-  lspconfig.tsserver.setup({
+  lspconfig.tsserver.setup {
     on_attach = function(client, bufnr)
       client.server_capabilities.documentFormattingProvider = false
       client.server_capabilities.documentRangeFormattingProvider = false
       M.attach(client, bufnr)
     end,
     root_dir = function(fname)
-      if lspconfig.util.root_pattern('.vue-project')(fname) then
+      if lspconfig.util.root_pattern '.vue-project'(fname) then
         return false
       else
-        return lspconfig.util.root_pattern('package.json')(fname)
+        return lspconfig.util.root_pattern 'package.json'(fname)
       end
     end,
     single_file_support = false,
-    filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
-  })
-  lspconfig.eslint.setup({
+    filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' },
+  }
+  lspconfig.eslint.setup {
     on_attach = function(client, bufnr)
-      vim.cmd([[ augroup LspEslint
+      vim.cmd [[ augroup LspEslint
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> EslintFixAll
-      augroup END ]])
+      augroup END ]]
       M.attach(client, bufnr)
     end,
     settings = {
       codeActionOnSave = {
         enable = true,
-        mode = "all"
+        mode = 'all',
       },
     },
-  })
-  lspconfig.quick_lint_js.setup({})
-  lspconfig.stylelint_lsp.setup({
+  }
+  lspconfig.quick_lint_js.setup {
     on_attach = function(client, bufnr)
-      vim.cmd([[ augroup LspStylelint
+      M.attach(client, bufnr)
+    end,
+  }
+  lspconfig.stylelint_lsp.setup {
+    on_attach = function(client, bufnr)
+      vim.cmd [[ augroup LspStylelint
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
-      augroup END ]])
+      augroup END ]]
       M.attach(client, bufnr)
     end,
     settings = {
@@ -60,18 +63,18 @@ M.setup = function()
         autoFixOnSave = true,
       },
     },
-  })
-  lspconfig.volar.setup{
+  }
+  lspconfig.volar.setup {
     on_attach = function(client, bufnr)
-      vim.cmd([[ augroup LspVolar
+      vim.cmd [[ augroup LspVolar
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
-      augroup END ]])
+      augroup END ]]
       M.attach(client, bufnr)
     end,
-    root_dir = lspconfig.util.root_pattern('.vue-project'),
+    root_dir = lspconfig.util.root_pattern '.vue-project',
     single_file_support = false,
-    filetypes = {'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json'}
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
   }
 
   lspconfig.html.setup {
@@ -79,78 +82,76 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   }
-  lspconfig.jsonls.setup({
+  lspconfig.jsonls.setup {
     on_attach = function(client, bufnr)
       M.attach(client, bufnr)
     end,
-  })
-  lspconfig.dartls.setup({
+  }
+  lspconfig.dartls.setup {
     on_attach = function(client, bufnr)
-      vim.cmd([[
+      vim.cmd [[
       augroup LspFlutter
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
       augroup END
-      ]])
+      ]]
 
       M.attach(client, bufnr)
     end,
-  })
-  lspconfig.vimls.setup{
+  }
+  lspconfig.vimls.setup {
     on_attach = function(client, bufnr)
-      require("aerial").on_attach(client, bufnr)
+      require('aerial').on_attach(client, bufnr)
       M.attach(client, bufnr)
     end,
   }
-  lspconfig.intelephense.setup({
+  lspconfig.intelephense.setup {
     on_attach = function(client, bufnr)
-      vim.cmd([[
+      vim.cmd [[
       augroup PhpLint
         autocmd! * <buffer>
         autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
       augroup END
-      ]])
+      ]]
       M.attach(client, bufnr)
     end,
-  })
+  }
+  lspconfig.astro.setup {
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  }
 
   require('lspconfig.ui.windows').default_options = {
-    border = "single"
+    border = 'single',
   }
-  vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-    vim.lsp.handlers.hover, {
-      border = "single"
-    }
-  )
+  vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
+    border = 'single',
+  })
 
-  vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-    vim.lsp.handlers.signature_help, {
-      border = "single"
-    }
-  )
+  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+    border = 'single',
+  })
 
-  vim.diagnostic.config{
-    float={border="single"}
+  vim.diagnostic.config {
+    float = { border = 'single' },
   }
 
   M.mapping()
 end
 
 M.attach = function(client, bufnr)
-  local opts = { noremap = true, silent = true }
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gn', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gm', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '[[', '<cmd>AerialPrev<CR>', {})
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', ']]', '<cmd>AerialNext<CR>', {})
+  local opts = { noremap = true, silent = true, buffer = bufnr }
+  vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  vim.keymap.set('n', 'gn', '<cmd>lua vim.diagnostic.goto_prev({ float = false })<CR>', opts)
+  vim.keymap.set('n', 'gm', '<cmd>lua vim.diagnostic.goto_next({ float = false })<CR>', opts)
+  vim.keymap.set('n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
+  vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
 end
 
 M.mapping = function()
-  -- v.nmap({'silent'}, '<leader>bu', ':LspStop<CR>|:LspStart<CR>')
+  -- vim.keymap.set('n', '<leader>bu', ':LspStop<CR>:LspStart<CR>', { silent = true })
 end
 
 return M

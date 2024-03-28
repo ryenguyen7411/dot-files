@@ -3,15 +3,15 @@ local o = vim.o
 
 function augroup(name, autocmds)
   vim.cmd('augroup ' .. name)
-  vim.cmd('autocmd!')
+  vim.cmd 'autocmd!'
   for _, autocmd in ipairs(autocmds) do
-      vim.cmd(autocmd)
+    vim.cmd(autocmd)
   end
-  vim.cmd('augroup END')
+  vim.cmd 'augroup END'
 end
 
-vim.cmd('au VimEnter * cd %:p:h')
-vim.cmd('au TextYankPost * lua vim.highlight.on_yank {on_visual = false}')
+vim.cmd 'au VimEnter * cd %:p:h'
+vim.cmd 'au TextYankPost * lua vim.highlight.on_yank {}'
 
 augroup('HighlightExtraWhitespace', {
   'highlight ExtraWhitespace guibg=#ffc777',
@@ -20,8 +20,8 @@ augroup('HighlightExtraWhitespace', {
   'au InsertEnter * match NONE /\\s\\+$/',
 })
 
-vim.cmd('au BufEnter *.hbs set filetype=html')
-vim.cmd('au BufEnter *.cshtml set filetype=html')
+vim.cmd 'au BufEnter *.hbs set filetype=html'
+vim.cmd 'au BufEnter *.cshtml set filetype=html'
 
 -- -- disable syntax highlighting in big files
 -- function DisableSyntaxTreesitter()

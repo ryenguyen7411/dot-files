@@ -115,6 +115,7 @@ export PATH="$PNPM_HOME:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.rbenv/shims:${PATH}"
 export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 
 export LANG=en_US.UTF-8
 

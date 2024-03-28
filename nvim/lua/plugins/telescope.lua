@@ -1,11 +1,34 @@
-local v = require('vimp')
-
 local M = {}
 
-M.setup = function ()
-  local actions = require("telescope.actions")
-  local fb_actions = require "telescope".extensions.file_browser.actions
-  local previewers = require('telescope.previewers')
+function find_files()
+  local path = vim.fn.expand '%:p:h'
+  if string.find(path, '/notes') then
+    vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find curl" })')
+  else
+    vim.cmd 'lua require("telescope.builtin").find_files()'
+  end
+end
+function live_grep()
+  local path = vim.fn.expand '%:p:h'
+  if string.find(path, '/notes') then
+    vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", prompt_title = "Search curl"})')
+  else
+    vim.cmd 'lua require("telescope.builtin").live_grep()'
+  end
+end
+function select_curl()
+  local path = vim.fn.expand '%:p:h'
+  vim.cmd(
+    'lua require("telescope.builtin").find_files({ cwd = "'
+      .. notes
+      .. '", default_text = ".sh", prompt_title = "Select curl" })'
+  )
+end
+
+M.setup = function()
+  local actions = require 'telescope.actions'
+  local fb_actions = require('telescope').extensions.file_browser.actions
+  local previewers = require 'telescope.previewers'
 
   -- Setup Telescope
   require('telescope').setup {
@@ -20,7 +43,7 @@ M.setup = function ()
         '--trim',
         '--no-ignore',
         '--ignore-file',
-        os.getenv("HOME") .. '/.config/rg/.rgignore',
+        os.getenv 'HOME' .. '/.config/rg/.rgignore',
       },
       file_ignore_patterns = {
         -- '.git/',
@@ -38,18 +61,15 @@ M.setup = function ()
               end
             end
 
-            vim.fn.jobstart(
-              { 'viu', filepath },
-              { on_stdout = send_output, stdout_buffered = true }
-            )
+            vim.fn.jobstart({ 'viu', filepath }, { on_stdout = send_output, stdout_buffered = true })
           else
-            require("telescope.previewers.utils").set_preview_message(bufnr, opts.winid, "Binary cannot be previewed")
+            require('telescope.previewers.utils').set_preview_message(bufnr, opts.winid, 'Binary cannot be previewed')
           end
-        end
+        end,
       },
       mappings = {
         i = {
-          ["<esc>"] = actions.close,
+          ['<esc>'] = actions.close,
         },
       },
     },
@@ -59,12 +79,12 @@ M.setup = function ()
         sort_mru = true,
         mappings = {
           i = {
-            ["<c-d>"] = "delete_buffer",
+            ['<c-d>'] = 'delete_buffer',
           },
           n = {
-            ["<c-d>"] = "delete_buffer",
-          }
-        }
+            ['<c-d>'] = 'delete_buffer',
+          },
+        },
       },
       find_files = {
         find_command = {
@@ -75,7 +95,7 @@ M.setup = function ()
           '--strip-cwd-prefix',
           '--no-ignore',
           '--ignore-file',
-          os.getenv("HOME") .. '/.config/fd/.fdignore',
+          os.getenv 'HOME' .. '/.config/fd/.fdignore',
         },
       },
     },
@@ -88,7 +108,7 @@ M.setup = function ()
         fuzzy = true, -- false will only do exact matching
         override_generic_sorter = true, -- override the generic sorter
         override_file_sorter = true, -- override the file sorter
-        case_mode = "smart_case", -- or "ignore_case" or "respect_case"
+        case_mode = 'smart_case', -- or "ignore_case" or "respect_case"
       },
       file_browser = {
         mappings = {
@@ -102,16 +122,16 @@ M.setup = function ()
         },
         hidden = true,
         respect_gitignore = false,
-        dir_icon = "",
+        dir_icon = '',
         grouped = true,
         select_buffer = true,
         display_stat = false,
-      }
-    }
+      },
+    },
   }
-  require('telescope').load_extension('fzf')
-  require('telescope').load_extension('file_browser')
-  require('telescope').load_extension('project')
+  require('telescope').load_extension 'fzf'
+  require('telescope').load_extension 'file_browser'
+  require('telescope').load_extension 'project'
 
   M.mapping()
 end
@@ -119,31 +139,29 @@ end
 M.mapping = function()
   local notes = '~/notes'
 
-  v.nnoremap({'silent'}, '<leader>;', function ()
-    local path = vim.fn.expand('%:p:h')
-    if string.find(path, '/notes') then
-      vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find curl" })')
-    else
-      vim.cmd('lua require("telescope.builtin").find_files()')
-    end
-  end)
-  v.nnoremap({'silent'}, '<leader>j', function ()
-    local path = vim.fn.expand('%:p:h')
-    if string.find(path, '/notes') then
-      vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", prompt_title = "Search curl"})')
-    else
-      vim.cmd('lua require("telescope.builtin").live_grep()')
-    end
-  end)
-  v.nnoremap({'silent'}, '<leader>p', function ()
-    local path = vim.fn.expand('%:p:h')
-    vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", default_text = ".sh", prompt_title = "Select curl" })')
-  end)
+  vim.keymap.set('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<leader>p', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
 
-  v.nmap({'silent'}, '<leader>l', '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>')
-  v.nmap({'silent'}, '<leader>k', '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>')
-  v.nmap({'silent'}, '<leader>b', '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>')
-  v.nmap({'silent'}, '<leader>\'', '<cmd>Telescope resume<CR>')
+  vim.keymap.set(
+    'n',
+    '<leader>l',
+    '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>',
+    { noremap = true, silent = true }
+  )
+  vim.keymap.set(
+    'n',
+    '<leader>k',
+    '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>',
+    { noremap = true, silent = true }
+  )
+  vim.keymap.set(
+    'n',
+    '<leader>b',
+    '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>',
+    { noremap = true, silent = true }
+  )
+  vim.keymap.set('n', "<leader>'", '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
 end
 
 return M

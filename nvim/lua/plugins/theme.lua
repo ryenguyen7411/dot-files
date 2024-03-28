@@ -1,15 +1,14 @@
 local g = vim.g
-local v = require('vimp')
 
 local M = {}
 
 function augroup(name, autocmds)
   vim.cmd('augroup ' .. name)
-  vim.cmd('autocmd!')
+  vim.cmd 'autocmd!'
   for _, autocmd in ipairs(autocmds) do
     vim.cmd('autocmd ' .. autocmd)
   end
-  vim.cmd('augroup END')
+  vim.cmd 'augroup END'
 end
 
 M.setup = function()
@@ -17,7 +16,7 @@ M.setup = function()
 end
 
 M.tokyonight = function()
-  require("tokyonight").setup({
+  require('tokyonight').setup {
     transparent = true,
     on_colors = function(c)
       c.border = c.border_highlight
@@ -34,40 +33,41 @@ M.tokyonight = function()
       hl['@variable'] = hl['@property']
       hl['@keyword.operator'] = hl['@keyword']
       hl['@constant.builtin'] = hl['@constant']
---       hl['@namespace'] = hl['@constructor']
---       hl['@string.regex'] = hl['@string']
+      -- hl['@namespace'] = hl['@constructor']
+      -- hl['@string.regex'] = hl['@string']
 
       hl['DiagnosticUnderlineWarn'] = { sp = c.warning }
+      hl['LineNr'] = { fg = '#565f89' }
     end,
-  })
+  }
 
   g.lightline = {
-    colorscheme = 'tokyonight'
+    colorscheme = 'tokyonight',
   }
 
   local transparents = {
-    "Normal",
-    "NormalNC",
-    "Comment",
-    "Constant",
-    "Special",
-    "Identifier",
-    "Statement",
-    "PreProc",
-    "Type",
-    "Underlined",
-    "Todo",
-    "String",
-    "Function",
-    "Conditional",
-    "Repeat",
-    "Operator",
-    "Structure",
-    "LineNr",
-    "NonText",
-    "SignColumn",
-    "CursorLineNr",
-    "EndOfBuffer",
+    'Normal',
+    'NormalNC',
+    'Comment',
+    'Constant',
+    'Special',
+    'Identifier',
+    'Statement',
+    'PreProc',
+    'Type',
+    'Underlined',
+    'Todo',
+    'String',
+    'Function',
+    'Conditional',
+    'Repeat',
+    'Operator',
+    'Structure',
+    'LineNr',
+    'NonText',
+    'SignColumn',
+    'CursorLineNr',
+    'EndOfBuffer',
 
     'NormalFloat',
     'FloatBorder',
@@ -80,7 +80,7 @@ M.tokyonight = function()
     vim.cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
   end
 
-  vim.cmd('colorscheme tokyonight')
+  vim.cmd 'colorscheme tokyonight'
 end
 
 -- M.colorye = function()
