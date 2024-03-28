@@ -203,6 +203,7 @@ require('lazy').setup {
       require('render-markdown').setup {}
     end,
   },
+  { 'psliwka/' .. 'vim-smoothie' },
 }
 
 require 'settings' -- lua/settings.lua

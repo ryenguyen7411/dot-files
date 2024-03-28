@@ -1,7 +1,7 @@
 local g = vim.g
 local o = vim.opt
 
-o.scrolloff = 8
+o.scrolloff = 4
 o.tabstop = 2
 o.shiftwidth = 2
 o.expandtab = true
@@ -81,3 +81,7 @@ g.filetype = 'on'
 g.gitblame_enabled = 0
 g.gitblame_message_template = ' <author> • <sha> • <date> • <summary>'
 g.gitblame_date_format = '%r'
+
+-- Plugin: vim-smoothie
+g.smoothie_speed_linear_factor = 30
+g.smoothie_speed_constant_factor = 30
