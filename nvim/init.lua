@@ -143,18 +143,6 @@ require('lazy').setup {
     opts = {},
   },
   {
-    'RaafatTurki/' .. 'corn.nvim',
-    event = 'BufRead',
-    config = function()
-      require('corn').setup {
-        item_preprocess_func = function(item)
-          return item
-        end,
-        blacklisted_modes = { 'i' },
-      }
-    end,
-  },
-  {
     'folke/' .. 'todo-comments.nvim',
     event = 'BufRead',
     keys = {
@@ -204,6 +192,15 @@ require('lazy').setup {
     end,
   },
   { 'psliwka/' .. 'vim-smoothie' },
+  {
+    'dgagn/diagflow.nvim',
+    event = 'LspAttach',
+    opts = {
+      max_width = 100,
+      scope = 'line',
+      padding_right = 2,
+    },
+  },
 }
 
 require 'settings' -- lua/settings.lua
