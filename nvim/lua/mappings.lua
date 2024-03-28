@@ -3,15 +3,6 @@ local g = vim.g
 g.mapleader = ' '
 
 -- Center navigation
-vim.keymap.set('n', 'j', 'gj', { silent = true })
-vim.keymap.set('n', 'k', 'gk', { silent = true })
-vim.keymap.set('x', 'j', 'gj', { silent = true })
-vim.keymap.set('x', 'k', 'gk', { silent = true })
-vim.keymap.set('n', '<C-j>', '5j', { silent = true })
-vim.keymap.set('n', '<C-k>', '5k', { silent = true })
-vim.keymap.set('x', '<C-j>', '5j', { silent = true })
-vim.keymap.set('x', '<C-k>', '5k', { silent = true })
-
 vim.keymap.set('n', '#', '#zz', { silent = true })
 vim.keymap.set('n', '*', '*zz', { silent = true })
 vim.keymap.set('n', 'n', 'nzz', { silent = true })
@@ -45,9 +36,6 @@ vim.keymap.set('n', '<leader>w', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>ư', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>qq', ':bp|bd #<CR>', { silent = true })
 vim.keymap.set('i', ':w', '<Esc>:w|<CR>jk', { silent = true })
-
--- Keep the cursor in place while joining lines
--- vim.keymap.set('n', 'J', 'mzJ`z', { silent = true })
 
 -- Visual mode: shifting > and <, move line up and down
 vim.keymap.set('v', '<', '<gv', { silent = true })

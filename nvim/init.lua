@@ -46,6 +46,7 @@ require('lazy').setup {
       { '<space>r', '<cmd>DiffviewOpen<CR>', desc = 'DiffviewOpen' },
       { '<space>f', '<cmd>DiffviewFileHistory %<CR>', desc = 'DiffviewFileHistory' },
     },
+    cmd = { 'DiffviewOpen' },
     config = function()
       require('plugins.diffview').setup()
     end,
@@ -117,7 +118,13 @@ require('lazy').setup {
   },
   { 'tpope/' .. 'vim-repeat', event = 'BufRead' },
   { 'tpope/' .. 'vim-surround', event = 'BufRead' },
-  { 'will133/' .. 'vim-dirdiff' },
+  {
+    'will133/' .. 'vim-dirdiff',
+    keys = {
+      { '<space>,d', '<cmd>DirDiff<CR>', desc = 'DirDiff' },
+    },
+    cmd = { 'DirDiff' },
+  },
   { 'justinmk/' .. 'vim-sneak', event = 'BufRead' },
   {
     'github/' .. 'copilot.vim',
@@ -157,6 +164,7 @@ require('lazy').setup {
   },
   {
     'brenoprata10/' .. 'nvim-highlight-colors',
+    event = 'BufRead',
     config = function()
       require('plugins.highlight_colors').setup()
     end,
@@ -171,11 +179,29 @@ require('lazy').setup {
   },
   {
     'm4xshen/' .. 'hardtime.nvim',
+    event = 'BufRead',
     dependencies = {
       'MunifTanjim/' .. 'nui.nvim',
       'nvim-lua/' .. 'plenary.nvim',
     },
-    opts = {},
+    opts = {
+      allow_different_key = true,
+      disabled_keys = {
+        ['<Up>'] = { 'n', 'x' },
+        ['<Down>'] = { 'n', 'x' },
+        ['<Left>'] = { 'n', 'x' },
+        ['<Right>'] = { 'n', 'x' },
+      },
+    },
+  },
+  {
+    'MeanderingProgrammer/' .. 'markdown.nvim',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+    },
+    config = function()
+      require('render-markdown').setup {}
+    end,
   },
 }
 
