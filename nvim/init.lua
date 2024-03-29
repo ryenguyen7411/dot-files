@@ -180,6 +180,13 @@ require('lazy').setup {
         ['<Left>'] = { 'n', 'x' },
         ['<Right>'] = { 'n', 'x' },
       },
+      disabled_filetypes = {
+        'TelescopePrompt',
+        'copilot-chat',
+        'checkhealth',
+        'help',
+        'lazy',
+      },
     },
   },
   {
@@ -193,12 +200,13 @@ require('lazy').setup {
   },
   { 'psliwka/' .. 'vim-smoothie' },
   {
-    'dgagn/diagflow.nvim',
+    'dgagn/' .. 'diagflow.nvim',
     event = 'LspAttach',
     opts = {
       max_width = 100,
       scope = 'line',
       padding_right = 2,
+      toggle_event = { 'InsertEnter', 'InsertLeave' },
     },
   },
 }

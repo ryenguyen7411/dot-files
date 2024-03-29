@@ -45,7 +45,7 @@ end
 M.mapping = function()
   vim.keymap.set(
     'n',
-    '<leader><leader>',
+    '<space><space>',
     ':if exists("g:syntax_on")<Bar>syntax off<Bar>else<Bar>syntax on<Bar>endif<CR>|:TSToggle highlight<CR>|:TSToggle rainbow<CR>',
     { silent = true }
   )

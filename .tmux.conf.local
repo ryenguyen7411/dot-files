@@ -391,3 +391,6 @@ tmux_conf_update_plugins_on_reload=true
 #
 # "$@"
 # # /!\ do not remove the previous line
+
+set-option -g default-terminal 'tmux-256color'
+set-option -sa terminal-features ',xterm-kitty:RGB'

@@ -35,7 +35,7 @@ vim.keymap.set('x', 'p', '"_dP', { silent = true, noremap = true })
 vim.keymap.set('n', '<leader>w', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>ư', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>qq', ':bp|bd #<CR>', { silent = true })
-vim.keymap.set('i', ':w', '<Esc>:w|<CR>jk', { silent = true })
+vim.keymap.set('i', ':w', '<Esc>:w<CR>', { silent = true })
 
 -- Visual mode: shifting > and <, move line up and down
 vim.keymap.set('v', '<', '<gv', { silent = true })
