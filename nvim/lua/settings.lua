@@ -1,7 +1,6 @@
 local g = vim.g
 local o = vim.opt
 
-o.scrolloff = 4
 o.tabstop = 2
 o.shiftwidth = 2
 o.expandtab = true
@@ -41,6 +40,8 @@ o.smartcase = true
 o.termguicolors = true
 
 o.langmap = 'ư]ơ[Ơ{Ư}'
+o.scrolloff = 3
+o.scroll = 10
 
 -- disable some builtin vim plugins
 local disabled_built_ins = {
