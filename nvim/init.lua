@@ -174,6 +174,7 @@ require('lazy').setup {
     },
     opts = {
       allow_different_key = true,
+      max_count = 3,
       disabled_keys = {
         ['<Up>'] = { 'n', 'x' },
         ['<Down>'] = { 'n', 'x' },

@@ -3,6 +3,10 @@ local g = vim.g
 g.mapleader = ' '
 
 -- Center navigation
+vim.keymap.set('n', '<C-j>', '5j', { silent = true })
+vim.keymap.set('n', '<C-k>', '5k', { silent = true })
+vim.keymap.set('x', '<C-j>', '5j', { silent = true })
+vim.keymap.set('x', '<C-k>', '5k', { silent = true })
 vim.keymap.set('n', '#', '#zz', { silent = true })
 vim.keymap.set('n', '*', '*zz', { silent = true })
 vim.keymap.set('n', 'n', 'nzz', { silent = true })
@@ -51,8 +55,8 @@ vim.keymap.set('n', 'zk', '<C-w>k', { silent = true })
 vim.keymap.set('n', 'z<BS>', '<Space>15<C-w><', { silent = true })
 vim.keymap.set('n', 'z<CR>', '<Space>15<C-w>>', { silent = true })
 vim.keymap.set('n', 'zb', '<C-w>=', { silent = true })
-vim.keymap.set('n', 'z|', ':vsplit<CR>|:set scroll=10<CR>', { silent = true })
-vim.keymap.set('n', 'z-', ':split<CR>|:set scroll=10<CR>', { silent = true })
+vim.keymap.set('n', 'z|', ':vsplit<CR>', { silent = true })
+vim.keymap.set('n', 'z-', ':split<CR>', { silent = true })
 vim.keymap.set('n', 'zm', '<C-w>q', { silent = true })
 
 -- Fold / unfold code
