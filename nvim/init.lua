@@ -192,6 +192,7 @@ require('lazy').setup {
   },
   {
     'MeanderingProgrammer/' .. 'markdown.nvim',
+    ft = { 'markdown' },
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
     },
@@ -199,7 +200,6 @@ require('lazy').setup {
       require('render-markdown').setup {}
     end,
   },
-  { 'psliwka/' .. 'vim-smoothie' },
   {
     'dgagn/' .. 'diagflow.nvim',
     event = 'LspAttach',
