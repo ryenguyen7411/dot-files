@@ -135,7 +135,20 @@ require('lazy').setup {
   {
     'CopilotC-Nvim/' .. 'CopilotChat.nvim',
     branch = 'canary',
-    opts = {},
+    opts = {
+      auto_follow_cursor = false,
+      window = {
+        layout = 'float',
+        width = 0.7,
+        height = 0.7,
+      },
+      mappings = {
+        complete = {
+          detail = 'Use @<Tab> or /<Tab> for options.',
+          insert = '<C-h>',
+        },
+      },
+    },
   },
   {
     'LunarVim/' .. 'bigfile.nvim',

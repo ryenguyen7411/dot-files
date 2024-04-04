@@ -5,7 +5,7 @@ M.setup = function()
 end
 
 M.mapping = function()
-  vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
+  vim.keymap.set('n', ',.', 'vip<cmd>CopilotChatToggle<CR>', {})
   vim.keymap.set('n', ',,', '<cmd>CopilotChatReset<CR>', {})
 end
 
