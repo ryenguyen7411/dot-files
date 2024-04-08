@@ -161,7 +161,17 @@ require('lazy').setup {
     keys = {
       { '<space>a', '<cmd>TodoTelescope<CR>', desc = 'TodoTelescope' },
     },
-    opts = {},
+    opts = {
+      keywords = {
+        EPIC = { signs = false },
+        TASK = { signs = false, color = 'info' },
+        TODO = { icon = ' ', color = 'info' },
+        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
+        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'XXX' } },
+        FIX = { icon = ' ', color = 'error', alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE' } },
+        TEST = { icon = '⏲ ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
+      },
+    },
   },
   {
     'brenoprata10/' .. 'nvim-highlight-colors',
