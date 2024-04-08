@@ -1,27 +1,33 @@
 local M = {}
 
 function find_files()
+  local notes = '~/notes'
+
   local path = vim.fn.expand '%:p:h'
   if string.find(path, '/notes') then
-    vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find curl" })')
+    vim.cmd('lua require("telescope.builtin").find_files({ cwd = "' .. notes .. '", prompt_title = "Find notes" })')
   else
     vim.cmd 'lua require("telescope.builtin").find_files()'
   end
 end
 function live_grep()
+  local notes = '~/notes'
+
   local path = vim.fn.expand '%:p:h'
   if string.find(path, '/notes') then
-    vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", prompt_title = "Search curl"})')
+    vim.cmd('lua require("telescope.builtin").live_grep({ cwd = "' .. notes .. '", prompt_title = "Search notes"})')
   else
     vim.cmd 'lua require("telescope.builtin").live_grep()'
   end
 end
 function select_curl()
+  local notes = '~/notes'
+
   local path = vim.fn.expand '%:p:h'
   vim.cmd(
     'lua require("telescope.builtin").find_files({ cwd = "'
       .. notes
-      .. '", default_text = ".sh", prompt_title = "Select curl" })'
+      .. '", default_text = ".md", prompt_title = "Select notes" })'
   )
 end
 
@@ -137,8 +143,6 @@ M.setup = function()
 end
 
 M.mapping = function()
-  local notes = '~/notes'
-
   vim.keymap.set('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', '<leader>p', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
