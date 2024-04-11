@@ -165,6 +165,7 @@ require('lazy').setup {
       keywords = {
         EPIC = { signs = false },
         TASK = { signs = false, color = 'info' },
+        DONE = { signs = false, color = 'hint' },
         TODO = { icon = ' ', color = 'info' },
         NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
         WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'XXX' } },
