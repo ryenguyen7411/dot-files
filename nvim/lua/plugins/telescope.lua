@@ -73,6 +73,11 @@ M.setup = function()
           end
         end,
       },
+      path_display = {
+        filename_first = {
+          reverse_directories = false,
+        },
+      },
       mappings = {
         i = {
           ['<esc>'] = actions.close,
