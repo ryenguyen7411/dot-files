@@ -213,6 +213,7 @@ require('lazy').setup {
         'checkhealth',
         'help',
         'lazy',
+        'any-jump',
       },
     },
   },
@@ -230,7 +231,7 @@ require('lazy').setup {
     'dgagn/' .. 'diagflow.nvim',
     event = 'LspAttach',
     opts = {
-      max_width = 100,
+      max_width = 150,
       scope = 'line',
       padding_right = 2,
       toggle_event = { 'InsertEnter', 'InsertLeave' },
