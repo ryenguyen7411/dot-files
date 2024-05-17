@@ -41,6 +41,16 @@ require('lazy').setup {
     },
   },
   {
+    'CopilotC-Nvim/' .. 'CopilotChat.nvim',
+    branch = 'canary',
+    dependencies = {
+      { 'github/' .. 'copilot.vim' },
+    },
+    config = function()
+      require('plugins.copilot').setup()
+    end,
+  },
+  {
     'sindrets/' .. 'diffview.nvim',
     keys = {
       { '<space>r', '<cmd>DiffviewOpen<CR>', desc = 'DiffviewOpen' },
@@ -126,30 +136,6 @@ require('lazy').setup {
     cmd = { 'DirDiff' },
   },
   { 'justinmk/' .. 'vim-sneak', event = 'BufRead' },
-  {
-    'github/' .. 'copilot.vim',
-    config = function()
-      require('plugins.copilot').setup()
-    end,
-  },
-  {
-    'CopilotC-Nvim/' .. 'CopilotChat.nvim',
-    branch = 'canary',
-    opts = {
-      auto_follow_cursor = false,
-      window = {
-        layout = 'float',
-        width = 0.7,
-        height = 0.7,
-      },
-      mappings = {
-        complete = {
-          detail = 'Use @<Tab> or /<Tab> for options.',
-          insert = '<C-h>',
-        },
-      },
-    },
-  },
   {
     'LunarVim/' .. 'bigfile.nvim',
     event = 'BufRead',
