@@ -41,8 +41,8 @@ require('lazy').setup {
     },
   },
   {
-    'CopilotC-Nvim/' .. 'CopilotChat.nvim',
-    branch = 'canary',
+    'ryenguyen7411/' .. 'CopilotChat.nvim',
+    branch = 'develop',
     dependencies = {
       { 'github/' .. 'copilot.vim' },
     },

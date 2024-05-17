@@ -7,7 +7,11 @@ M.setup = function()
     prompts = {
       -- Code related prompts
       -- Explain = 'Please explain how the following code works.',
-      -- Review = 'Please review the following code and provide suggestions for improvement.',
+      ReviewDiff = {
+        prompt = '/COPILOT_REVIEWDIFF Review the selected code.',
+        selection = select.clipboard,
+      },
+      FixLang = 'Please correct any grammar and spelling errors, improve the grammar and wording of the following text.',
       -- Tests = 'Please explain how the selected code works, then generate unit tests for it.',
       -- Refactor = 'Please refactor the following code to improve its clarity and readability.',
       -- FixError = 'Please explain the error in the following text and provide a solution.',
@@ -21,7 +25,6 @@ M.setup = function()
       -- },
       -- -- Text related prompts
       -- Summarize = 'Please summarize the following text.',
-      -- FixLang = 'Please correct any grammar and spelling errors, improve the grammar and wording of the following text.',
       -- Concise = 'Please rewrite the following text to make it more concise.',
     },
     auto_follow_cursor = false,
@@ -36,28 +39,14 @@ M.setup = function()
         insert = '<C-h>',
       },
     },
-    show_help = false,
+    show_help = true,
   }
 
   M.mapping()
 end
 
 M.mapping = function()
-  function copilot_chat_input()
-    local input = vim.fn.input 'Quick Chat: '
-    if input ~= '' then
-      require('CopilotChat').ask(input, { context = 'buffers' })
-    end
-  end
-
-  function copilot_chat_context()
-    -- require('CopilotChat').toggle { selection = require('CopilotChat.select').buffer }
-    -- testing for sometime
-    require('CopilotChat').toggle { context = 'buffers' }
-  end
-
-  vim.keymap.set('n', ',/', '<cmd>lua copilot_chat_input()<CR>', {})
-  vim.keymap.set('n', ',.', '<cmd>lua copilot_chat_context()<CR>', {})
+  vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
   vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
 end
 
