@@ -28,6 +28,18 @@ M.setup = function()
     end,
     single_file_support = false,
     filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' },
+    init_options = {
+      preferences = {
+        includeInlayParameterNameHints = 'all',
+        includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true,
+        includeInlayPropertyDeclarationTypeHints = true,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayEnumMemberValueHints = true,
+        importModuleSpecifierPreference = 'non-relative',
+      },
+    },
   }
   lspconfig.eslint.setup {
     on_attach = function(client, bufnr)
@@ -142,12 +154,20 @@ end
 
 M.attach = function(client, bufnr)
   local opts = { noremap = true, silent = true, buffer = bufnr }
+
+  local inlay_hints_enabled = false
+  function toggle_inlay_hints()
+    inlay_hints_enabled = not inlay_hints_enabled
+    vim.lsp.inlay_hint.enable(inlay_hints_enabled)
+  end
+
   vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
   vim.keymap.set('n', 'gn', '<cmd>lua vim.diagnostic.goto_prev({ float = false })<CR>', opts)
   vim.keymap.set('n', 'gm', '<cmd>lua vim.diagnostic.goto_next({ float = false })<CR>', opts)
   vim.keymap.set('n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
   vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  vim.keymap.set('n', 'L', '<cmd>lua toggle_inlay_hints()<CR>', opts)
 end
 
 M.mapping = function()

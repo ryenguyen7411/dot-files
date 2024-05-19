@@ -104,7 +104,8 @@ require('lazy').setup {
     end,
   },
   { 'windwp/' .. 'nvim-ts-autotag', event = 'BufRead' },
-  { 'HiPhish/' .. 'nvim-ts-rainbow2', event = 'BufRead' },
+  -- { 'HiPhish/' .. 'nvim-ts-rainbow2', event = 'BufRead' },
+  { 'https://gitlab.com/HiPhish/rainbow-delimiters.nvim', event = 'BufRead' },
   { 'nvim-tree/' .. 'nvim-web-devicons', event = 'VeryLazy' },
   {
     'nvim-telescope/' .. 'telescope.nvim',

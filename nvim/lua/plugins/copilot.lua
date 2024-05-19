@@ -39,7 +39,7 @@ M.setup = function()
         insert = '<C-h>',
       },
     },
-    show_help = true,
+    show_help = false,
   }
 
   M.mapping()
