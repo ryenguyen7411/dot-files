@@ -11,7 +11,11 @@ M.setup = function()
     severity_sort = true,
     virtual_text = false,
   }
-  -- vim.cmd('autocmd CursorHold * lua vim.diagnostic.open_float()')
+
+  -- vim.lsp.handlers['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
+  --   require('ts-error-translator').translate_diagnostics(err, result, ctx, config)
+  --   vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
+  -- end
 
   lspconfig.tsserver.setup {
     on_attach = function(client, bufnr)
@@ -27,7 +31,7 @@ M.setup = function()
       end
     end,
     single_file_support = false,
-    filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' },
+    filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript', 'javascriptreact', 'javascript.jsx' },
     init_options = {
       preferences = {
         includeInlayParameterNameHints = 'all',
@@ -88,7 +92,6 @@ M.setup = function()
     single_file_support = false,
     filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
   }
-
   lspconfig.html.setup {
     on_attach = function(client, bufnr)
       M.attach(client, bufnr)
@@ -134,21 +137,6 @@ M.setup = function()
     end,
   }
 
-  require('lspconfig.ui.windows').default_options = {
-    border = 'single',
-  }
-  vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
-    border = 'single',
-  })
-
-  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-    border = 'single',
-  })
-
-  vim.diagnostic.config {
-    float = { border = 'single' },
-  }
-
   M.mapping()
 end
 
@@ -161,17 +149,12 @@ M.attach = function(client, bufnr)
     vim.lsp.inlay_hint.enable(inlay_hints_enabled)
   end
 
-  vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  vim.keymap.set('n', 'gn', '<cmd>lua vim.diagnostic.goto_prev({ float = false })<CR>', opts)
-  vim.keymap.set('n', 'gm', '<cmd>lua vim.diagnostic.goto_next({ float = false })<CR>', opts)
-  vim.keymap.set('n', 'g.', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
-  vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
-  vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
   vim.keymap.set('n', 'L', '<cmd>lua toggle_inlay_hints()<CR>', opts)
+  vim.keymap.set('n', 'F', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
+  vim.keymap.set('n', 'gB', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
 end
 
-M.mapping = function()
-  -- vim.keymap.set('n', '<leader>bu', ':LspStop<CR>:LspStart<CR>', { silent = true })
-end
+M.mapping = function() end
 
 return M

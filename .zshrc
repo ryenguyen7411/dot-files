@@ -48,6 +48,7 @@ alias gcgg='git add --all && git stash && git checkout stg && git fetch && git r
 alias gcs='gac && stash && git checkout release-loship && git pull'
 alias gcss='gac && stash && git checkout release && git pull'
 alias gct='gac && git commit -m "temp" --no-verify'
+alias gs='git status'
 
 alias dev4='clear && DEV_PORT=4000 yarn dev'
 alias dev5='clear && DEV_PORT=5000 yarn dev'

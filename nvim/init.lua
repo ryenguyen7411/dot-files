@@ -104,8 +104,7 @@ require('lazy').setup {
     end,
   },
   { 'windwp/' .. 'nvim-ts-autotag', event = 'BufRead' },
-  -- { 'HiPhish/' .. 'nvim-ts-rainbow2', event = 'BufRead' },
-  { 'https://gitlab.com/HiPhish/rainbow-delimiters.nvim', event = 'BufRead' },
+  { 'HiPhish/' .. 'rainbow-delimiters.nvim', event = 'BufRead' },
   { 'nvim-tree/' .. 'nvim-web-devicons', event = 'VeryLazy' },
   {
     'nvim-telescope/' .. 'telescope.nvim',
@@ -154,6 +153,7 @@ require('lazy').setup {
         TASK = { signs = false, color = 'info' },
         DONE = { signs = false, color = 'hint' },
         HIGH = { signs = false, color = 'warning' },
+        VITAL = { signs = false, color = 'error' },
         --
         TODO = { icon = ' ', color = 'info' },
         NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
@@ -214,15 +214,32 @@ require('lazy').setup {
       require('render-markdown').setup {}
     end,
   },
+  -- {
+  --   'dgagn/' .. 'diagflow.nvim',
+  --   event = 'LspAttach',
+  --   opts = {
+  --     max_width = 120,
+  --     scope = 'line',
+  --     toggle_event = { 'InsertEnter', 'InsertLeave' },
+  --     show_borders = true,
+  --   },
+  -- },
   {
-    'dgagn/' .. 'diagflow.nvim',
-    event = 'LspAttach',
-    opts = {
-      max_width = 150,
-      scope = 'line',
-      padding_right = 2,
-      toggle_event = { 'InsertEnter', 'InsertLeave' },
+    'OlegGulevskyy/' .. 'better-ts-errors.nvim',
+    dependencies = {
+      'MunifTanjim/' .. 'nui.nvim',
     },
+    config = {
+      keymaps = {
+        toggle = 'B',
+      },
+    },
+    opts = {},
+  },
+  {
+    'nvim-zh/' .. 'colorful-winsep.nvim',
+    config = true,
+    event = { 'WinNew' },
   },
 }
 
