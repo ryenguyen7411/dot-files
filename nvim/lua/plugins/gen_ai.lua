@@ -1,12 +1,43 @@
 local M = {}
 
-M.setup = function()
+M.setup_copilot = function()
+  local packages = {
+    'ryenguyen7411/' .. 'CopilotChat.nvim',
+    branch = 'develop',
+    dependencies = {
+      {
+        'zbirenbaum/copilot.lua',
+        cmd = 'Copilot',
+        event = 'InsertEnter',
+        opts = {
+          suggestion = {
+            auto_trigger = true,
+            keymap = {
+              accept = '<Tab>',
+              next = '<M-]>',
+              prev = '<M-[>',
+              dismiss = "<M-'>",
+            },
+          },
+        },
+      },
+      -- { 'github/' .. 'copilot.vim' },
+    },
+    config = function()
+      M.copilot_chat()
+    end,
+  }
+
+  M.mapping()
+
+  return packages
+end
+
+M.copilot_chat = function()
   local select = require 'CopilotChat.select'
 
   require('CopilotChat').setup {
     prompts = {
-      -- Code related prompts
-      -- Explain = 'Please explain how the following code works.',
       ReviewDiff = {
         prompt = '/COPILOT_REVIEWDIFF Review the selected code.',
         selection = select.clipboard,
@@ -41,8 +72,6 @@ M.setup = function()
     },
     show_help = false,
   }
-
-  M.mapping()
 end
 
 M.mapping = function()
@@ -50,4 +79,6 @@ M.mapping = function()
   vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
 end
 
-return M
+return {
+  M.setup_copilot(),
+}

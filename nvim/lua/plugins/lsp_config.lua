@@ -1,7 +1,6 @@
-local lspconfig = require 'lspconfig'
 local M = {}
 
-M.setup = function()
+M.setup_initial = function()
   vim.diagnostic.config {
     float = {
       source = 'always',
@@ -12,10 +11,24 @@ M.setup = function()
     virtual_text = false,
   }
 
+  require('lspconfig.ui.windows').default_options = {
+    border = 'single',
+  }
+  vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
+    border = 'single',
+  })
+  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+    border = 'single',
+  })
+
   -- vim.lsp.handlers['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
   --   require('ts-error-translator').translate_diagnostics(err, result, ctx, config)
   --   vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
   -- end
+end
+
+M.setup_typescript_lsp = function()
+  local lspconfig = require 'lspconfig'
 
   lspconfig.tsserver.setup {
     on_attach = function(client, bufnr)
@@ -65,6 +78,11 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   }
+end
+
+M.setup_other_lsp = function()
+  local lspconfig = require 'lspconfig'
+
   lspconfig.stylelint_lsp.setup {
     on_attach = function(client, bufnr)
       vim.cmd [[ augroup LspStylelint
@@ -136,8 +154,6 @@ M.setup = function()
       M.attach(client, bufnr)
     end,
   }
-
-  M.mapping()
 end
 
 M.attach = function(client, bufnr)
@@ -150,11 +166,21 @@ M.attach = function(client, bufnr)
   end
 
   vim.keymap.set('n', 'L', '<cmd>lua toggle_inlay_hints()<CR>', opts)
-  vim.keymap.set('n', 'F', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
+  vim.keymap.set('n', 'gF', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
   vim.keymap.set('n', 'gB', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
 end
 
 M.mapping = function() end
 
-return M
+return {
+  'neovim/' .. 'nvim-lspconfig',
+  event = 'VeryLazy',
+  config = function()
+    M.setup_initial()
+    M.setup_typescript_lsp()
+    M.setup_other_lsp()
+
+    M.mapping()
+  end,
+}
