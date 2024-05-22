@@ -123,11 +123,10 @@ return {
     dependencies = {
       'MunifTanjim/' .. 'nui.nvim',
     },
-    config = {
+    opts = {
       keymaps = {
         toggle = 'B',
       },
     },
-    opts = {},
   },
 }

@@ -5,23 +5,7 @@ M.setup_copilot = function()
     'ryenguyen7411/' .. 'CopilotChat.nvim',
     branch = 'develop',
     dependencies = {
-      {
-        'zbirenbaum/copilot.lua',
-        cmd = 'Copilot',
-        event = 'InsertEnter',
-        opts = {
-          suggestion = {
-            auto_trigger = true,
-            keymap = {
-              accept = '<Tab>',
-              next = '<M-]>',
-              prev = '<M-[>',
-              dismiss = "<M-'>",
-            },
-          },
-        },
-      },
-      -- { 'github/' .. 'copilot.vim' },
+      { 'github/' .. 'copilot.vim' },
     },
     config = function()
       M.copilot_chat()

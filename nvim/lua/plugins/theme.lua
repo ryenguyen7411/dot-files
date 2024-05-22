@@ -9,9 +9,15 @@ M.setup_colorscheme = function()
       c.border = c.border_highlight
     end,
     on_highlights = function(hl, c)
-      hl['@variable'] = hl['@property']
-      hl['@keyword.operator'] = hl['@keyword']
-      hl['@constant.builtin'] = hl['@constant']
+      hl['@variable'] = { fg = c.blue1 }
+      hl['@variable.builtin'] = { fg = c.blue1 }
+
+      hl['Conditional'] = { fg = c.magenta }
+      hl['Repeat'] = { fg = c.magenta }
+
+      hl['LineNr'] = { fg = '#565f89' }
+      hl['LineNrAbove'] = { fg = '#565f89' }
+      hl['LineNrBelow'] = { fg = '#565f89' }
     end,
   }
 

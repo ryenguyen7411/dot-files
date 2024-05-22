@@ -74,7 +74,7 @@ vim.keymap.set('n', '<S-Tab>', ':bprevious<CR>', { silent = true })
 vim.keymap.set('n', '<leader>n', ':enew<CR>', { silent = true })
 vim.keymap.set('n', '<leader><CR>', ':nohl<CR><C-l>zz', { silent = true })
 vim.keymap.set('x', '<leader><CR>', '<C-l>zz', { silent = true })
--- vim.keymap.set('n', '<leader><CR>', ':TSHighlightCapturesUnderCursor<CR>', { silent = true })
+vim.keymap.set('n', 'gT', ':Inspect<CR>', { silent = true })
 vim.keymap.set('n', '0\\', ':%bdelete!<CR><CR>', { silent = true })
 vim.keymap.set('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
 
