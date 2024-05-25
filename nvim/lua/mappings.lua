@@ -1,7 +1,5 @@
 local g = vim.g
 
-g.mapleader = ' '
-
 -- Center navigation
 vim.keymap.set('n', '<C-d>', '10<C-d>', { silent = true })
 vim.keymap.set('n', '<C-u>', '10<C-u>', { silent = true })

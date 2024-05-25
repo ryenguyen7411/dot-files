@@ -1,32 +1,5 @@
 local M = {}
 
-M.setup_initial = function()
-  vim.diagnostic.config {
-    float = {
-      source = 'always',
-      border = 'rounded',
-      focus = false,
-    },
-    severity_sort = true,
-    virtual_text = false,
-  }
-
-  require('lspconfig.ui.windows').default_options = {
-    border = 'single',
-  }
-  vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
-    border = 'single',
-  })
-  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-    border = 'single',
-  })
-
-  -- vim.lsp.handlers['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
-  --   require('ts-error-translator').translate_diagnostics(err, result, ctx, config)
-  --   vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
-  -- end
-end
-
 M.setup_typescript_lsp = function()
   local lspconfig = require 'lspconfig'
 
@@ -57,26 +30,6 @@ M.setup_typescript_lsp = function()
         importModuleSpecifierPreference = 'non-relative',
       },
     },
-  }
-  lspconfig.eslint.setup {
-    on_attach = function(client, bufnr)
-      vim.cmd [[ augroup LspEslint
-        autocmd! * <buffer>
-        autocmd BufWritePre <buffer> EslintFixAll
-      augroup END ]]
-      M.attach(client, bufnr)
-    end,
-    settings = {
-      codeActionOnSave = {
-        enable = true,
-        mode = 'all',
-      },
-    },
-  }
-  lspconfig.quick_lint_js.setup {
-    on_attach = function(client, bufnr)
-      M.attach(client, bufnr)
-    end,
   }
 end
 
@@ -167,20 +120,116 @@ M.attach = function(client, bufnr)
 
   vim.keymap.set('n', 'L', '<cmd>lua toggle_inlay_hints()<CR>', opts)
   vim.keymap.set('n', 'gF', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
-  vim.keymap.set('n', 'gB', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  vim.keymap.set('n', 'B', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
 end
 
-M.mapping = function() end
+M.setup_lspconfig = function()
+  require('mason-lspconfig').setup {}
+
+  vim.diagnostic.config {
+    float = {
+      source = 'always',
+      border = 'rounded',
+      focus = false,
+    },
+    severity_sort = true,
+    virtual_text = false,
+  }
+
+  require('lspconfig.ui.windows').default_options = {
+    border = 'single',
+  }
+  vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
+    border = 'single',
+  })
+  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+    border = 'single',
+  })
+
+  M.setup_typescript_lsp()
+  M.setup_other_lsp()
+end
+
+M.setup_linter = function()
+  require('lint').linters_by_ft = {
+    javascript = { 'eslint_d' },
+    javascriptreact = { 'eslint_d' },
+    typescript = { 'eslint_d' },
+    typescriptreact = { 'eslint_d' },
+  }
+
+  vim.api.nvim_create_autocmd({ 'BufRead', 'BufWritePost', 'InsertLeave', 'TextChanged' }, {
+    callback = function()
+      require('lint').try_lint()
+    end,
+  })
+end
+
+M.setup_formatter = function()
+  require('conform').setup {
+    formatters_by_ft = {
+      javascript = { { 'prettierd', 'prettier' } },
+      javascriptreact = { { 'prettierd', 'prettier' } },
+      typescript = { { 'prettierd', 'prettier' } },
+      typescriptreact = { { 'prettierd', 'prettier' } },
+      vue = { { 'prettierd', 'prettier' } },
+      astro = { { 'prettierd', 'prettier' } },
+      css = { { 'prettierd', 'prettier' } },
+      html = { { 'prettierd', 'prettier' } },
+      lua = { 'stylua' },
+    },
+    format_on_save = {
+      timeout_ms = 500,
+      lsp_fallback = true,
+    },
+  }
+end
 
 return {
-  'neovim/' .. 'nvim-lspconfig',
-  event = 'VeryLazy',
-  config = function()
-    M.setup_initial()
-    M.setup_typescript_lsp()
-    M.setup_other_lsp()
+  {
+    'williamboman/mason.nvim',
+    event = 'VeryLazy',
+    keys = {
+      { 'g<CR>', '<cmd>Mason<CR>', desc = 'MasonOpen' },
+    },
+    dependencies = {
+      'neovim/nvim-lspconfig',
+      'williamboman/mason-lspconfig.nvim',
+      'mfussenegger/nvim-lint',
+      'mhartington/formatter.nvim',
+    },
+    config = function()
+      require('mason').setup {
+        ui = {
+          border = 'single',
+          width = 0.7,
+          height = 0.7,
+        },
+      }
 
-    M.mapping()
-  end,
+      M.setup_lspconfig()
+      M.setup_linter()
+    end,
+  },
+  {
+    'stevearc/conform.nvim',
+    event = { 'BufWritePre' },
+    cmd = { 'ConformInfo' },
+    config = function()
+      M.setup_formatter()
+    end,
+  },
+  {
+    'OlegGulevskyy/better-ts-errors.nvim',
+    event = 'BufRead',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+    },
+    opts = {
+      keymaps = {
+        toggle = 'gB',
+      },
+    },
+  },
 }

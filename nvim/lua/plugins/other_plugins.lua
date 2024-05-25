@@ -65,14 +65,6 @@ return {
     },
   },
   {
-    'stevearc/' .. 'conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
-    config = function()
-      require('configs.formatter').setup()
-    end,
-  },
-  {
     'm4xshen/' .. 'hardtime.nvim',
     event = 'BufRead',
     dependencies = {
@@ -118,15 +110,4 @@ return {
   --     show_borders = true,
   --   },
   -- },
-  {
-    'OlegGulevskyy/' .. 'better-ts-errors.nvim',
-    dependencies = {
-      'MunifTanjim/' .. 'nui.nvim',
-    },
-    opts = {
-      keymaps = {
-        toggle = 'B',
-      },
-    },
-  },
 }
