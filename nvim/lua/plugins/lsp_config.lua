@@ -62,6 +62,18 @@ M.setup_other_lsp = function()
     root_dir = lspconfig.util.root_pattern '.vue-project',
     single_file_support = false,
     filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    init_options = {
+      preferences = {
+        includeInlayParameterNameHints = 'all',
+        includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true,
+        includeInlayPropertyDeclarationTypeHints = true,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayEnumMemberValueHints = true,
+        importModuleSpecifierPreference = 'non-relative',
+      },
+    },
   }
   lspconfig.html.setup {
     on_attach = function(client, bufnr)
@@ -169,14 +181,14 @@ end
 M.setup_formatter = function()
   require('conform').setup {
     formatters_by_ft = {
-      javascript = { { 'prettierd', 'prettier' } },
-      javascriptreact = { { 'prettierd', 'prettier' } },
-      typescript = { { 'prettierd', 'prettier' } },
-      typescriptreact = { { 'prettierd', 'prettier' } },
-      vue = { { 'prettierd', 'prettier' } },
-      astro = { { 'prettierd', 'prettier' } },
-      css = { { 'prettierd', 'prettier' } },
-      html = { { 'prettierd', 'prettier' } },
+      javascript = { { 'prettier_d_slim', 'prettier' } },
+      javascriptreact = { { 'prettier_d_slim', 'prettier' } },
+      typescript = { { 'prettier_d_slim', 'prettier' } },
+      typescriptreact = { { 'prettier_d_slim', 'prettier' } },
+      vue = { { 'prettier_d_slim', 'prettier' } },
+      astro = { { 'prettier_d_slim', 'prettier' } },
+      css = { { 'prettier_d_slim', 'prettier' } },
+      html = { { 'prettier_d_slim', 'prettier' } },
       lua = { 'stylua' },
     },
     format_on_save = {
