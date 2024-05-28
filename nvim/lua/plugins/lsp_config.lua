@@ -31,6 +31,26 @@ M.setup_typescript_lsp = function()
       },
     },
   }
+  lspconfig.eslint.setup {
+    on_attach = function(client, bufnr)
+      vim.cmd [[ augroup LspEslint
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> EslintFixAll
+      augroup END ]]
+      M.attach(client, bufnr)
+    end,
+    settings = {
+      codeActionOnSave = {
+        enable = true,
+        mode = 'all',
+      },
+    },
+  }
+  lspconfig.quick_lint_js.setup {
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  }
 end
 
 M.setup_other_lsp = function()
@@ -163,21 +183,6 @@ M.setup_lspconfig = function()
   M.setup_other_lsp()
 end
 
-M.setup_linter = function()
-  require('lint').linters_by_ft = {
-    javascript = { 'eslint_d' },
-    javascriptreact = { 'eslint_d' },
-    typescript = { 'eslint_d' },
-    typescriptreact = { 'eslint_d' },
-  }
-
-  vim.api.nvim_create_autocmd({ 'BufRead', 'BufWritePost', 'InsertLeave', 'TextChanged' }, {
-    callback = function()
-      require('lint').try_lint()
-    end,
-  })
-end
-
 M.setup_formatter = function()
   require('conform').setup {
     formatters_by_ft = {
@@ -221,7 +226,6 @@ return {
       }
 
       M.setup_lspconfig()
-      M.setup_linter()
     end,
   },
   {
