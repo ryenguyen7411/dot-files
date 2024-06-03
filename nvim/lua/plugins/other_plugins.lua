@@ -100,6 +100,14 @@ return {
       require('render-markdown').setup {}
     end,
   },
+  {
+    'folke/zen-mode.nvim',
+    keys = {
+      { 'zp', '<cmd>ZenMode<CR>', desc = 'ZenMode' },
+    },
+    cmd = { 'ZenMode' },
+    opts = {},
+  },
   -- {
   --   'dgagn/' .. 'diagflow.nvim',
   --   event = 'LspAttach',
