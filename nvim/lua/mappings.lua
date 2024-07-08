@@ -1,12 +1,14 @@
 local g = vim.g
 
 -- Center navigation
+vim.keymap.set('n', 'j', "(v:count ? 'j' : 'gj')", { expr = true })
+vim.keymap.set('n', 'k', "(v:count ? 'k' : 'gk')", { expr = true })
 vim.keymap.set('n', '<C-d>', '10<C-d>', { silent = true })
 vim.keymap.set('n', '<C-u>', '10<C-u>', { silent = true })
-vim.keymap.set('n', '<C-j>', '5j', { silent = true })
-vim.keymap.set('n', '<C-k>', '5k', { silent = true })
-vim.keymap.set('x', '<C-j>', '5j', { silent = true })
-vim.keymap.set('x', '<C-k>', '5k', { silent = true })
+vim.keymap.set('n', '<C-j>', '5gj', { silent = true })
+vim.keymap.set('n', '<C-k>', '5gk', { silent = true })
+vim.keymap.set('x', '<C-j>', '5gj', { silent = true })
+vim.keymap.set('x', '<C-k>', '5gk', { silent = true })
 vim.keymap.set('n', '#', '#zz', { silent = true })
 vim.keymap.set('n', '*', '*zz', { silent = true })
 vim.keymap.set('n', 'n', 'nzz', { silent = true })
