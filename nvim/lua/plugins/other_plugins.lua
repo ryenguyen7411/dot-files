@@ -112,6 +112,15 @@ return {
     cmd = { 'ZenMode' },
     opts = {},
   },
+  {
+    'oysandvik94/curl.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      require('curl').setup {}
+    end,
+  },
   -- {
   --   'dgagn/' .. 'diagflow.nvim',
   --   event = 'LspAttach',
