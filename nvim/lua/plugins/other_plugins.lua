@@ -121,14 +121,4 @@ return {
       require('curl').setup {}
     end,
   },
-  -- {
-  --   'dgagn/' .. 'diagflow.nvim',
-  --   event = 'LspAttach',
-  --   opts = {
-  --     max_width = 120,
-  --     scope = 'line',
-  --     toggle_event = { 'InsertEnter', 'InsertLeave' },
-  --     show_borders = true,
-  --   },
-  -- },
 }
