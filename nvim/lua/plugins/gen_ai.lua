@@ -58,11 +58,21 @@ M.copilot_chat = function()
   }
 end
 
+M.setup_supermaven = function()
+  return {
+    'supermaven-inc/supermaven-nvim',
+    config = function()
+      require('supermaven-nvim').setup {}
+    end,
+  }
+end
+
 M.mapping = function()
   vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
   vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
 end
 
 return {
-  M.setup_copilot(),
+  -- M.setup_copilot(),
+  M.setup_supermaven(),
 }
