@@ -12,7 +12,8 @@ M.setup_copilot = function()
     end,
   }
 
-  M.mapping()
+  vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
+  vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
 
   return packages
 end
@@ -68,12 +69,19 @@ M.setup_supermaven = function()
   }
 end
 
-M.mapping = function()
-  vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
-  vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
+M.setup_codeium = function()
+  vim.g.codeium_manual = true
+  vim.g.codeium_disable_bindings = true
+  vim.keymap.set('n', ',.', '<cmd>call codeium#Chat()<CR>', {})
+
+  return {
+    'Exafunction/codeium.vim',
+    event = 'BufEnter',
+  }
 end
 
 return {
   -- M.setup_copilot(),
   M.setup_supermaven(),
+  M.setup_codeium(),
 }
