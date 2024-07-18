@@ -117,6 +117,10 @@ return {
     dependencies = {
       'nvim-lua/plenary.nvim',
     },
+    keys = {
+      { 'co', '<cmd>CurlOpen global<CR>', desc = 'CurlOpen' },
+      { 'cp', '<cmd>CurlClose<CR>', desc = 'CurlClose' },
+    },
     config = function()
       require('curl').setup {}
     end,

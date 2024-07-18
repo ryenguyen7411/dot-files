@@ -14,6 +14,7 @@ M.setup_copilot = function()
 
   vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
   vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
+  vim.g.copilot_workspace_folders = { '~/projects/be/bizops', '~/projects/be/bizops-micro', '~/projects/be/finops' }
 
   return packages
 end
@@ -83,5 +84,5 @@ end
 return {
   -- M.setup_copilot(),
   M.setup_supermaven(),
-  M.setup_codeium(),
+  -- M.setup_codeium(),
 }
