@@ -126,10 +126,27 @@ return {
     end,
   },
   {
+    'rcarriga/nvim-notify',
+    config = function()
+      require('notify').setup {
+        stages = 'fade_in_slide_out',
+        render = 'compact',
+        background_colour = 'FloatShadow',
+        timeout = 3000,
+      }
+    end,
+  },
+  {
     'folke/noice.nvim',
     event = 'VeryLazy',
     opts = {
-      -- add any options here
+      lsp = {
+        override = {
+          ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+          ['vim.lsp.util.stylize_markdown'] = true,
+          ['cmp.entry.get_documentation'] = true,
+        },
+      },
     },
     dependencies = {
       -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
@@ -139,5 +156,11 @@ return {
       --   If not available, we use `mini` as the fallback
       'rcarriga/nvim-notify',
     },
+  },
+  {
+    'MagicDuck/grug-far.nvim',
+    config = function()
+      require('grug-far').setup {}
+    end,
   },
 }
