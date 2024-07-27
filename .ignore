@@ -34,11 +34,13 @@ yarn-error.log
 ###
 .git
 build
+dist
 .build
 .idea/
 Pods/
 .gradle
 .next
+.nuxt
 vendor/bundle/
 .cxx/
 

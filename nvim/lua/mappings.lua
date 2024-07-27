@@ -1,8 +1,14 @@
 local g = vim.g
 
-g.mapleader = ' '
-
 -- Center navigation
+vim.keymap.set('n', 'j', "(v:count ? 'j' : 'gj')", { expr = true })
+vim.keymap.set('n', 'k', "(v:count ? 'k' : 'gk')", { expr = true })
+vim.keymap.set('n', '<C-d>', '10<C-d>', { silent = true })
+vim.keymap.set('n', '<C-u>', '10<C-u>', { silent = true })
+vim.keymap.set('n', '<C-j>', '5gj', { silent = true })
+vim.keymap.set('n', '<C-k>', '5gk', { silent = true })
+vim.keymap.set('x', '<C-j>', '5gj', { silent = true })
+vim.keymap.set('x', '<C-k>', '5gk', { silent = true })
 vim.keymap.set('n', '#', '#zz', { silent = true })
 vim.keymap.set('n', '*', '*zz', { silent = true })
 vim.keymap.set('n', 'n', 'nzz', { silent = true })
@@ -35,7 +41,7 @@ vim.keymap.set('x', 'p', '"_dP', { silent = true, noremap = true })
 vim.keymap.set('n', '<leader>w', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>ư', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>qq', ':bp|bd #<CR>', { silent = true })
-vim.keymap.set('i', ':w', '<Esc>:w|<CR>jk', { silent = true })
+vim.keymap.set('i', ':w', '<Esc>:w<CR>', { silent = true })
 
 -- Visual mode: shifting > and <, move line up and down
 vim.keymap.set('v', '<', '<gv', { silent = true })
@@ -68,7 +74,7 @@ vim.keymap.set('n', '<S-Tab>', ':bprevious<CR>', { silent = true })
 vim.keymap.set('n', '<leader>n', ':enew<CR>', { silent = true })
 vim.keymap.set('n', '<leader><CR>', ':nohl<CR><C-l>zz', { silent = true })
 vim.keymap.set('x', '<leader><CR>', '<C-l>zz', { silent = true })
--- vim.keymap.set('n', '<leader><CR>', ':TSHighlightCapturesUnderCursor<CR>', { silent = true })
+vim.keymap.set('n', 'gT', ':Inspect<CR>', { silent = true })
 vim.keymap.set('n', '0\\', ':%bdelete!<CR><CR>', { silent = true })
 vim.keymap.set('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
 

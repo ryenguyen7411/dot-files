@@ -1,10 +1,24 @@
 local M = {}
 
-M.setup = function()
-  local cb = require('diffview.config').diffview_callback
+M.setup_diffview = function()
+  return {
+    'sindrets/diffview.nvim',
+    keys = {
+      { '<space>r', '<cmd>DiffviewOpen<CR>', desc = 'DiffviewOpen' },
+      { '<space>f', '<cmd>DiffviewFileHistory %<CR>', desc = 'DiffviewFileHistory' },
+    },
+    cmd = { 'DiffviewOpen' },
+    config = function()
+      require('diffview').setup(M.config_diffview())
+      M.mapping()
+    end,
+  }
+end
+
+M.config_diffview = function()
   local actions = require 'diffview.actions'
 
-  require('diffview').setup {
+  return {
     enhanced_diff_hl = true,
     view = {
       merge_tool = {
@@ -29,13 +43,20 @@ M.setup = function()
       },
     },
   }
-
-  M.mapping()
 end
 
 M.mapping = function()
-  vim.keymap.set('n', '<leader>r', '<cmd>DiffviewOpen<CR>', { silent = true })
+  -- vim.keymap.set('n', '<leader>r', '<cmd>DiffviewOpen<CR>', { silent = true })
   vim.keymap.set('n', '<leader>f', '<cmd>DiffviewFileHistory %<CR>', { silent = true })
 end
 
-return M
+return {
+  M.setup_diffview(),
+  {
+    'f-person/git-blame.nvim',
+    keys = {
+      { '<space>,b', '<cmd>GitBlameToggle<CR>', desc = 'GitBlameToggle' },
+    },
+    opts = {},
+  },
+}

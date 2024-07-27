@@ -6,8 +6,10 @@ if [ ! -d ~/.config/nvim ]; then
 fi
 
 # alacritty
-if [ ! -e ~/.config/alacritty/alacritty.yml ]; then
-  ln -s "$(pwd)/alacritty.yml" ~/.config/alacritty/alacritty.yml
+if [ -d ~/.config/alacritty ]; then
+  if [ ! -e ~/.config/alacritty/alacritty.yml ]; then
+    ln -s "$(pwd)/alacritty.yml" ~/.config/alacritty/alacritty.yml
+  fi
 fi
 
 # .zshrc
@@ -21,6 +23,20 @@ if [ ! -e ~/.tmux.conf.local ]; then
 fi
 
 # kitty
-if [ ! -e ~/.config/kitty/kitty.conf ]; then
-  ln -s "$(pwd)/kitty.conf" ~/.config/kitty/kitty.conf
+if [ -d ~/.config/kitty ]; then
+  if [ ! -e ~/.config/kitty/kitty.conf ]; then
+    ln -s "$(pwd)/kitty.conf" ~/.config/kitty/kitty.conf
+  fi
+fi
+
+# rgignore / fdignore
+if [ -d ~/.config/rg ]; then
+  if [ ! -e ~/.config/rg/.rgignore ]; then
+    ln -s "$(pwd)/.ignore" ~/.config/rg/.rgignore
+  fi
+fi
+if [ -d ~/.config/fd ]; then
+  if [ ! -e ~/.config/fd/.fdignore ]; then
+    ln -s "$(pwd)/.ignore" ~/.config/fd/.fdignore
+  fi
 fi
