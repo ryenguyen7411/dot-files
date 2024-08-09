@@ -24,3 +24,11 @@ fi
 if [ -e ~/.config/kitty/kitty.conf ]; then
   rm ~/.config/kitty/kitty.conf
 fi
+
+# rgignore / fdignore
+if [ -e ~/.config/rg/.rgignore ]; then
+  rm ~/.config/rg/.rgignore
+fi
+if [ -e ~/.config/fd/.fdignore ]; then
+  rm ~/.config/fd/.fdignore
+fi

@@ -140,6 +140,9 @@ return {
   },
   {
     'rcarriga/nvim-notify',
+    keys = {
+      { 'zi', '<cmd>lua require("notify").dismiss()<CR>', desc = 'Dismiss notification' },
+    },
     config = function()
       require('notify').setup {
         stages = 'fade_in_slide_out',
