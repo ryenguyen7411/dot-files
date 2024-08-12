@@ -62,9 +62,12 @@ end
 
 M.setup_supermaven = function()
   return {
-    'supermaven-inc/supermaven-nvim',
+    'ryenguyen7411/supermaven-nvim',
     config = function()
-      require('supermaven-nvim').setup {}
+      require('supermaven-nvim').setup {
+        -- disable annoying startup message
+        log_level = 'off',
+      }
     end,
   }
 end
