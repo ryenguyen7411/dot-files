@@ -49,3 +49,5 @@ to-be-copy/
 .expo
 
 mf-types/
+
+render-page.js*
