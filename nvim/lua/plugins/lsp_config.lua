@@ -154,6 +154,13 @@ M.attach = function(client, bufnr)
   vim.keymap.set('n', 'gF', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
   vim.keymap.set('n', 'B', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+
+  vim.keymap.set(
+    'n',
+    'go',
+    '<cmd>lua vim.lsp.buf.code_action({ context = { only = { "source.addMissingImports.ts" } }, apply = true })<CR>',
+    opts
+  )
 end
 
 M.setup_lspconfig = function()
