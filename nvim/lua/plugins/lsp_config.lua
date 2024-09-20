@@ -3,7 +3,7 @@ local M = {}
 M.setup_typescript_lsp = function()
   local lspconfig = require 'lspconfig'
 
-  lspconfig.tsserver.setup {
+  lspconfig.ts_ls.setup {
     on_attach = function(client, bufnr)
       client.server_capabilities.documentFormattingProvider = false
       client.server_capabilities.documentRangeFormattingProvider = false
