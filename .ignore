@@ -43,6 +43,7 @@ Pods/
 .nuxt
 vendor/bundle/
 .cxx/
+storybook-static/
 
 to-be-copy/
 
