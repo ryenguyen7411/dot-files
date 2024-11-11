@@ -50,6 +50,7 @@ M.setup_copilot_chat = function()
         auto_follow_cursor = false,
         highlight_selection = false,
         context = 'buffers',
+        model = 'claude-3.5-sonnet',
       }
     end,
   }
