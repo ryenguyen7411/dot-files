@@ -6,7 +6,7 @@ return {
   {
     'ryenguyen7411/' .. 'any-jump.vim',
     keys = {
-      { '<F12>', '<cmd>AnyJump<CR>', desc = 'AnyJump' },
+      { 'gj', '<cmd>AnyJump<CR>', desc = 'AnyJump' },
       { '<F8>', '<cmd>AnyJumpLastResults<CR>', desc = 'AnyJumpLastResults' },
     },
   },
