@@ -24,10 +24,14 @@ M.setup_copilot_chat = function()
     dependencies = {
       { 'zbirenbaum/copilot.lua' },
     },
+    build = 'make tiktoken',
     config = function()
       local select = require 'CopilotChat.select'
 
       require('CopilotChat').setup {
+        highlight_headers = false,
+        separator = '---',
+        error_header = '> [!ERROR] Error',
         prompts = {
           ReviewDiff = {
             prompt = '/COPILOT_REVIEWDIFF Review the selected code.',
@@ -49,6 +53,7 @@ M.setup_copilot_chat = function()
         show_help = false,
         auto_follow_cursor = false,
         highlight_selection = false,
+        log_level = 'error',
         context = 'buffers',
         model = 'claude-3.5-sonnet',
       }
