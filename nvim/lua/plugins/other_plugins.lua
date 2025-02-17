@@ -104,15 +104,17 @@ return {
     },
     config = function()
       require('markview').setup {
-        modes = { 'n', 'i', 'no', 'c' },
-        hybrid_modes = { 'i' },
+        preview = {
+          modes = { 'n', 'i', 'no', 'c' },
+          hybrid_modes = { 'i' },
 
-        -- This is nice to have
-        callbacks = {
-          on_enable = function(_, win)
-            vim.wo[win].conceallevel = 2
-            vim.wo[win].conecalcursor = 'nc'
-          end,
+          -- This is nice to have
+          callbacks = {
+            on_enable = function(_, win)
+              vim.wo[win].conceallevel = 2
+              vim.wo[win].conecalcursor = 'nc'
+            end,
+          },
         },
       }
     end,
@@ -135,7 +137,9 @@ return {
       { 'cp', '<cmd>CurlClose<CR>', desc = 'CurlClose' },
     },
     config = function()
-      require('curl').setup {}
+      require('curl').setup {
+        -- default_flags = { '-i' },
+      }
     end,
   },
   {
@@ -149,6 +153,7 @@ return {
         render = 'compact',
         background_colour = 'FloatShadow',
         timeout = 3000,
+        top_down = false,
       }
     end,
   },

@@ -86,3 +86,5 @@ g.gitblame_date_format = '%r'
 -- Plugin: vim-smoothie
 g.smoothie_speed_linear_factor = 30
 g.smoothie_speed_constant_factor = 30
+
+g.maplocalleader = ','

@@ -46,6 +46,12 @@ M.setup_typescript_lsp = function()
       },
     },
   }
+  lspconfig.biome.setup {
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+  }
+
   lspconfig.quick_lint_js.setup {
     on_attach = function(client, bufnr)
       M.attach(client, bufnr)
@@ -191,26 +197,6 @@ M.setup_lspconfig = function()
   M.setup_other_lsp()
 end
 
-M.setup_formatter = function()
-  require('conform').setup {
-    formatters_by_ft = {
-      javascript = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      javascriptreact = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      typescript = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      typescriptreact = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      vue = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      astro = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      css = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      html = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      lua = { 'stylua' },
-    },
-    format_on_save = {
-      timeout_ms = 500,
-      lsp_fallback = true,
-    },
-  }
-end
-
 return {
   {
     'williamboman/mason.nvim',
@@ -232,14 +218,6 @@ return {
       }
 
       M.setup_lspconfig()
-    end,
-  },
-  {
-    'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
-    config = function()
-      M.setup_formatter()
     end,
   },
   {

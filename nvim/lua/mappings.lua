@@ -86,3 +86,5 @@ vim.keymap.set(
   { silent = true }
 )
 vim.keymap.set('n', '<leader>vs', ':profile pause<CR>:e! ~/profile.nvim.log<CR>', { silent = true })
+
+vim.fn.setreg('h', 'ysa"}ysi})icx\27')
