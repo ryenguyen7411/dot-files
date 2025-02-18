@@ -189,3 +189,6 @@ function swe() {
         ;;
     esac;
 }
+
+# GPG
+export GPG_TTY=$(tty)
