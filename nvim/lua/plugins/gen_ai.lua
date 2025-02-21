@@ -19,8 +19,7 @@ end
 
 M.setup_copilot_chat = function()
   local packages = {
-    'ryenguyen7411/' .. 'CopilotChat.nvim',
-    branch = 'develop',
+    'CopilotC-Nvim/' .. 'CopilotChat.nvim',
     dependencies = {
       { 'zbirenbaum/copilot.lua' },
     },
