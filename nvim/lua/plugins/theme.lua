@@ -129,12 +129,12 @@ return {
   M.setup_highlightcolor(),
   M.setup_rainbow_delimiters(),
 
-  {
-    'lukas-reineke/indent-blankline.nvim',
-    event = 'BufRead',
-    main = 'ibl',
-    opts = {},
-  },
+  -- {
+  --   'lukas-reineke/indent-blankline.nvim',
+  --   event = 'BufRead',
+  --   main = 'ibl',
+  --   opts = {},
+  -- },
   { 'itchyny/lightline.vim' },
   { 'nvim-tree/nvim-web-devicons', event = 'VeryLazy' },
 }

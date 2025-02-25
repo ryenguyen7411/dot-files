@@ -119,14 +119,14 @@ return {
       }
     end,
   },
-  {
-    'folke/zen-mode.nvim',
-    keys = {
-      { 'zp', '<cmd>ZenMode<CR>', desc = 'ZenMode' },
-    },
-    cmd = { 'ZenMode' },
-    opts = {},
-  },
+  -- {
+  --   'folke/zen-mode.nvim',
+  --   keys = {
+  --     { 'zp', '<cmd>ZenMode<CR>', desc = 'ZenMode' },
+  --   },
+  --   cmd = { 'ZenMode' },
+  --   opts = {},
+  -- },
   {
     'oysandvik94/curl.nvim',
     dependencies = {
@@ -142,21 +142,21 @@ return {
       }
     end,
   },
-  {
-    'rcarriga/nvim-notify',
-    keys = {
-      { 'zi', '<cmd>lua require("notify").dismiss()<CR>', desc = 'Dismiss notification' },
-    },
-    config = function()
-      require('notify').setup {
-        stages = 'fade_in_slide_out',
-        render = 'compact',
-        background_colour = 'FloatShadow',
-        timeout = 3000,
-        top_down = false,
-      }
-    end,
-  },
+  -- {
+  --   'rcarriga/nvim-notify',
+  --   keys = {
+  --     { 'zi', '<cmd>lua require("notify").dismiss()<CR>', desc = 'Dismiss notification' },
+  --   },
+  --   config = function()
+  --     require('notify').setup {
+  --       stages = 'fade_in_slide_out',
+  --       render = 'compact',
+  --       background_colour = 'FloatShadow',
+  --       timeout = 3000,
+  --       top_down = false,
+  --     }
+  --   end,
+  -- },
   {
     'folke/noice.nvim',
     event = 'VeryLazy',

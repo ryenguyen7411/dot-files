@@ -39,8 +39,11 @@ return {
     indent = { enabled = true },
     input = { enabled = true },
     notifier = {
-      enabled = true,
+      stages = 'fade_in_slide_out',
+      render = 'compact',
+      background_colour = 'FloatShadow',
       timeout = 3000,
+      top_down = false,
     },
     picker = { enabled = true },
     quickfile = { enabled = true },
@@ -48,6 +51,11 @@ return {
     -- scroll = { enabled = true },
     statuscolumn = { enabled = true },
     words = { enabled = true },
+    zen = {
+      toggles = {
+        dim = false,
+      },
+    },
     styles = {
       notification = {
         -- wo = { wrap = true } -- Wrap notifications
@@ -56,6 +64,7 @@ return {
   },
   keys = {
     -- stylua: ignore start
+    { "zp",  function() Snacks.zen() end, desc = "Toggle Zen Mode" },
     -- Top Pickers & Explorer
     -- { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
     -- { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
@@ -114,8 +123,6 @@ return {
     -- { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
     -- { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
     -- -- Other
-    -- { "<leader>z",  function() Snacks.zen() end, desc = "Toggle Zen Mode" },
-    -- { "<leader>Z",  function() Snacks.zen.zoom() end, desc = "Toggle Zoom" },
     -- { "<leader>.",  function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
     -- { "<leader>S",  function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
     -- { "<leader>n",  function() Snacks.notifier.show_history() end, desc = "Notification History" },
@@ -128,24 +135,6 @@ return {
     -- { "<c-_>",      function() Snacks.terminal() end, desc = "which_key_ignore" },
     -- { "]]",         function() Snacks.words.jump(vim.v.count1) end, desc = "Next Reference", mode = { "n", "t" } },
     -- { "[[",         function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev Reference", mode = { "n", "t" } },
-    {
-      "<leader>N",
-      desc = "Neovim News",
-      function()
-        Snacks.win({
-          file = vim.api.nvim_get_runtime_file("doc/news.txt", false)[1],
-          width = 0.6,
-          height = 0.6,
-          wo = {
-            spell = false,
-            wrap = false,
-            signcolumn = "yes",
-            statuscolumn = " ",
-            conceallevel = 3,
-          },
-        })
-      end,
-    },
     -- stylua: ignore
   },
   init = function()
