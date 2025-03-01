@@ -9,7 +9,7 @@ M.setup_formatter = function()
       typescriptreact = { 'prettier_d_slim', 'prettier', stop_after_first = true },
       vue = { 'prettier_d_slim', 'prettier', stop_after_first = true },
       astro = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      css = { 'biome', stop_after_first = true },
+      css = { 'prettier_d_slim', 'prettier', stop_after_first = true },
       html = { 'prettier_d_slim', 'prettier', stop_after_first = true },
       lua = { 'stylua' },
     },
@@ -24,6 +24,15 @@ return {
   'stevearc/conform.nvim',
   event = { 'BufWritePre' },
   cmd = { 'ConformInfo' },
+  keys = {
+    {
+      '<leader>f',
+      function()
+        require('conform').format { async = true }
+      end,
+      desc = 'Format buffer',
+    },
+  },
   config = function()
     M.setup_formatter()
   end,

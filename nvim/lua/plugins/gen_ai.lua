@@ -12,8 +12,6 @@ M.setup_copilot = function()
     },
   }
 
-  vim.g.copilot_workspace_folders = { '~/projects/be/bizops', '~/projects/be/bizops-micro', '~/projects/be/finops' }
-
   return packages
 end
 
@@ -28,9 +26,19 @@ M.setup_copilot_chat = function()
       local select = require 'CopilotChat.select'
 
       require('CopilotChat').setup {
+        model = 'claude-3.7-sonnet',
+        context = { 'buffers', 'filenames' },
+        window = {
+          layout = 'float',
+          width = 0.7,
+          height = 0.7,
+        },
+        show_help = false,
+        auto_follow_cursor = false,
+        highlight_selection = false,
         highlight_headers = false,
-        separator = '---',
-        error_header = '> [!ERROR] Error',
+        log_level = 'error',
+
         prompts = {
           ReviewDiff = {
             prompt = '/COPILOT_REVIEWDIFF Review the selected code.',
@@ -38,23 +46,12 @@ M.setup_copilot_chat = function()
           },
           FixLang = 'Please correct any grammar and spelling errors, improve the grammar and wording of the following text.',
         },
-        window = {
-          layout = 'float',
-          width = 0.7,
-          height = 0.7,
-        },
         mappings = {
           complete = {
             detail = 'Use <C-h> for options.',
             insert = '<C-h>',
           },
         },
-        show_help = false,
-        auto_follow_cursor = false,
-        highlight_selection = false,
-        log_level = 'error',
-        context = 'buffers',
-        model = 'claude-3.5-sonnet',
       }
     end,
   }

@@ -1,6 +1,9 @@
 local g = vim.g
 local o = vim.opt
 
+g.filetype = 'on'
+g.have_nerd_font = true
+
 o.tabstop = 2
 o.shiftwidth = 2
 o.expandtab = true
@@ -43,6 +46,13 @@ o.langmap = 'ư]ơ[Ơ{Ư}'
 o.scrolloff = 3
 o.scroll = 10
 
+o.timeout = true
+o.timeoutlen = 500
+o.showmode = false
+o.maxmempattern = 2000
+o.undofile = true
+o.breakindent = true
+
 -- disable some builtin vim plugins
 local disabled_built_ins = {
   '2html_plugin',
@@ -68,21 +78,3 @@ local disabled_built_ins = {
 for _, plugin in pairs(disabled_built_ins) do
   g['loaded_' .. plugin] = 1
 end
-
--- Plugin: any-jump
-g.any_jump_window_top_offset = 8
-g.any_jump_disable_default_keybindings = 1
-
--- Plugin: vim-startify
-g.startify_change_to_dir = 0
-
-g.filetype = 'on'
-
--- Plugin: git-blame
-g.gitblame_enabled = 0
-g.gitblame_message_template = ' <author> • <sha> • <date> • <summary>'
-g.gitblame_date_format = '%r'
-
--- Plugin: vim-smoothie
-g.smoothie_speed_linear_factor = 30
-g.smoothie_speed_constant_factor = 30

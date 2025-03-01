@@ -220,16 +220,4 @@ return {
       M.setup_lspconfig()
     end,
   },
-  -- {
-  --   'OlegGulevskyy/better-ts-errors.nvim',
-  --   event = 'BufRead',
-  --   dependencies = {
-  --     'MunifTanjim/nui.nvim',
-  --   },
-  --   opts = {
-  --     keymaps = {
-  --       toggle = 'gB',
-  --     },
-  --   },
-  -- },
 }

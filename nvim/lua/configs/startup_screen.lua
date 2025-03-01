@@ -8,5 +8,7 @@ return {
   'mhinz/' .. 'vim-startify',
   config = function()
     M.mapping()
+    -- Plugin: vim-startify
+    g.startify_change_to_dir = 0
   end,
 }

@@ -4,44 +4,17 @@ return {
 
   -- TO BE UPDATED
   {
-    'ryenguyen7411/' .. 'any-jump.vim',
-    keys = {
-      { 'gj', '<cmd>AnyJump<CR>', desc = 'AnyJump' },
-      { '<F8>', '<cmd>AnyJumpLastResults<CR>', desc = 'AnyJumpLastResults' },
-    },
-  },
-
-  {
     'mattn/' .. 'emmet-vim',
     event = 'BufRead',
     config = function()
-      require('configs.emmet').setup()
+      vim.keymap.set('i', '<C-j>', '<Plug>(emmet-expand-abbr)', { noremap = false })
     end,
   },
 
   { 'tpope/' .. 'vim-commentary', event = 'BufRead' },
-  {
-    'thinca/' .. 'vim-quickrun',
-    event = 'BufRead',
-    config = function()
-      require('configs.quickrun').setup()
-    end,
-  },
   { 'tpope/' .. 'vim-repeat', event = 'BufRead' },
   { 'tpope/' .. 'vim-surround', event = 'BufRead' },
-  {
-    'will133/' .. 'vim-dirdiff',
-    keys = {
-      { '<space>,d', '<cmd>DirDiff<CR>', desc = 'DirDiff' },
-    },
-    cmd = { 'DirDiff' },
-  },
   { 'justinmk/' .. 'vim-sneak', event = 'BufRead' },
-  {
-    'LunarVim/' .. 'bigfile.nvim',
-    event = 'BufRead',
-    opts = {},
-  },
   {
     'folke/' .. 'todo-comments.nvim',
     event = 'BufRead',
@@ -119,14 +92,6 @@ return {
       }
     end,
   },
-  -- {
-  --   'folke/zen-mode.nvim',
-  --   keys = {
-  --     { 'zp', '<cmd>ZenMode<CR>', desc = 'ZenMode' },
-  --   },
-  --   cmd = { 'ZenMode' },
-  --   opts = {},
-  -- },
   {
     'oysandvik94/curl.nvim',
     dependencies = {
@@ -142,21 +107,6 @@ return {
       }
     end,
   },
-  -- {
-  --   'rcarriga/nvim-notify',
-  --   keys = {
-  --     { 'zi', '<cmd>lua require("notify").dismiss()<CR>', desc = 'Dismiss notification' },
-  --   },
-  --   config = function()
-  --     require('notify').setup {
-  --       stages = 'fade_in_slide_out',
-  --       render = 'compact',
-  --       background_colour = 'FloatShadow',
-  --       timeout = 3000,
-  --       top_down = false,
-  --     }
-  --   end,
-  -- },
   {
     'folke/noice.nvim',
     event = 'VeryLazy',
