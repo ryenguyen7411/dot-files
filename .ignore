@@ -53,3 +53,5 @@ mf-types/
 
 render-page.js*
 .puppeteer
+
+charting_library/
