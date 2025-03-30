@@ -5,10 +5,8 @@ vim.keymap.set('n', 'j', "(v:count ? 'j' : 'gj')", { expr = true })
 vim.keymap.set('n', 'k', "(v:count ? 'k' : 'gk')", { expr = true })
 vim.keymap.set('n', '<C-d>', '10<C-d>', { silent = true })
 vim.keymap.set('n', '<C-u>', '10<C-u>', { silent = true })
-vim.keymap.set('n', '<C-j>', '5gj', { silent = true })
-vim.keymap.set('n', '<C-k>', '5gk', { silent = true })
-vim.keymap.set('x', '<C-j>', '5gj', { silent = true })
-vim.keymap.set('x', '<C-k>', '5gk', { silent = true })
+vim.keymap.set({ 'n', 'x' }, '<C-j>', '6gj', { silent = true })
+vim.keymap.set({ 'n', 'x' }, '<C-k>', '6gk', { silent = true })
 vim.keymap.set('n', '#', '#zz', { silent = true })
 vim.keymap.set('n', '*', '*zz', { silent = true })
 vim.keymap.set('n', 'n', 'nzz', { silent = true })
@@ -16,25 +14,21 @@ vim.keymap.set('n', 'N', 'Nzz', { silent = true })
 vim.keymap.set('n', 'G', 'Gzz', { silent = true })
 
 -- Exclude trailing whitespace + end of line
-vim.keymap.set('n', '$', 'g_', { silent = true })
-vim.keymap.set('x', '$', 'g_', { silent = true })
-
-vim.keymap.set('n', '{', '{zz', { silent = true })
-vim.keymap.set('n', '}', '}zz', { silent = true })
-vim.keymap.set('x', '{', '{zz', { silent = true })
-vim.keymap.set('x', '}', '}zz', { silent = true })
+vim.keymap.set({ 'n', 'x' }, '$', 'g_', { silent = true })
+vim.keymap.set({ 'n', 'x' }, '{', '{zz', { silent = true })
+vim.keymap.set({ 'n', 'x' }, '}', '}zz', { silent = true })
 
 -- Map redo to U (undo is u)
 vim.keymap.set('n', 'U', '<C-R>', { silent = true })
 
 -- Yank to Vim + OS clipboard
 vim.keymap.set('n', 'YY', 'gg"*yG', { silent = true, noremap = true })
-vim.keymap.set('n', 'y', '"*y', { silent = true, noremap = true })
-vim.keymap.set('x', 'y', '"*y', { silent = true, noremap = true })
-vim.keymap.set('n', 'd', '"*d', { silent = true, noremap = true })
-vim.keymap.set('x', 'd', '"*d', { silent = true, noremap = true })
-vim.keymap.set('n', 'x', '"*x', { silent = true, noremap = true })
-vim.keymap.set('x', 'x', '"*x', { silent = true, noremap = true })
+vim.keymap.set({ 'n', 'x' }, 'y', function()
+  vim.b.cursorPreYank = vim.api.nvim_win_get_cursor(0)
+  return '"*y'
+end, { expr = true, silent = true, noremap = true })
+vim.keymap.set({ 'n', 'x' }, 'd', '"*d', { silent = true, noremap = true })
+vim.keymap.set({ 'n', 'x' }, 'x', '"*x', { silent = true, noremap = true })
 vim.keymap.set('x', 'p', '"_dP', { silent = true, noremap = true })
 
 -- Fast save / quit
@@ -72,11 +66,12 @@ vim.keymap.set('n', '<S-Tab>', ':bprevious<CR>', { silent = true })
 
 -- Miscellaneous
 vim.keymap.set('n', '<leader>n', ':enew<CR>', { silent = true })
-vim.keymap.set('n', '<leader><CR>', ':nohl<CR><C-l>zz', { silent = true })
-vim.keymap.set('x', '<leader><CR>', '<C-l>zz', { silent = true })
+-- vim.keymap.set('n', '<leader><CR>', ':nohl<CR><C-l>zz', { silent = true })
+-- vim.keymap.set('x', '<leader><CR>', '<C-l>zz', { silent = true })
 vim.keymap.set('n', 'gT', ':Inspect<CR>', { silent = true })
 vim.keymap.set('n', '0\\', ':%bdelete!<CR><CR>', { silent = true })
 vim.keymap.set('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
+vim.keymap.set('n', '<Esc>', ':nohl<CR><C-l>:echo<CR>')
 
 -- Vim profiling
 vim.keymap.set(

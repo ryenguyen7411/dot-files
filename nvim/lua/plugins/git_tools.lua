@@ -1,3 +1,5 @@
+local g = vim.g
+
 local M = {}
 
 M.setup_diffview = function()
@@ -43,13 +45,15 @@ return {
   },
   {
     'f-person/git-blame.nvim',
+    event = 'BufRead',
     keys = {
       { '<space>,b', '<cmd>GitBlameToggle<CR>', desc = 'GitBlameToggle' },
     },
-    config = function()
-      g.gitblame_enabled = 0
-      g.gitblame_message_template = ' <author> • <sha> • <date> • <summary>'
-      g.gitblame_date_format = '%r'
-    end,
+    opts = {
+      enabled = false,
+      message_template = ' <summary> • <date> • <author> • <<sha>>',
+      date_format = '%m-%d-%Y %H:%M:%S',
+      virtual_text_column = 1,
+    },
   },
 }

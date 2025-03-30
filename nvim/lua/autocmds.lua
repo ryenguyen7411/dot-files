@@ -71,3 +71,13 @@ vim.api.nvim_create_autocmd('BufEnter', {
     vim.bo.filetype = 'html'
   end,
 })
+
+-- Keep cursor position after yank
+vim.api.nvim_create_autocmd('TextYankPost', {
+  callback = function()
+    if vim.v.event.operator == 'y' and vim.b.cursorPreYank then
+      vim.api.nvim_win_set_cursor(0, vim.b.cursorPreYank)
+      vim.b.cursor_pre_yank = nil
+    end
+  end,
+})
