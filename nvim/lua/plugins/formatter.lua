@@ -12,6 +12,7 @@ M.setup_formatter = function()
       css = { 'prettier_d_slim', 'prettier', stop_after_first = true },
       html = { 'prettier_d_slim', 'prettier', stop_after_first = true },
       lua = { 'stylua' },
+      go = { 'goimports', 'gofmt', stop_after_first = true },
     },
     format_on_save = {
       timeout_ms = 500,

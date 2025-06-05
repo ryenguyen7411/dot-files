@@ -123,6 +123,18 @@ M.setup_other_lsp = function()
       M.attach(client, bufnr)
     end,
   }
+  lspconfig.gopls.setup {
+    on_attach = function(client, bufnr)
+      vim.cmd [[
+      augroup LspGo
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
+      augroup END
+      ]]
+
+      M.attach(client, bufnr)
+    end,
+  }
   lspconfig.vimls.setup {
     on_attach = function(client, bufnr)
       require('aerial').on_attach(client, bufnr)
