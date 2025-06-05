@@ -71,7 +71,7 @@ vim.keymap.set('n', '<leader>n', ':enew<CR>', { silent = true })
 vim.keymap.set('n', 'gT', ':Inspect<CR>', { silent = true })
 vim.keymap.set('n', '0\\', ':%bdelete!<CR><CR>', { silent = true })
 vim.keymap.set('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
-vim.keymap.set('n', '<Esc>', ':nohl<CR><C-l>:echo<CR>')
+vim.keymap.set('n', '<Esc>', ':nohl<CR>:ccl<CR><C-l>:echo<CR>', { silent = true })
 
 -- Vim profiling
 vim.keymap.set(

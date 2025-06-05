@@ -192,3 +192,6 @@ function swe() {
 
 # GPG
 export GPG_TTY=$(tty)
+export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"

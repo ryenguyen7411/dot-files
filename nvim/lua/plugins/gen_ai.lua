@@ -26,7 +26,7 @@ M.setup_copilot_chat = function()
       local select = require 'CopilotChat.select'
 
       require('CopilotChat').setup {
-        model = 'claude-3.7-sonnet',
+        model = 'claude-sonnet-4',
         context = { 'buffers', 'filenames' },
         window = {
           layout = 'float',
