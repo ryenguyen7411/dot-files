@@ -1,6 +1,6 @@
 local g = vim.g
 
--- Center navigation
+-- Navigation
 vim.keymap.set('n', 'j', "(v:count ? 'j' : 'gj')", { expr = true })
 vim.keymap.set('n', 'k', "(v:count ? 'k' : 'gk')", { expr = true })
 vim.keymap.set('n', '<C-d>', '10<C-d>', { silent = true })
@@ -24,6 +24,7 @@ vim.keymap.set('n', 'U', '<C-R>', { silent = true })
 -- Yank to Vim + OS clipboard
 vim.keymap.set('n', 'YY', 'gg"*yG', { silent = true, noremap = true })
 vim.keymap.set({ 'n', 'x' }, 'y', function()
+  -- Integrate with autocmd TextYankPost
   vim.b.cursorPreYank = vim.api.nvim_win_get_cursor(0)
   return '"*y'
 end, { expr = true, silent = true, noremap = true })
@@ -37,11 +38,12 @@ vim.keymap.set('n', '<leader>ư', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>qq', ':bp|bd #<CR>', { silent = true })
 vim.keymap.set('i', ':w', '<Esc>:w<CR>', { silent = true })
 
--- Visual mode: shifting > and <, move line up and down
+-- Visual mode: shifting > and <, move line up and down, etc
 vim.keymap.set('v', '<', '<gv', { silent = true })
 vim.keymap.set('v', '>', '>gv', { silent = true })
 vim.keymap.set('v', 'J', ":m '>+1<CR><CR>gv=gv", { silent = true })
 vim.keymap.set('v', 'K', ":m '<-2<CR><CR>gv=gv", { silent = true })
+vim.keymap.set('x', '/', '<Esc>/\\%V') --search within visual selection - this is magic
 
 -- Split resize current pane
 vim.keymap.set('n', 'zh', '<C-w>h', { silent = true })

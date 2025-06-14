@@ -64,6 +64,7 @@ return {
         'help',
         'lazy',
         'any-jump',
+        'codecompanion',
       },
     },
   },
@@ -78,6 +79,7 @@ return {
     config = function()
       require('markview').setup {
         preview = {
+          filetypes = { 'markdown', 'codecompanion' },
           modes = { 'n', 'i', 'no', 'c' },
           hybrid_modes = { 'i' },
 
@@ -133,5 +135,27 @@ return {
     config = function()
       require('grug-far').setup {}
     end,
+  },
+  {
+    'echasnovski/mini.diff',
+    config = function()
+      local diff = require 'mini.diff'
+      diff.setup {
+        -- Disabled by default
+        source = diff.gen_source.none(),
+      }
+    end,
+  },
+  {
+    'HakonHarnes/img-clip.nvim',
+    opts = {
+      filetypes = {
+        codecompanion = {
+          prompt_for_file_name = false,
+          template = '[Image]($FILE_PATH)',
+          use_absolute_path = true,
+        },
+      },
+    },
   },
 }

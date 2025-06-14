@@ -27,7 +27,7 @@ M.setup_copilot_chat = function()
 
       require('CopilotChat').setup {
         model = 'claude-sonnet-4',
-        context = { 'buffers', 'filenames' },
+        context = { 'buffers', 'files', 'filenames' },
         window = {
           layout = 'float',
           width = 0.7,
@@ -56,8 +56,8 @@ M.setup_copilot_chat = function()
     end,
   }
 
-  vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
-  vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
+  -- vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
+  -- vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
 
   return packages
 end
@@ -74,20 +74,84 @@ M.setup_supermaven = function()
   }
 end
 
-M.setup_codeium = function()
-  vim.g.codeium_manual = true
-  vim.g.codeium_disable_bindings = true
-  vim.keymap.set('n', ',.', '<cmd>call codeium#Chat()<CR>', {})
-
-  return {
-    'Exafunction/codeium.vim',
-    event = 'BufEnter',
+M.setup_code_companion = function()
+  local package = {
+    'olimorris/codecompanion.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {
+      strategies = {
+        chat = {
+          adapter = 'copilot',
+          model = 'claude-sonnet-4',
+          keymaps = {
+            close = {
+              modes = { n = '<C-c>', i = '<C-c>' },
+              opts = {},
+            },
+            -- Add further custom keymaps here
+          },
+        },
+        inline = {
+          adapter = 'copilot',
+        },
+      },
+      display = {
+        action_palette = {
+          width = 95,
+          height = 10,
+          prompt = 'Prompt ', -- Prompt used for interactive LLM calls
+          provider = 'snacks', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
+          opts = {
+            show_default_actions = true, -- Show the default actions in the action palette?
+            show_default_prompt_library = true, -- Show the default prompt library in the action palette?
+          },
+        },
+        chat = {
+          -- Change the default icons
+          icons = {
+            pinned_buffer = ' ',
+            watched_buffer = '👀 ',
+          },
+          window = {
+            layout = 'float',
+            position = nil, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
+            border = 'single',
+            height = 0.7,
+            width = 0.7,
+            relative = 'editor',
+            full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
+            opts = {
+              breakindent = true,
+              cursorcolumn = false,
+              cursorline = false,
+              foldcolumn = '0',
+              linebreak = true,
+              list = false,
+              numberwidth = 1,
+              signcolumn = 'no',
+              spell = false,
+              wrap = true,
+            },
+          },
+          auto_scroll = false,
+        },
+      },
+      log_level = 'ERROR',
+    },
   }
+
+  vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', {})
+  vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
+
+  return package
 end
 
 return {
   M.setup_copilot(),
   M.setup_copilot_chat(),
   M.setup_supermaven(),
-  -- M.setup_codeium(),
+  M.setup_code_companion(),
 }
