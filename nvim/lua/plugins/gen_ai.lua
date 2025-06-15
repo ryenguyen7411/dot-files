@@ -91,7 +91,6 @@ M.setup_code_companion = function()
               modes = { n = '<C-c>', i = '<C-c>' },
               opts = {},
             },
-            -- Add further custom keymaps here
           },
         },
         inline = {
@@ -104,37 +103,16 @@ M.setup_code_companion = function()
           height = 10,
           prompt = 'Prompt ', -- Prompt used for interactive LLM calls
           provider = 'snacks', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
-          opts = {
-            show_default_actions = true, -- Show the default actions in the action palette?
-            show_default_prompt_library = true, -- Show the default prompt library in the action palette?
-          },
         },
         chat = {
-          -- Change the default icons
           icons = {
             pinned_buffer = ' ',
             watched_buffer = '👀 ',
           },
           window = {
             layout = 'float',
-            position = nil, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
-            border = 'single',
             height = 0.7,
             width = 0.7,
-            relative = 'editor',
-            full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
-            opts = {
-              breakindent = true,
-              cursorcolumn = false,
-              cursorline = false,
-              foldcolumn = '0',
-              linebreak = true,
-              list = false,
-              numberwidth = 1,
-              signcolumn = 'no',
-              spell = false,
-              wrap = true,
-            },
           },
           auto_scroll = false,
         },
@@ -144,14 +122,14 @@ M.setup_code_companion = function()
   }
 
   vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', {})
-  vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
+  vim.keymap.set({ 'n', 'x' }, ",'", '<cmd>CodeCompanion<CR>', {})
 
   return package
 end
 
 return {
   M.setup_copilot(),
-  M.setup_copilot_chat(),
+  -- M.setup_copilot_chat(),
   M.setup_supermaven(),
   M.setup_code_companion(),
 }
