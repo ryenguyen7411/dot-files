@@ -80,6 +80,7 @@ return {
       require('markview').setup {
         preview = {
           filetypes = { 'markdown', 'codecompanion' },
+          ignore_buftypes = {},
           modes = { 'n', 'i', 'no', 'c' },
           hybrid_modes = { 'i' },
 
@@ -157,5 +158,8 @@ return {
         },
       },
     },
+  },
+  {
+    'tpope/vim-abolish',
   },
 }

@@ -122,14 +122,48 @@ M.setup_code_companion = function()
   }
 
   vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', {})
-  vim.keymap.set({ 'n', 'x' }, ",'", '<cmd>CodeCompanion<CR>', {})
+  vim.keymap.set('n', ",'", '<cmd>CodeCompanion<CR>', {})
+  vim.keymap.set('v', ",'", ":'<,'>CodeCompanion<CR>", {})
 
   return package
 end
+
+-- M.setup_nes = function()
+--   return {
+--     'Xuyuanp/nes.nvim',
+--     event = 'VeryLazy',
+--     keys = {
+--       {
+--         'H',
+--         function()
+--           local function debug_log(msg)
+--             vim.notify('[DEBUG] ' .. tostring(msg), vim.log.levels.DEBUG)
+--           end
+
+--           debug_log 'Debug log message here'
+--           require('nes').get_suggestion()
+--         end,
+--         desc = '[Nes] get suggestion',
+--       },
+--       {
+--         '<leader>H',
+--         function()
+--           require('nes').apply_suggestion(0, { jump = true, trigger = true })
+--         end,
+--         desc = '[Nes] apply suggestion',
+--       },
+--     },
+--     dependencies = {
+--       'nvim-lua/plenary.nvim',
+--     },
+--     opts = {},
+--   }
+-- end
 
 return {
   M.setup_copilot(),
   -- M.setup_copilot_chat(),
   M.setup_supermaven(),
   M.setup_code_companion(),
+  -- M.setup_nes(),
 }
