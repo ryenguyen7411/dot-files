@@ -26,6 +26,23 @@ M.setup_treesitter = function()
     },
   }
 
+  require('markview').setup {
+    preview = {
+      filetypes = { 'markdown', 'codecompanion' },
+      ignore_buftypes = {},
+      modes = { 'n', 'i', 'no', 'c' },
+      hybrid_modes = { 'i' },
+
+      -- This is nice to have
+      callbacks = {
+        on_enable = function(_, win)
+          vim.wo[win].conceallevel = 2
+          vim.wo[win].conecalcursor = 'nc'
+        end,
+      },
+    },
+  }
+
   vim.g.skip_ts_context_commentstring_module = true
 
   vim.keymap.set(
@@ -62,6 +79,7 @@ return {
     build = ':TSUpdate',
     dependencies = {
       { 'JoosepAlviste/nvim-ts-context-commentstring' },
+      { 'OXY2DEV/markview.nvim' },
     },
     config = function()
       M.setup_treesitter()

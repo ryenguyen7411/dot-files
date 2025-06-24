@@ -54,11 +54,52 @@ return {
           hidden = true,
           ignored = true,
           args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+          win = {
+            input = {
+              keys = {
+                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+              },
+            },
+          },
+          layout = { preset = 'vscode' },
         },
         grep = {
           hidden = true,
           ignored = true,
           args = { '--ignore-file', vim.fn.expand '~/.config/rg/.rgignore' },
+          win = {
+            input = {
+              keys = {
+                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+              },
+            },
+          },
+        },
+        projects = {
+          dev = { '~/dev', '~/projects' },
+          confirm = 'load_session',
+          patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
+          win = {
+            input = {
+              keys = {
+                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+              },
+            },
+          },
+          layout = { preset = 'vscode' },
+        },
+        smart = {
+          hidden = true,
+          ignored = true,
+          args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+          win = {
+            input = {
+              keys = {
+                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+              },
+            },
+          },
+          layout = { preset = 'vscode' },
         },
         explorer = {
           hidden = true,
@@ -78,14 +119,21 @@ return {
                 ['u'] = 'explorer_update',
                 ['I'] = 'toggle_ignored',
                 ['H'] = 'toggle_hidden',
+                ['<leader>/'] = 'picker_grep',
+                ['<c-t>'] = 'tcd', -- change directory
 
-                ['<BS>'] = noop,
+                ['<C-d>'] = function(item)
+                  if item and item.is_dir and item.path then
+                    vim.cmd('cd ' .. vim.fn.fnameescape(item.path))
+                    vim.notify('CWD changed to: ' .. item.path, vim.log.levels.INFO)
+                  end
+                end,
+
+                ['<ESC>'] = noop,
                 ['h'] = noop, -- close directory
                 ['o'] = noop, -- open with system application
                 ['P'] = noop,
                 ['<c-c>'] = noop,
-                ['<leader>/'] = noop,
-                ['<c-t>'] = noop,
                 ['.'] = noop,
                 ['Z'] = noop,
                 [']g'] = noop,
@@ -119,12 +167,13 @@ return {
   keys = {
     { 'zp', '<cmd>lua Snacks.zen()<CR>', desc = 'Toggle Zen Mode' },
 
-    { '<leader>;', '<cmd>lua Snacks.picker.files()<CR>', desc = 'Find Files' },
+    { '<leader>h', '<cmd>lua Snacks.picker.files()<CR>', desc = 'Find Files' },
     { '<leader>j', '<cmd>lua Snacks.picker.grep()<CR>', desc = 'Grep' },
     { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
+    { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
-    { '<leader>h', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { "<leader>'", '<cmd>lua Snacks.picker.resume()<CR>', desc = 'Resume' },
+    { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
 
     -- stylua: ignore start
     -- Top Pickers & Explorer
@@ -137,7 +186,6 @@ return {
     -- { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     -- { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
     -- { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
-    -- { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
     -- { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
     -- -- git
     -- { "<leader>gb", function() Snacks.picker.git_branches() end, desc = "Git Branches" },
