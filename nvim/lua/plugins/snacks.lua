@@ -1,3 +1,5 @@
+function noop() end
+
 return {
   'folke/snacks.nvim',
   priority = 1000,
@@ -35,6 +37,7 @@ return {
         { section = 'startup' },
       },
     },
+    image = { enabled = true },
     indent = { enabled = true },
     input = { enabled = true },
     notifier = {
@@ -44,7 +47,61 @@ return {
       timeout = 3000,
       top_down = false,
     },
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      sources = {
+        files = {
+          hidden = true,
+          ignored = true,
+          args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+        },
+        grep = {
+          hidden = true,
+          ignored = true,
+          args = { '--ignore-file', vim.fn.expand '~/.config/rg/.rgignore' },
+        },
+        explorer = {
+          hidden = true,
+          ignored = true,
+          win = {
+            list = {
+              keys = {
+                ['<BS>'] = 'explorer_up',
+                ['l'] = 'confirm',
+                ['a'] = 'explorer_add',
+                ['d'] = 'explorer_del',
+                ['r'] = 'explorer_rename',
+                ['c'] = 'explorer_copy',
+                ['m'] = 'explorer_move',
+                ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
+                ['p'] = 'explorer_paste',
+                ['u'] = 'explorer_update',
+                ['I'] = 'toggle_ignored',
+                ['H'] = 'toggle_hidden',
+
+                ['<BS>'] = noop,
+                ['h'] = noop, -- close directory
+                ['o'] = noop, -- open with system application
+                ['P'] = noop,
+                ['<c-c>'] = noop,
+                ['<leader>/'] = noop,
+                ['<c-t>'] = noop,
+                ['.'] = noop,
+                ['Z'] = noop,
+                [']g'] = noop,
+                ['[g'] = noop,
+                [']d'] = noop,
+                ['[d'] = noop,
+                [']w'] = noop,
+                ['[w'] = noop,
+                [']e'] = noop,
+                ['[e'] = noop,
+              },
+            },
+          },
+        },
+      },
+    },
     scope = { enabled = true },
     statuscolumn = { enabled = true },
     words = { enabled = true },
@@ -60,19 +117,25 @@ return {
     },
   },
   keys = {
+    { 'zp', '<cmd>lua Snacks.zen()<CR>', desc = 'Toggle Zen Mode' },
+
+    { '<leader>;', '<cmd>lua Snacks.picker.files()<CR>', desc = 'Find Files' },
+    { '<leader>j', '<cmd>lua Snacks.picker.grep()<CR>', desc = 'Grep' },
+    { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
+    { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
+    { '<leader>h', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
+    { "<leader>'", '<cmd>lua Snacks.picker.resume()<CR>', desc = 'Resume' },
+
     -- stylua: ignore start
-    { "zp",  function() Snacks.zen() end, desc = "Toggle Zen Mode" },
     -- Top Pickers & Explorer
+
     -- { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
-    -- { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
-    -- { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
     -- { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
     -- { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
     -- { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
     -- -- find
     -- { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     -- { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
-    -- { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
     -- { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
     -- { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
     -- { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
