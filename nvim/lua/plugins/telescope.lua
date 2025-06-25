@@ -59,14 +59,14 @@ local previews = {
 M.mapping = function()
   -- vim.keymap.set('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
   -- vim.keymap.set('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
-  vim.keymap.set('n', '<leader>i', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
+  -- vim.keymap.set('n', '<leader>i', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
 
-  -- vim.keymap.set(
-  --   'n',
-  --   '<leader>l',
-  --   '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>',
-  --   { noremap = true, silent = true }
-  -- )
+  vim.keymap.set(
+    'n',
+    '<leader>l',
+    '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>',
+    { noremap = true, silent = true }
+  )
   -- vim.keymap.set(
   --   'n',
   --   '<leader>k',

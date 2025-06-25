@@ -1,5 +1,29 @@
 function noop() end
 
+-- function M.actions.confirm(picker, item, action)
+--   if not item then
+--     return
+--   elseif item.dir then
+--     Tree:toggle(item.file)
+--     M.update(picker, { refresh = true })
+--   else
+--     Snacks.picker.actions.jump(picker, item, action)
+--     picker:focus()
+--   end
+-- end
+
+-- function M.actions.confirm_and_close(picker, item, action)
+--   if not item then
+--     return
+--   elseif item.dir then
+--     Tree:toggle(item.file)
+--     M.update(picker, { refresh = true })
+--   else
+--     Snacks.picker.actions.jump(picker, item, action)
+--     picker:close()
+--   end
+-- end
+
 return {
   'folke/snacks.nvim',
   priority = 1000,
@@ -92,6 +116,7 @@ return {
           hidden = true,
           ignored = true,
           args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+          filter = { cwd = true },
           win = {
             input = {
               keys = {
@@ -101,14 +126,22 @@ return {
           },
           layout = { preset = 'vscode' },
         },
+        buffers = {
+          default_selection_index = 2,
+        },
         explorer = {
           hidden = true,
-          ignored = true,
+          ignored = false,
+          -- auto_close = true,
+          -- jump = { close = true },
+          matcher = { fuzzy = true },
+          args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
           win = {
             list = {
               keys = {
                 ['<BS>'] = 'explorer_up',
                 ['l'] = 'confirm',
+                ['<CR>'] = 'confirm_and_close',
                 ['a'] = 'explorer_add',
                 ['d'] = 'explorer_del',
                 ['r'] = 'explorer_rename',
@@ -117,25 +150,18 @@ return {
                 ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
                 ['p'] = 'explorer_paste',
                 ['u'] = 'explorer_update',
-                ['I'] = 'toggle_ignored',
+                ['L'] = 'toggle_ignored',
                 ['H'] = 'toggle_hidden',
                 ['<leader>/'] = 'picker_grep',
                 ['<c-t>'] = 'tcd', -- change directory
 
-                ['<C-d>'] = function(item)
-                  if item and item.is_dir and item.path then
-                    vim.cmd('cd ' .. vim.fn.fnameescape(item.path))
-                    vim.notify('CWD changed to: ' .. item.path, vim.log.levels.INFO)
-                  end
-                end,
-
                 ['<ESC>'] = noop,
                 ['h'] = noop, -- close directory
                 ['o'] = noop, -- open with system application
-                ['P'] = noop,
+                -- ['P'] = noop,
                 ['<c-c>'] = noop,
                 ['.'] = noop,
-                ['Z'] = noop,
+                -- ['Z'] = noop,
                 [']g'] = noop,
                 ['[g'] = noop,
                 [']d'] = noop,
@@ -173,7 +199,9 @@ return {
     { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
     { "<leader>'", '<cmd>lua Snacks.picker.resume()<CR>', desc = 'Resume' },
-    { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
+
+    { '<leader>i', '<cmd>lua Snacks.picker.files({ cwd = "~/notes" })<CR>', desc = 'Find Notes' },
+    -- { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
 
     -- stylua: ignore start
     -- Top Pickers & Explorer
