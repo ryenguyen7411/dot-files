@@ -1,31 +1,8 @@
 function noop() end
 
--- function M.actions.confirm(picker, item, action)
---   if not item then
---     return
---   elseif item.dir then
---     Tree:toggle(item.file)
---     M.update(picker, { refresh = true })
---   else
---     Snacks.picker.actions.jump(picker, item, action)
---     picker:focus()
---   end
--- end
-
--- function M.actions.confirm_and_close(picker, item, action)
---   if not item then
---     return
---   elseif item.dir then
---     Tree:toggle(item.file)
---     M.update(picker, { refresh = true })
---   else
---     Snacks.picker.actions.jump(picker, item, action)
---     picker:close()
---   end
--- end
-
 return {
-  'folke/snacks.nvim',
+  'ryenguyen7411/snacks.nvim',
+  branch = 'develop',
   priority = 1000,
   lazy = false,
   ---@type snacks.Config
@@ -61,6 +38,7 @@ return {
         { section = 'startup' },
       },
     },
+    explorer = { enable = true },
     image = { enabled = true },
     indent = { enabled = true },
     input = { enabled = true },
@@ -127,7 +105,8 @@ return {
           layout = { preset = 'vscode' },
         },
         buffers = {
-          default_selection_index = 2,
+          focus = 'list', -- focus on list to start with normal mode
+          current = false, -- exclude current buffer
         },
         explorer = {
           hidden = true,
@@ -140,8 +119,9 @@ return {
             list = {
               keys = {
                 ['<BS>'] = 'explorer_up',
-                ['l'] = 'confirm',
-                ['<CR>'] = 'confirm_and_close',
+                ['<CR>'] = 'confirm_and_refocus',
+                ['l'] = 'confirm_and_refocus',
+                ['o'] = 'confirm',
                 ['a'] = 'explorer_add',
                 ['d'] = 'explorer_del',
                 ['r'] = 'explorer_rename',
@@ -157,11 +137,10 @@ return {
 
                 ['<ESC>'] = noop,
                 ['h'] = noop, -- close directory
-                ['o'] = noop, -- open with system application
-                -- ['P'] = noop,
+                ['P'] = noop,
                 ['<c-c>'] = noop,
                 ['.'] = noop,
-                -- ['Z'] = noop,
+                ['Z'] = noop,
                 [']g'] = noop,
                 ['[g'] = noop,
                 [']d'] = noop,
