@@ -29,6 +29,7 @@ return {
       'gcF',
       function()
         require('conform').format { async = true }
+        vim.lsp.buf.format()
       end,
       desc = 'Format buffer',
     },

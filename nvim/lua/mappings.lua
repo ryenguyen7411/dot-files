@@ -38,11 +38,6 @@ vim.keymap.set('n', '<leader>ư', ':w!<CR>', { silent = true })
 vim.keymap.set('n', '<leader>qq', ':bp|bd #<CR>', { silent = true })
 vim.keymap.set('i', ':w', '<Esc>:w<CR>', { silent = true })
 
--- Visual mode: shifting > and <, move line up and down, etc
-vim.keymap.set('v', '<', '<gv', { silent = true })
-vim.keymap.set('v', '>', '>gv', { silent = true })
-vim.keymap.set('v', 'J', ":m '>+1<CR><CR>gv=gv", { silent = true })
-vim.keymap.set('v', 'K', ":m '<-2<CR><CR>gv=gv", { silent = true })
 vim.keymap.set('x', '/', '<Esc>/\\%V') --search within visual selection - this is magic
 
 -- Split resize current pane

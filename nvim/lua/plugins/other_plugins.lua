@@ -11,9 +11,9 @@ return {
     end,
   },
 
-  { 'tpope/' .. 'vim-commentary', event = 'BufRead' },
+  -- { 'tpope/' .. 'vim-commentary', event = 'BufRead' },
   { 'tpope/' .. 'vim-repeat', event = 'BufRead' },
-  { 'tpope/' .. 'vim-surround', event = 'BufRead' },
+  -- { 'tpope/' .. 'vim-surround', event = 'BufRead' },
   { 'justinmk/' .. 'vim-sneak', event = 'BufRead' },
   {
     'folke/' .. 'todo-comments.nvim',
@@ -108,16 +108,6 @@ return {
     'MagicDuck/grug-far.nvim',
     config = function()
       require('grug-far').setup {}
-    end,
-  },
-  {
-    'echasnovski/mini.diff',
-    config = function()
-      local diff = require 'mini.diff'
-      diff.setup {
-        -- Disabled by default
-        source = diff.gen_source.none(),
-      }
     end,
   },
   {
