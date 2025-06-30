@@ -26,6 +26,10 @@ return {
           reindent_linewise = false,
         },
       }
+      -- require('mini.diff').setup {
+      --   -- Disabled by default
+      --   source = diff.gen_source.none(),
+      -- }
       require('mini.splitjoin').setup {
         mappings = {
           toggle = 'gs',
