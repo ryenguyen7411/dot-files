@@ -55,6 +55,7 @@ return {
         files = {
           hidden = true,
           ignored = true,
+          layout = { preset = 'vscode' },
           args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
           win = {
             input = {
@@ -63,11 +64,11 @@ return {
               },
             },
           },
-          layout = { preset = 'vscode' },
         },
         grep = {
           hidden = true,
           ignored = true,
+          layout = { preset = 'vscode' },
           args = { '--ignore-file', vim.fn.expand '~/.config/rg/.rgignore' },
           win = {
             input = {
@@ -78,21 +79,40 @@ return {
           },
         },
         projects = {
+          finder = 'recent_projects',
+          format = 'file',
           dev = { '~/dev', '~/projects' },
           confirm = 'load_session',
           patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
           win = {
+            preview = { minimal = true },
             input = {
               keys = {
-                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+                -- every action will always first change the cwd to the project
+                ['<c-e>'] = { { 'cd', 'picker_explorer' }, mode = { 'n', 'i' } },
+                ['<c-f>'] = { { 'cd', 'picker_files' }, mode = { 'n', 'i' } },
+                ['<c-g>'] = { { 'cd', 'picker_grep' }, mode = { 'n', 'i' } },
+                ['<c-r>'] = { { 'cd', 'picker_recent' }, mode = { 'n', 'i' } },
+                ['<c-w>'] = { { 'cd' }, mode = { 'n', 'i' } },
               },
             },
           },
-          layout = { preset = 'vscode' },
+          -- dev = { '~/dev', '~/projects' },
+          -- confirm = 'load_session',
+          -- layout = { preset = 'vscode' },
+          -- patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
+          -- win = {
+          --   input = {
+          --     keys = {
+          --       ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+          --     },
+          --   },
+          -- },
         },
         smart = {
           hidden = true,
           ignored = true,
+          layout = { preset = 'vscode' },
           args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
           filter = { cwd = true },
           win = {
@@ -102,7 +122,6 @@ return {
               },
             },
           },
-          layout = { preset = 'vscode' },
         },
         buffers = {
           focus = 'list', -- focus on list to start with normal mode
@@ -111,17 +130,16 @@ return {
         explorer = {
           hidden = true,
           ignored = false,
-          -- auto_close = true,
-          -- jump = { close = true },
+          layout = { preset = 'vscode' },
           matcher = { fuzzy = true },
           args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
           win = {
             list = {
               keys = {
                 ['<BS>'] = 'explorer_up',
-                ['<CR>'] = 'confirm_and_refocus',
+                ['<CR>'] = 'confirm_and_close',
+                ['o'] = 'confirm_and_close',
                 ['l'] = 'confirm_and_refocus',
-                ['o'] = 'confirm',
                 ['a'] = 'explorer_add',
                 ['d'] = 'explorer_del',
                 ['r'] = 'explorer_rename',
@@ -134,8 +152,8 @@ return {
                 ['H'] = 'toggle_hidden',
                 ['<leader>/'] = 'picker_grep',
                 ['<c-t>'] = 'tcd', -- change directory
+                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
 
-                ['<ESC>'] = noop,
                 ['h'] = noop, -- close directory
                 ['P'] = noop,
                 ['<c-c>'] = noop,
