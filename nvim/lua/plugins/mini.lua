@@ -26,10 +26,7 @@ return {
           reindent_linewise = false,
         },
       }
-      -- require('mini.diff').setup {
-      --   -- Disabled by default
-      --   source = diff.gen_source.none(),
-      -- }
+      require('mini.diff').setup()
       require('mini.splitjoin').setup {
         mappings = {
           toggle = 'gs',
@@ -56,19 +53,9 @@ return {
       require('mini.jump').setup()
 
       -- Remap adding surrounding to Visual mode selection
+      vim.keymap.del('x', 'ys')
       vim.keymap.set('x', 'S', [[:<C-u>lua MiniSurround.add('visual')<CR>]], { noremap = true, silent = true })
-      -- Make special mapping for "add surrounding for line"
       vim.keymap.set('n', 'yss', 'yss', { noremap = false })
     end,
   },
-  -- {
-  --   'echasnovski/mini.diff',
-  --   config = function()
-  --     local diff = require 'mini.diff'
-  --     diff.setup {
-  --       -- Disabled by default
-  --       source = diff.gen_source.none(),
-  --     }
-  --   end,
-  -- },
 }
