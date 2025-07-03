@@ -1,28 +1,14 @@
+local g = vim.g
+
 local M = {}
 
 M.setup_diffview = function()
-  return {
-    'sindrets/diffview.nvim',
-    keys = {
-      { '<space>r', '<cmd>DiffviewOpen<CR>', desc = 'DiffviewOpen' },
-      { '<space>f', '<cmd>DiffviewFileHistory %<CR>', desc = 'DiffviewFileHistory' },
-    },
-    cmd = { 'DiffviewOpen' },
-    config = function()
-      require('diffview').setup(M.config_diffview())
-      M.mapping()
-    end,
-  }
-end
-
-M.config_diffview = function()
   local actions = require 'diffview.actions'
 
-  return {
+  require('diffview').setup {
     enhanced_diff_hl = true,
     view = {
       merge_tool = {
-        -- Config for conflicted files in diff views during a merge or rebase.
         layout = 'diff3_horizontal',
         disable_diagnostics = true,
       },
@@ -45,18 +31,29 @@ M.config_diffview = function()
   }
 end
 
-M.mapping = function()
-  -- vim.keymap.set('n', '<leader>r', '<cmd>DiffviewOpen<CR>', { silent = true })
-  vim.keymap.set('n', '<leader>f', '<cmd>DiffviewFileHistory %<CR>', { silent = true })
-end
-
 return {
-  M.setup_diffview(),
+  {
+    'sindrets/diffview.nvim',
+    cmd = { 'DiffviewOpen' },
+    keys = {
+      { '<space>r', '<cmd>DiffviewOpen<CR>', desc = 'DiffviewOpen' },
+      { '<space>f', '<cmd>DiffviewFileHistory %<CR>', desc = 'DiffviewFileHistory' },
+    },
+    config = function()
+      M.setup_diffview()
+    end,
+  },
   {
     'f-person/git-blame.nvim',
+    event = 'BufRead',
     keys = {
       { '<space>,b', '<cmd>GitBlameToggle<CR>', desc = 'GitBlameToggle' },
     },
-    opts = {},
+    opts = {
+      enabled = false,
+      message_template = ' <summary> • <date> • <author> • <<sha>>',
+      date_format = '%m-%d-%Y %H:%M:%S',
+      virtual_text_column = 1,
+    },
   },
 }

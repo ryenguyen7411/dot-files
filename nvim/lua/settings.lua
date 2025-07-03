@@ -1,88 +1,53 @@
-local g = vim.g
-local o = vim.opt
+vim.g.have_nerd_font = true -- Enable Nerd Font support for icons
+vim.g.filetype = 'on' -- Enable filetype detection
+vim.g.loaded_python3_provider = 0 -- Disable Python 3 provider
+vim.g.loaded_perl_provider = 0 -- Disable Perl provider
+vim.g.loaded_ruby_provider = 0 -- Disable Ruby provider
+vim.g.loaded_node_provider = 0 -- Disable Node.js provider
 
-o.tabstop = 2
-o.shiftwidth = 2
-o.expandtab = true
+vim.env.LANG = 'en_US.UTF-8' -- Set language environment variable
 
-o.splitbelow = true
-o.splitright = true
+vim.opt.backspace = 'indent,eol,start' -- Allow backspace over everything
+vim.opt.backup = false -- Enable backup files
+vim.opt.backupcopy = 'yes' -- Use copy method for backup
+vim.opt.breakindent = true -- Enable break indent
+vim.opt.cmdheight = 0 -- Hide command line unless needed
+vim.opt.cursorline = true -- Highlight current line
+vim.opt.encoding = 'utf-8' -- Set internal encoding
+vim.opt.expandtab = true -- Use spaces instead of tabs
+vim.opt.fileencoding = 'utf-8' -- Set file encoding
+vim.opt.fillchars = 'eob: ' -- Remove ~ from empty lines
+vim.opt.hidden = true -- Allow buffer switching without saving
+vim.opt.hlsearch = true -- Highlight search matches
+vim.opt.ignorecase = true -- Ignore case in searches
+vim.opt.incsearch = true -- Show search matches as you type
+vim.opt.langmap = 'ư]ơ[Ơ{Ư}' -- Keyboard language mapping
+vim.opt.laststatus = 3 -- Global statusline
+vim.opt.maxmempattern = 2000 -- Max memory for pattern matching
+vim.opt.mouse = '' -- Disable mouse support
+vim.opt.number = true -- Show line numbers
+vim.opt.relativenumber = true -- Show relative line numbers
+vim.opt.scroll = 10 -- Scroll 10 lines at a time
+vim.opt.scrolloff = 3 -- Keep 3 lines above/below cursor
+vim.opt.shiftwidth = 2 -- Indent by 2 spaces
+vim.opt.showmode = false -- Don't show mode in command line
+vim.opt.signcolumn = 'number' -- Show signs in number column
+vim.opt.smartcase = true -- Override ignorecase if uppercase used
+vim.opt.splitbelow = true -- Horizontal splits open below
+vim.opt.splitright = true -- Vertical splits open right
+vim.opt.tabstop = 2 -- Tab character is 2 spaces
+vim.opt.termguicolors = true -- Enable true color support
+vim.opt.timeout = true -- Enable mapping timeout
+vim.opt.timeoutlen = 500 -- Timeout length in ms
+vim.opt.undofile = true -- Enable persistent undo
+vim.opt.updatetime = 750 -- Faster CursorHold events
+vim.opt.whichwrap:append '<>' -- Allow left/right keys to wrap lines
 
-o.hidden = true
-o.updatetime = 750
-o.laststatus = 3
-
-o.fillchars = 'eob: '
-o.whichwrap:append '<>'
-o.cursorline = true
-o.cmdheight = 0
-
-o.number = true
-o.relativenumber = true
-o.signcolumn = 'number'
-o.mouse = ''
-
--- Encoding
-vim.cmd "let $LANG='en_US.UTF-8'"
-o.encoding = 'utf-8'
-o.fileencoding = 'utf-8'
-o.backupcopy = 'yes'
-
--- Fix backspace indent
-o.backspace = 'indent,eol,start'
-
--- Searching
-o.hlsearch = true
-o.incsearch = true
-o.ignorecase = true
-o.smartcase = true
-
-o.termguicolors = true
-
-o.langmap = 'ư]ơ[Ơ{Ư}'
-o.scrolloff = 3
-o.scroll = 10
-
--- disable some builtin vim plugins
-local disabled_built_ins = {
-  '2html_plugin',
-  'getscript',
-  'getscriptPlugin',
-  'gzip',
-  'logipat',
-  'netrw',
-  'netrwPlugin',
-  'netrwSettings',
-  'netrwFileHandlers',
-  'matchit',
-  'tar',
-  'tarPlugin',
-  'rrhelper',
-  'spellfile_plugin',
-  'vimball',
-  'vimballPlugin',
-  'zip',
-  'zipPlugin',
-}
-
-for _, plugin in pairs(disabled_built_ins) do
-  g['loaded_' .. plugin] = 1
+-- make all keymaps silent by default
+local keymap_set = vim.keymap.set
+---@diagnostic disable-next-line: duplicate-set-field
+vim.keymap.set = function(mode, lhs, rhs, opts)
+  opts = opts or {}
+  opts.silent = opts.silent ~= false -- Make keymaps silent unless specified
+  return keymap_set(mode, lhs, rhs, opts)
 end
-
--- Plugin: any-jump
-g.any_jump_window_top_offset = 8
-g.any_jump_disable_default_keybindings = 1
-
--- Plugin: vim-startify
-g.startify_change_to_dir = 0
-
-g.filetype = 'on'
-
--- Plugin: git-blame
-g.gitblame_enabled = 0
-g.gitblame_message_template = ' <author> • <sha> • <date> • <summary>'
-g.gitblame_date_format = '%r'
-
--- Plugin: vim-smoothie
-g.smoothie_speed_linear_factor = 30
-g.smoothie_speed_constant_factor = 30

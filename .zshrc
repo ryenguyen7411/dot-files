@@ -12,6 +12,10 @@ autoload -U compinit && compinit
 
 source $ZSH/oh-my-zsh.sh
 
+if [ -v $TMUX ]; then
+  tmux attach || tmux
+fi
+
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
@@ -26,6 +30,12 @@ export PATH="$PATH:$HOME/flutter/bin"
 
 export VSToolsPath="/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/xbuild/Microsoft/VisualStudio/v15.0/"
 export VisualStudioVersion="15.0"
+
+export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
 
 # User configuration
 alias vi='nvim'
@@ -116,14 +126,8 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.rbenv/shims:${PATH}"
 export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
-export DYLD_LIBRARY_PATH="$(brew --prefix)/lib:$DYLD_LIBRARY_PATH"
 
 export LANG=en_US.UTF-8
-
-if [ -v $TMUX ]; then
-  tmux attach || tmux
-fi
-
 
 # bun completions
 [ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
@@ -189,3 +193,6 @@ function swe() {
         ;;
     esac;
 }
+
+# GPG
+export GPG_TTY=$(tty)

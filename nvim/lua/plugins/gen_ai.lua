@@ -12,22 +12,33 @@ M.setup_copilot = function()
     },
   }
 
-  vim.g.copilot_workspace_folders = { '~/projects/be/bizops', '~/projects/be/bizops-micro', '~/projects/be/finops' }
-
   return packages
 end
 
 M.setup_copilot_chat = function()
   local packages = {
-    'ryenguyen7411/' .. 'CopilotChat.nvim',
-    branch = 'develop',
+    'CopilotC-Nvim/' .. 'CopilotChat.nvim',
     dependencies = {
       { 'zbirenbaum/copilot.lua' },
     },
+    build = 'make tiktoken',
     config = function()
       local select = require 'CopilotChat.select'
 
       require('CopilotChat').setup {
+        model = 'claude-sonnet-4',
+        context = { 'buffers', 'files', 'filenames' },
+        window = {
+          layout = 'float',
+          width = 0.7,
+          height = 0.7,
+        },
+        show_help = false,
+        auto_follow_cursor = false,
+        highlight_selection = false,
+        highlight_headers = false,
+        log_level = 'error',
+
         prompts = {
           ReviewDiff = {
             prompt = '/COPILOT_REVIEWDIFF Review the selected code.',
@@ -35,27 +46,18 @@ M.setup_copilot_chat = function()
           },
           FixLang = 'Please correct any grammar and spelling errors, improve the grammar and wording of the following text.',
         },
-        window = {
-          layout = 'float',
-          width = 0.7,
-          height = 0.7,
-        },
         mappings = {
           complete = {
             detail = 'Use <C-h> for options.',
             insert = '<C-h>',
           },
         },
-        show_help = false,
-        auto_follow_cursor = false,
-        highlight_selection = false,
-        context = 'buffers',
       }
     end,
   }
 
-  vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
-  vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
+  -- vim.keymap.set('n', ',.', '<cmd>CopilotChatToggle<CR>', {})
+  -- vim.keymap.set('n', ',,', '<cmd>CopilotChatStop<CR>', {})
 
   return packages
 end
@@ -64,25 +66,111 @@ M.setup_supermaven = function()
   return {
     'supermaven-inc/supermaven-nvim',
     config = function()
-      require('supermaven-nvim').setup {}
+      require('supermaven-nvim').setup {
+        -- disable annoying startup message
+        log_level = 'off',
+      }
     end,
   }
 end
 
-M.setup_codeium = function()
-  vim.g.codeium_manual = true
-  vim.g.codeium_disable_bindings = true
-  vim.keymap.set('n', ',.', '<cmd>call codeium#Chat()<CR>', {})
-
-  return {
-    'Exafunction/codeium.vim',
-    event = 'BufEnter',
+M.setup_code_companion = function()
+  local package = {
+    'olimorris/codecompanion.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {
+      strategies = {
+        chat = {
+          adapter = 'copilot',
+          model = 'claude-sonnet-4',
+          keymaps = {
+            close = {
+              modes = { n = '<C-c>', i = '<C-c>' },
+              opts = {},
+            },
+          },
+        },
+        inline = {
+          adapter = 'copilot',
+        },
+      },
+      display = {
+        action_palette = {
+          width = 95,
+          height = 10,
+          prompt = 'Prompt ', -- Prompt used for interactive LLM calls
+          provider = 'snacks', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
+        },
+        chat = {
+          icons = {
+            pinned_buffer = ' ',
+            watched_buffer = '👀 ',
+          },
+          window = {
+            layout = 'float',
+            height = 0.7,
+            width = 0.7,
+          },
+          auto_scroll = false,
+        },
+        diff = {
+          enabled = true,
+          close_chat_at = 240, -- Close an open chat buffer if the total columns of your display are less than...
+          layout = 'vertical', -- vertical|horizontal split for default provider
+          opts = { 'internal', 'filler', 'closeoff', 'algorithm:patience', 'followwrap', 'linematch:120' },
+          provider = 'mini_diff', -- default|mini_diff
+        },
+      },
+      log_level = 'ERROR',
+    },
   }
+
+  vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', {})
+  vim.keymap.set('n', ",'", '<cmd>CodeCompanion<CR>', {})
+  vim.keymap.set('v', ",'", ":'<,'>CodeCompanion<CR>", {})
+
+  return package
 end
+
+-- M.setup_nes = function()
+--   return {
+--     'Xuyuanp/nes.nvim',
+--     event = 'VeryLazy',
+--     keys = {
+--       {
+--         'H',
+--         function()
+--           local function debug_log(msg)
+--             vim.notify('[DEBUG] ' .. tostring(msg), vim.log.levels.DEBUG)
+--           end
+
+--           debug_log 'Debug log message here'
+--           require('nes').get_suggestion()
+--         end,
+--         desc = '[Nes] get suggestion',
+--       },
+--       {
+--         '<leader>H',
+--         function()
+--           require('nes').apply_suggestion(0, { jump = true, trigger = true })
+--         end,
+--         desc = '[Nes] apply suggestion',
+--       },
+--     },
+--     dependencies = {
+--       'nvim-lua/plenary.nvim',
+--     },
+--     opts = {},
+--   }
+-- end
 
 return {
   M.setup_copilot(),
-  M.setup_copilot_chat(),
+  -- M.setup_copilot_chat(),
   M.setup_supermaven(),
-  -- M.setup_codeium(),
+  M.setup_code_companion(),
+  -- M.setup_nes(),
 }

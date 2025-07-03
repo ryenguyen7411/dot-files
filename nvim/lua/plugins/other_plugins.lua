@@ -4,44 +4,17 @@ return {
 
   -- TO BE UPDATED
   {
-    'ryenguyen7411/' .. 'any-jump.vim',
-    keys = {
-      { '<F12>', '<cmd>AnyJump<CR>', desc = 'AnyJump' },
-      { '<F8>', '<cmd>AnyJumpLastResults<CR>', desc = 'AnyJumpLastResults' },
-    },
-  },
-
-  {
     'mattn/' .. 'emmet-vim',
     event = 'BufRead',
     config = function()
-      require('configs.emmet').setup()
+      vim.keymap.set('i', '<C-j>', '<Plug>(emmet-expand-abbr)', { noremap = false })
     end,
   },
 
-  { 'tpope/' .. 'vim-commentary', event = 'BufRead' },
-  {
-    'thinca/' .. 'vim-quickrun',
-    event = 'BufRead',
-    config = function()
-      require('configs.quickrun').setup()
-    end,
-  },
+  -- { 'tpope/' .. 'vim-commentary', event = 'BufRead' },
   { 'tpope/' .. 'vim-repeat', event = 'BufRead' },
-  { 'tpope/' .. 'vim-surround', event = 'BufRead' },
-  {
-    'will133/' .. 'vim-dirdiff',
-    keys = {
-      { '<space>,d', '<cmd>DirDiff<CR>', desc = 'DirDiff' },
-    },
-    cmd = { 'DirDiff' },
-  },
+  -- { 'tpope/' .. 'vim-surround', event = 'BufRead' },
   { 'justinmk/' .. 'vim-sneak', event = 'BufRead' },
-  {
-    'LunarVim/' .. 'bigfile.nvim',
-    event = 'BufRead',
-    opts = {},
-  },
   {
     'folke/' .. 'todo-comments.nvim',
     event = 'BufRead',
@@ -91,26 +64,9 @@ return {
         'help',
         'lazy',
         'any-jump',
+        'codecompanion',
       },
     },
-  },
-  {
-    'MeanderingProgrammer/' .. 'markdown.nvim',
-    ft = { 'markdown' },
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter',
-    },
-    config = function()
-      require('render-markdown').setup {}
-    end,
-  },
-  {
-    'folke/zen-mode.nvim',
-    keys = {
-      { 'zp', '<cmd>ZenMode<CR>', desc = 'ZenMode' },
-    },
-    cmd = { 'ZenMode' },
-    opts = {},
   },
   {
     'oysandvik94/curl.nvim',
@@ -122,17 +78,8 @@ return {
       { 'cp', '<cmd>CurlClose<CR>', desc = 'CurlClose' },
     },
     config = function()
-      require('curl').setup {}
-    end,
-  },
-  {
-    'rcarriga/nvim-notify',
-    config = function()
-      require('notify').setup {
-        stages = 'fade_in_slide_out',
-        render = 'compact',
-        background_colour = 'FloatShadow',
-        timeout = 3000,
+      require('curl').setup {
+        -- default_flags = { '-i' },
       }
     end,
   },
@@ -162,5 +109,20 @@ return {
     config = function()
       require('grug-far').setup {}
     end,
+  },
+  {
+    'HakonHarnes/img-clip.nvim',
+    opts = {
+      filetypes = {
+        codecompanion = {
+          prompt_for_file_name = false,
+          template = '[Image]($FILE_PATH)',
+          use_absolute_path = true,
+        },
+      },
+    },
+  },
+  {
+    'tpope/vim-abolish',
   },
 }

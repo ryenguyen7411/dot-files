@@ -33,18 +33,23 @@ end
 
 local previews = {
   mime_hook = function(filepath, bufnr, opts)
-    local split_path = vim.split(filepath:lower(), '.', { plain = true })
-    local ext = split_path[#split_path]
-
-    if vim.tbl_contains({ 'png', 'jpg', 'jpeg' }, ext) then
+    local is_image = function(filepath)
+      local image_extensions = { 'png', 'jpg', 'jpeg' } -- Supported image formats
+      local split_path = vim.split(filepath:lower(), '.', { plain = true })
+      local extension = split_path[#split_path]
+      return vim.tbl_contains(image_extensions, extension)
+    end
+    if is_image(filepath) then
       local term = vim.api.nvim_open_term(bufnr, {})
       local function send_output(_, data, _)
         for _, d in ipairs(data) do
           vim.api.nvim_chan_send(term, d .. '\r\n')
         end
       end
-
-      vim.fn.jobstart({ 'viu', filepath }, { on_stdout = send_output, stdout_buffered = true })
+      vim.fn.jobstart({
+        'catimg',
+        filepath, -- Terminal image viewer command
+      }, { on_stdout = send_output, stdout_buffered = true, pty = true })
     else
       require('telescope.previewers.utils').set_preview_message(bufnr, opts.winid, 'Binary cannot be previewed')
     end
@@ -52,9 +57,9 @@ local previews = {
 }
 
 M.mapping = function()
-  vim.keymap.set('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
-  vim.keymap.set('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
-  vim.keymap.set('n', '<leader>p', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
+  -- vim.keymap.set('n', '<leader>;', '<cmd>lua find_files()<CR>', { noremap = true, silent = true })
+  -- vim.keymap.set('n', '<leader>j', '<cmd>lua live_grep()<CR>', { noremap = true, silent = true })
+  -- vim.keymap.set('n', '<leader>i', '<cmd>lua select_curl()<CR>', { noremap = true, silent = true })
 
   vim.keymap.set(
     'n',
@@ -62,19 +67,19 @@ M.mapping = function()
     '<cmd>lua require("telescope").extensions.project.project{ display_type="full" }<CR>',
     { noremap = true, silent = true }
   )
-  vim.keymap.set(
-    'n',
-    '<leader>k',
-    '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>',
-    { noremap = true, silent = true }
-  )
-  vim.keymap.set(
-    'n',
-    '<leader>b',
-    '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>',
-    { noremap = true, silent = true }
-  )
-  vim.keymap.set('n', "<leader>'", '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
+  -- vim.keymap.set(
+  --   'n',
+  --   '<leader>k',
+  --   '<cmd>lua require("telescope").extensions.file_browser.file_browser({ cwd = vim.fn.expand("%:p:h") })<CR>',
+  --   { noremap = true, silent = true }
+  -- )
+  -- vim.keymap.set(
+  --   'n',
+  --   '<leader>b',
+  --   '<cmd>lua require("telescope.builtin").buffers({ default_selection_index=2 })<CR>',
+  --   { noremap = true, silent = true }
+  -- )
+  -- vim.keymap.set('n', "<leader>'", '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
 end
 
 return {

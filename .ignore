@@ -43,9 +43,15 @@ Pods/
 .nuxt
 vendor/bundle/
 .cxx/
+storybook-static/
 
 to-be-copy/
 
 .expo
 
 mf-types/
+
+render-page.js*
+.puppeteer
+
+charting_library/
