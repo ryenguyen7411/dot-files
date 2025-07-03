@@ -1,5 +1,159 @@
 function noop() end
 
+local M = {}
+
+M.files_picker = function()
+  return {
+    hidden = true,
+    ignored = true,
+    layout = { preset = 'vscode' },
+    args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+    filter = { cwd = true },
+    formatters = {
+      file = {
+        filename_first = true,
+        truncate = 100,
+      },
+    },
+    win = {
+      input = {
+        keys = {
+          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
+        },
+      },
+      list = {
+        keys = {
+          ['<C-f>'] = 'toggle_focus',
+        },
+      },
+    },
+  }
+end
+
+M.grep_picker = function()
+  return {
+    hidden = true,
+    ignored = true,
+    layout = { preset = 'vscode' },
+    args = { '--ignore-file', vim.fn.expand '~/.config/rg/.rgignore' },
+    formatters = {
+      file = {
+        filename_first = true,
+        truncate = 100,
+      },
+    },
+    win = {
+      input = {
+        keys = {
+          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
+        },
+      },
+      list = {
+        keys = {
+          ['<C-f>'] = 'toggle_focus',
+        },
+      },
+    },
+  }
+end
+
+M.projects_picker = function()
+  return {
+    finder = 'recent_projects',
+    format = 'file',
+    dev = { '~/dev', '~/projects' },
+    confirm = 'load_session',
+    patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
+    win = {
+      preview = { minimal = true },
+      input = {
+        keys = {
+          -- every action will always first change the cwd to the project
+          ['<c-e>'] = { { 'cd', 'picker_explorer' }, mode = { 'n', 'i' } },
+          ['<c-f>'] = { { 'cd', 'picker_files' }, mode = { 'n', 'i' } },
+          ['<c-g>'] = { { 'cd', 'picker_grep' }, mode = { 'n', 'i' } },
+          ['<c-r>'] = { { 'cd', 'picker_recent' }, mode = { 'n', 'i' } },
+          ['<c-w>'] = { { 'cd' }, mode = { 'n', 'i' } },
+        },
+      },
+    },
+    -- dev = { '~/dev', '~/projects' },
+    -- confirm = 'load_session',
+    -- layout = { preset = 'vscode' },
+    -- patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
+    -- win = {
+    --   input = {
+    --     keys = {
+    --       ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+    --     },
+    --   },
+    -- },
+  }
+end
+
+M.explorer_picker = function()
+  return {
+    hidden = true,
+    ignored = false,
+    layout = { preset = 'vscode' },
+    matcher = { fuzzy = true },
+    args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+    win = {
+      input = {
+        keys = {
+          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
+        },
+      },
+      list = {
+        keys = {
+          ['<C-BS>'] = 'explorer_up',
+          ['<CR>'] = 'confirm_and_close',
+          ['o'] = 'confirm_and_close',
+          ['l'] = 'confirm_and_refocus',
+          ['<C-t>'] = 'tcd', -- change directory
+          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
+          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
+
+          -- ['a'] = 'explorer_add',
+          -- ['d'] = 'explorer_del',
+          -- ['r'] = 'explorer_rename',
+          -- ['c'] = 'explorer_copy',
+          -- ['m'] = 'explorer_move',
+          -- ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
+          -- ['p'] = 'explorer_paste',
+          -- ['u'] = 'explorer_update',
+          -- ['I'] = 'toggle_ignored',
+          -- ['H'] = 'toggle_hidden',
+          -- ['<leader>/'] = 'picker_grep',
+          ['h'] = noop,
+          ['P'] = noop,
+          ['<c-c>'] = noop,
+          ['.'] = noop,
+          ['Z'] = noop,
+          [']g'] = noop,
+          ['[g'] = noop,
+          [']d'] = noop,
+          ['[d'] = noop,
+          [']w'] = noop,
+          ['[w'] = noop,
+          [']e'] = noop,
+          ['[e'] = noop,
+        },
+      },
+    },
+  }
+end
+
+M.buffer_picker = function()
+  return {
+    focus = 'list', -- focus on list to start with normal mode
+    current = false, -- exclude current buffer
+  }
+end
+
 return {
   'ryenguyen7411/snacks.nvim',
   branch = 'develop',
@@ -52,125 +206,12 @@ return {
     picker = {
       enabled = true,
       sources = {
-        files = {
-          hidden = true,
-          ignored = true,
-          layout = { preset = 'vscode' },
-          args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
-          win = {
-            input = {
-              keys = {
-                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-              },
-            },
-          },
-        },
-        grep = {
-          hidden = true,
-          ignored = true,
-          layout = { preset = 'vscode' },
-          args = { '--ignore-file', vim.fn.expand '~/.config/rg/.rgignore' },
-          win = {
-            input = {
-              keys = {
-                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-              },
-            },
-          },
-        },
-        projects = {
-          finder = 'recent_projects',
-          format = 'file',
-          dev = { '~/dev', '~/projects' },
-          confirm = 'load_session',
-          patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
-          win = {
-            preview = { minimal = true },
-            input = {
-              keys = {
-                -- every action will always first change the cwd to the project
-                ['<c-e>'] = { { 'cd', 'picker_explorer' }, mode = { 'n', 'i' } },
-                ['<c-f>'] = { { 'cd', 'picker_files' }, mode = { 'n', 'i' } },
-                ['<c-g>'] = { { 'cd', 'picker_grep' }, mode = { 'n', 'i' } },
-                ['<c-r>'] = { { 'cd', 'picker_recent' }, mode = { 'n', 'i' } },
-                ['<c-w>'] = { { 'cd' }, mode = { 'n', 'i' } },
-              },
-            },
-          },
-          -- dev = { '~/dev', '~/projects' },
-          -- confirm = 'load_session',
-          -- layout = { preset = 'vscode' },
-          -- patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
-          -- win = {
-          --   input = {
-          --     keys = {
-          --       ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-          --     },
-          --   },
-          -- },
-        },
-        smart = {
-          hidden = true,
-          ignored = true,
-          layout = { preset = 'vscode' },
-          args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
-          filter = { cwd = true },
-          win = {
-            input = {
-              keys = {
-                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-              },
-            },
-          },
-        },
-        buffers = {
-          focus = 'list', -- focus on list to start with normal mode
-          current = false, -- exclude current buffer
-        },
-        explorer = {
-          hidden = true,
-          ignored = false,
-          layout = { preset = 'vscode' },
-          matcher = { fuzzy = true },
-          args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
-          win = {
-            list = {
-              keys = {
-                ['<BS>'] = 'explorer_up',
-                ['<CR>'] = 'confirm_and_close',
-                ['o'] = 'confirm_and_close',
-                ['l'] = 'confirm_and_refocus',
-                ['a'] = 'explorer_add',
-                ['d'] = 'explorer_del',
-                ['r'] = 'explorer_rename',
-                ['c'] = 'explorer_copy',
-                ['m'] = 'explorer_move',
-                ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
-                ['p'] = 'explorer_paste',
-                ['u'] = 'explorer_update',
-                ['L'] = 'toggle_ignored',
-                ['H'] = 'toggle_hidden',
-                ['<leader>/'] = 'picker_grep',
-                ['<c-t>'] = 'tcd', -- change directory
-                ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-
-                ['h'] = noop, -- close directory
-                ['P'] = noop,
-                ['<c-c>'] = noop,
-                ['.'] = noop,
-                ['Z'] = noop,
-                [']g'] = noop,
-                ['[g'] = noop,
-                [']d'] = noop,
-                ['[d'] = noop,
-                [']w'] = noop,
-                ['[w'] = noop,
-                [']e'] = noop,
-                ['[e'] = noop,
-              },
-            },
-          },
-        },
+        smart = M.files_picker(),
+        files = M.files_picker(),
+        grep = M.grep_picker(),
+        projects = M.projects_picker(),
+        buffers = M.buffer_picker(),
+        explorer = M.explorer_picker(),
       },
     },
     scope = { enabled = true },
