@@ -236,7 +236,7 @@ return {
     { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
     { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
-    { "<leader>'", '<cmd>lua Snacks.picker.resume()<CR>', desc = 'Resume' },
+    { "<leader>'", '<cmd>lua Snacks.picker.actions.focus_list(Snacks.picker.resume())<CR>', desc = 'Resume' },
 
     { '<leader>i', '<cmd>lua Snacks.picker.files({ cwd = "~/notes" })<CR>', desc = 'Find Notes' },
     -- { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
