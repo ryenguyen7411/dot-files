@@ -40,3 +40,10 @@ if [ -d ~/.config/fd ]; then
     ln -s "$(pwd)/.ignore" ~/.config/fd/.fdignore
   fi
 fi
+
+# opencode
+if [ -d ~/.config/opencode ]; then
+  if [ ! -e ~/.config/opencode/config.json ]; then
+    ln -s "$(pwd)/opencode.config.json" ~/.config/opencode/config.json
+  fi
+fi

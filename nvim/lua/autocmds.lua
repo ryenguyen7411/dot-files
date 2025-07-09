@@ -1,5 +1,5 @@
 -- Highlight trailing whitespace except in excluded filetypes
-local excluded_filetypes = { '', 'noice', 'snacks_dashboard' }
+local excluded_filetypes = { '', 'noice', 'snacks_dashboard', 'toggleterm' }
 local function should_highlight_whitespace()
   local ft = vim.bo.filetype
   for _, ex in ipairs(excluded_filetypes) do
