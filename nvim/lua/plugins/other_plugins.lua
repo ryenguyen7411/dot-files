@@ -65,6 +65,7 @@ return {
         'lazy',
         'any-jump',
         'codecompanion',
+        'toggleterm',
       },
     },
   },
@@ -124,5 +125,21 @@ return {
   },
   {
     'tpope/vim-abolish',
+  },
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    config = function()
+      vim.api.nvim_create_autocmd('TermEnter', {
+        pattern = 'term://*toggleterm#*',
+        callback = function()
+          vim.keymap.set('t', '<C-t>', '<cmd>ToggleTerm<CR>', { silent = true, buffer = true })
+        end,
+      })
+
+      vim.keymap.set('n', '<C-t>', '<cmd>ToggleTerm direction=vertical size=60<CR>', { silent = true })
+
+      require('toggleterm').setup {}
+    end,
   },
 }

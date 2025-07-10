@@ -7,7 +7,15 @@ M.files_picker = function()
     hidden = true,
     ignored = true,
     layout = { preset = 'vscode' },
-    args = { '--ignore-file', vim.fn.expand '~/.config/fd/.fdignore' },
+    args = {
+      '-FHIL',
+      '--type=f',
+      '--color=never',
+      '--strip-cwd-prefix',
+      '--no-ignore',
+      '--ignore-file',
+      vim.fn.expand '~/.config/fd/.fdignore',
+    },
     filter = { cwd = true },
     formatters = {
       file = {
@@ -36,11 +44,21 @@ M.grep_picker = function()
     hidden = true,
     ignored = true,
     layout = { preset = 'vscode' },
-    args = { '--ignore-file', vim.fn.expand '~/.config/rg/.rgignore' },
+    args = {
+      '-FHLSn.',
+      '--color=never',
+      '--column',
+      '--no-heading',
+      '--sort-files',
+      '--trim',
+      '--no-ignore',
+      '--ignore-file',
+      vim.fn.expand '~/.config/rg/.rgignore',
+    },
     formatters = {
       file = {
         filename_first = true,
-        truncate = 100,
+        truncate = 40,
       },
     },
     win = {
@@ -236,7 +254,7 @@ return {
     { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
     { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
-    { "<leader>'", '<cmd>lua Snacks.picker.resume()<CR>', desc = 'Resume' },
+    { "<leader>'", '<cmd>lua Snacks.picker.actions.focus_list(Snacks.picker.resume())<CR>', desc = 'Resume' },
 
     { '<leader>i', '<cmd>lua Snacks.picker.files({ cwd = "~/notes" })<CR>', desc = 'Find Notes' },
     -- { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },

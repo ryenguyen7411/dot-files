@@ -196,3 +196,8 @@ function swe() {
 
 # GPG
 export GPG_TTY=$(tty)
+
+. "$HOME/.local/bin/env"
+
+# opencode
+export PATH=/Users/tan.nguyen2/.opencode/bin:$PATH
