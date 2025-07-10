@@ -83,7 +83,7 @@ M.setup_code_companion = function()
         'nvim-treesitter/nvim-treesitter',
         -- codecompanion extensions
         'ravitemer/codecompanion-history.nvim',
-        'Davidyz/VectorCode',
+        -- 'Davidyz/VectorCode',
       },
       event = 'VeryLazy',
       opts = {
@@ -246,37 +246,37 @@ M.setup_code_companion = function()
         require('codecompanion').setup(opts)
       end,
     },
-    {
-      'Davidyz/VectorCode',
-      version = '*',
-      -- build = 'uv tool upgrade vectorcode', -- This helps keeping the CLI up-to-date
-      dependencies = { 'nvim-lua/plenary.nvim' },
-      opts = {
-        cli_cmds = {
-          vectorcode = 'vectorcode',
-        },
-        ---@type VectorCode.RegisterOpts
-        async_opts = {
-          debounce = 10,
-          events = { 'BufWritePost', 'InsertEnter', 'BufReadPost' },
-          exclude_this = true,
-          n_query = 1,
-          notify = false,
-          -- query_cb = require('vectorcode.utils').make_surrounding_lines_cb(-1),
-          run_on_register = false,
-        },
-        async_backend = 'default', -- or "lsp"
-        exclude_this = true,
-        n_query = 1,
-        notify = true,
-        timeout_ms = 5000,
-        on_setup = {
-          update = false, -- set to true to enable update when `setup` is called.
-          lsp = false,
-        },
-        sync_log_env_var = false,
-      },
-    },
+    -- {
+    --   'Davidyz/VectorCode',
+    --   version = '*',
+    --   -- build = 'uv tool upgrade vectorcode', -- This helps keeping the CLI up-to-date
+    --   dependencies = { 'nvim-lua/plenary.nvim' },
+    --   opts = {
+    --     cli_cmds = {
+    --       vectorcode = 'vectorcode',
+    --     },
+    --     ---@type VectorCode.RegisterOpts
+    --     async_opts = {
+    --       debounce = 10,
+    --       events = { 'BufWritePost', 'InsertEnter', 'BufReadPost' },
+    --       exclude_this = true,
+    --       n_query = 1,
+    --       notify = false,
+    --       -- query_cb = require('vectorcode.utils').make_surrounding_lines_cb(-1),
+    --       run_on_register = false,
+    --     },
+    --     async_backend = 'default', -- or "lsp"
+    --     exclude_this = true,
+    --     n_query = 1,
+    --     notify = true,
+    --     timeout_ms = 5000,
+    --     on_setup = {
+    --       update = false, -- set to true to enable update when `setup` is called.
+    --       lsp = false,
+    --     },
+    --     sync_log_env_var = false,
+    --   },
+    -- },
   }
 
   vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', { noremap = true, silent = true })
@@ -286,40 +286,6 @@ M.setup_code_companion = function()
   vim.g.codecompanion_auto_tool_mode = true
 
   return packages
-end
-
-M.setup_vectorcode = function()
-  return {
-    'Davidyz/VectorCode',
-    version = '*',
-    build = 'uv tool upgrade vectorcode', -- This helps keeping the CLI up-to-date
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {
-      cli_cmds = {
-        vectorcode = 'vectorcode',
-      },
-      ---@type VectorCode.RegisterOpts
-      async_opts = {
-        debounce = 10,
-        events = { 'BufWritePost', 'InsertEnter', 'BufReadPost' },
-        exclude_this = true,
-        n_query = 1,
-        notify = false,
-        -- query_cb = require('vectorcode.utils').make_surrounding_lines_cb(-1),
-        run_on_register = false,
-      },
-      async_backend = 'default', -- or "lsp"
-      exclude_this = true,
-      n_query = 1,
-      notify = true,
-      timeout_ms = 5000,
-      on_setup = {
-        update = false, -- set to true to enable update when `setup` is called.
-        lsp = false,
-      },
-      sync_log_env_var = false,
-    },
-  }
 end
 
 return {

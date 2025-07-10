@@ -133,20 +133,11 @@ return {
       vim.api.nvim_create_autocmd('TermEnter', {
         pattern = 'term://*toggleterm#*',
         callback = function()
-          vim.keymap.set('t', '<C-t>', function()
-            vim.cmd(tostring(vim.v.count1) .. 'ToggleTerm')
-          end, { silent = true, buffer = true })
+          vim.keymap.set('t', '<C-t>', '<cmd>ToggleTerm<CR>', { silent = true, buffer = true })
         end,
       })
 
-      vim.keymap.set('n', '<C-t>', function()
-        vim.cmd(tostring(vim.v.count1) .. 'ToggleTerm direction=vertical size=100')
-      end, { silent = true })
-
-      vim.keymap.set('i', '<C-t>', function()
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'n', false)
-        vim.cmd(tostring(vim.v.count1) .. 'ToggleTerm')
-      end, { silent = true })
+      vim.keymap.set('n', '<C-t>', '<cmd>ToggleTerm direction=vertical size=60<CR>', { silent = true })
 
       require('toggleterm').setup {}
     end,
