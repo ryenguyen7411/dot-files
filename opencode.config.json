@@ -4,8 +4,10 @@
   "autoshare": false,
   "autoupdate": true,
   "keybinds": {
-    "input_newline": "shift+enter",
+    "input_newline": "ctrl+o",
     "messages_half_page_up": "ctrl+k",
-    "messages_half_page_down": "ctrl+j"
+    "messages_half_page_down": "ctrl+j",
+    "messages_previous": "ctrl+h",
+    "messages_next": "ctrl+l"
   }
 }

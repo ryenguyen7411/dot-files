@@ -88,3 +88,22 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     vim.lsp.buf.format { async = false }
   end,
 })
+
+-- Terminal mouse management: enable mouse when terminal opens, disable when closed
+local mouse_group = vim.api.nvim_create_augroup('TerminalMouse', { clear = true })
+
+vim.api.nvim_create_autocmd('TermOpen', {
+  group = mouse_group,
+  pattern = '*',
+  callback = function()
+    vim.opt_local.mouse = 'a'
+  end,
+})
+
+vim.api.nvim_create_autocmd('TermClose', {
+  group = mouse_group,
+  pattern = '*',
+  callback = function()
+    vim.opt.mouse = ''
+  end,
+})
