@@ -1,0 +1,39 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "tokyonight",
+  "autoshare": false,
+  "autoupdate": true,
+  "mode": {
+    "build": {
+      "prompt": "{file:./prompts/gpt-4.1-beast-mode.md}",
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true
+      }
+    },
+    "plan": {
+      "prompt": "{file:./prompts/gpt-4.1-beast-mode.md}",
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    },
+    "commit": {
+      "prompt": "{file:./prompts/gpt-4.1-beast-mode.md}",
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": true
+      }
+    }
+  },
+  "keybinds": {
+    "input_newline": "ctrl+o",
+    "messages_half_page_up": "ctrl+k",
+    "messages_half_page_down": "ctrl+j",
+    "messages_previous": "ctrl+h",
+    "messages_next": "ctrl+l"
+  }
+}

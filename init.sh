@@ -43,7 +43,7 @@ fi
 
 # opencode
 if [ -d ~/.config/opencode ]; then
-  if [ ! -e ~/.config/opencode/config.json ]; then
-    ln -s "$(pwd)/opencode.config.json" ~/.config/opencode/config.json
+  if [ ! -e ~/.config/opencode/opencode.json ]; then
+    ln -s "$(pwd)/opencode.config.json" ~/.config/opencode/opencode.json
   fi
 fi
