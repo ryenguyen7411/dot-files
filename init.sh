@@ -46,3 +46,9 @@ if [ -e ~/.config/opencode ] || [ -L ~/.config/opencode ]; then
   rm -rf ~/.config/opencode
 fi
 ln -s "$(pwd)/opencode" ~/.config/opencode
+
+# claude
+if [ -e ~/.claude ] || [ -L ~/.claude ]; then
+  rm -rf ~/.claude
+fi
+ln -s "$(pwd)/.claude" ~/claude

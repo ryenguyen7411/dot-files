@@ -37,3 +37,8 @@ fi
 if [ -e ~/.config/opencode ] || [ -L ~/.config/opencode ]; then
   rm -rf ~/.config/opencode
 fi
+
+# claude
+if [ -e ~/.claude ] || [ -L ~/.claude ]; then
+  rm -rf ~/.claude
+fi

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(yarn:*)",
+      "Bash(curl:*)",
+      "Read(~/.zshrc)"
+    ],
+    "deny": []
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp"
+  },
+  "includeCoAuthoredBy": false,
+  "defaultMode": "acceptEdits",
+  "autoUpdates": true
+}
