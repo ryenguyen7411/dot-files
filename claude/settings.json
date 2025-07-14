@@ -9,13 +9,13 @@
       "Bash(curl:*)",
       "Read(~/.zshrc)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   },
   "env": {
     "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
     "OTEL_METRICS_EXPORTER": "otlp"
   },
   "includeCoAuthoredBy": false,
-  "defaultMode": "acceptEdits",
   "autoUpdates": true
 }

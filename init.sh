@@ -51,4 +51,4 @@ ln -s "$(pwd)/opencode" ~/.config/opencode
 if [ -e ~/.claude ] || [ -L ~/.claude ]; then
   rm -rf ~/.claude
 fi
-ln -s "$(pwd)/.claude" ~/claude
+ln -s "$(pwd)/claude" ~/.claude
