@@ -42,8 +42,13 @@ if [ -d ~/.config/fd ]; then
 fi
 
 # opencode
-if [ -d ~/.config/opencode ]; then
-  if [ ! -e ~/.config/opencode/config.json ]; then
-    ln -s "$(pwd)/opencode.config.json" ~/.config/opencode/config.json
-  fi
+if [ -e ~/.config/opencode ] || [ -L ~/.config/opencode ]; then
+  rm -rf ~/.config/opencode
 fi
+ln -s "$(pwd)/opencode" ~/.config/opencode
+
+# claude
+if [ -e ~/.claude ] || [ -L ~/.claude ]; then
+  rm -rf ~/.claude
+fi
+ln -s "$(pwd)/claude" ~/.claude

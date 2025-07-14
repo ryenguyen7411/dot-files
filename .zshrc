@@ -1,99 +1,138 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# ========================
+# ZSH CONFIGURATION
+# ========================
 
-# Path to your oh-my-zsh installation.
+# Oh-My-Zsh Setup
 export ZSH="$HOME/.oh-my-zsh"
-
 ZSH_THEME="robbyrussell"
 DISABLE_UPDATE_PROMPT="true"
 
-plugins=(git zsh-syntax-highlighting zsh-completions zsh-z)
+# Plugins
+plugins=(git sudo zsh-autosuggestions zsh-completions zsh-syntax-highlighting zsh-z)
 autoload -U compinit && compinit
 
+# Load Oh-My-Zsh
 source $ZSH/oh-my-zsh.sh
 
-if [ -v $TMUX ]; then
-  tmux attach || tmux
-fi
+# ========================
+# ENVIRONMENT SETUP
+# ========================
 
+# Locale
+export LANG=en_US.UTF-8
+
+# GPG
+export GPG_TTY=$(tty)
+
+# ========================
+# PATH CONFIGURATION
+# ========================
+
+# System paths
+export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$PATH:/usr/local/sbin"
+export PATH="$PATH:/usr/local/opt/libtool/libexec/gnubin"
+export PATH="$PATH:/usr/local/opt/gnu-sed/libexec/gnubin"
+
+# Development tools
+export PATH="$HOME/.rbenv/bin:$PATH"
+export PATH="$HOME/.rbenv/shims:${PATH}"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
+
+# Go
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
+# Ruby
+eval "$(rbenv init -)"
+
+# Android SDK
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 
-export PATH=$PATH:/usr/local/sbin
-export PATH=$PATH:/usr/local/opt/libtool/libexec/gnubin
-export PATH=$PATH:/usr/local/opt/gnu-sed/libexec/gnubin
-
+# Flutter
 export PATH="$PATH:$HOME/flutter/bin"
 
-export VSToolsPath="/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/xbuild/Microsoft/VisualStudio/v15.0/"
-export VisualStudioVersion="15.0"
+# Node.js package managers
+export PNPM_HOME="/Users/ryeng/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 
-# User configuration
+# OpenCode
+export PATH="$HOME/.opencode/bin:$PATH"
+
+# ========================
+# TMUX AUTO-START
+# ========================
+
+if [ -v $TMUX ]; then
+  tmux attach || tmux
+fi
+
+# ========================
+# ALIASES
+# ========================
+
+# Editor
 alias vi='nvim'
 alias suvi='sudo nvim'
 alias n='sudo n'
 
-## tmux
-alias ts='tmux new -s'
-alias tr='tmux a -t'
+# System
+alias :q='exit'
+alias zm='exit'
+alias ls='ls -a --color=auto'
+alias lf='ls -d .* --color=auto'
 
-## git
+# Configuration reload
+alias zshr='source ~/.zshrc && clear'
+alias tmuxr='tmux source-file ~/.tmux.conf'
+
+# Git shortcuts
 alias gac='git add --all'
 alias gcm='git checkout master && git pull'
 alias gcmm='git checkout main && git pull'
-alias gcbb='git checkout beta && git pull'
 alias gcd='git checkout develop && git pull'
-alias gcg='git add --all && git stash && git checkout staging && git fetch && git reset --hard origin/staging'
-alias gcu='git add --all && git stash && git checkout uat && git fetch && git reset --hard origin/uat'
-alias gcgg='git add --all && git stash && git checkout stg && git fetch && git reset --hard origin/stg'
-alias gcs='gac && stash && git checkout release-loship && git pull'
-alias gcss='gac && stash && git checkout release && git pull'
+alias gcs='gac && stash && git checkout release && git pull'
 alias gct='gac && git commit -m "temp" --no-verify'
-
-alias dev4='clear && DEV_PORT=4000 yarn dev'
-alias dev5='clear && DEV_PORT=5000 yarn dev'
-devx() { clear; DEV_PORT=$1 yarn dev; }
-
-alias push='npm version patch --no-git-tag-version && git add package.json && amend && git push -u origin HEAD'
+alias push='git push -u origin HEAD'
+alias uppush='npm version patch --no-git-tag-version && git add package.json && amend && git push -u origin HEAD'
 alias púh='push'
-alias fush='git push -u origin HEAD'
-alias fstag='git push origin HEAD:staging -f'
 alias amend='git commit --amend --no-edit'
 alias amendf='git commit --amend --no-verify --no-edit'
 alias grc='git add --all && git rebase --continue'
 alias stash='git stash'
 alias skip='git update-index --skip-worktree'
 alias nskip='git update-index --no-skip-worktree'
-reset() { git reset HEAD~"$1" }
-rhard() { gac; git reset --hard HEAD~"$1" }
 
-git-cherry() { git cherry -v $1 | tail -n 50 | awk '/^\+/ {print "\033[31m" $0 "\033[39m"} /^\-/ {print "\033[32m" $0 "\033[39m"}' }
-
-## exit
-alias :q='exit'
-alias zm='exit'
-
-## Colorize the ls output ##
-alias ls='ls -a --color=auto'
-alias lf='ls -d .* --color=auto'
-
-## helper
-alias zshr='source ~/.zshrc && clear'
-alias tmuxr='tmux source-file ~/.tmux.conf'
-killp() { kill $(lsof -ti:$1) }
-
+# OTP
 alias otp='~/otp-cli/otp-cli clip'
 alias otpshow='~/otp-cli/otp-cli show'
 
+# Kubernetes
+alias k=kubectl
+
+# ========================
+# FUNCTIONS
+# ========================
+
+# Git utilities
+reset() { git reset HEAD~"$1" }
+rhard() { gac; git reset --hard HEAD~"$1" }
+git-cherry() { git cherry -v $1 | tail -n 50 | awk '/^\+/ {print "\033[31m" $0 "\033[39m"} /^\-/ {print "\033[32m" $0 "\033[39m"}' }
+
+# Process killer
+killp() { kill $(lsof -ti:$1) }
+
+# Environment switcher
 senv() {
   if [ "$1" = "which" ]; then
     ~/env env;
@@ -104,47 +143,7 @@ senv() {
   fi
 }
 
-ConsoleLogWriter() {
-
-}
-
-StringLogParser() {
-  echo "abcdef"
-}
-
-GcLog() {
-  read -r curl
-
-  content="$(StringLogParser("$curl"))"
-  echo "hello world" $content
-}
-
-export PNPM_HOME="/Users/ryeng/Library/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export PATH="$HOME/.rbenv/shims:${PATH}"
-export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
-
-export LANG=en_US.UTF-8
-
-# bun completions
-[ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
-[ -s "/Users/tan.nguyen2/.bun/_bun" ] && source "/Users/tan.nguyen2/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc'; fi
-
-# The next line enables shell command completion for kubectl.
-alias k=kubectl
+# GCloud/Kubernetes environment switcher
 function swe() {
     case $1 in
     develop)
@@ -194,10 +193,14 @@ function swe() {
     esac;
 }
 
-# GPG
-export GPG_TTY=$(tty)
+# ========================
+# EXTERNAL SOURCES
+# ========================
 
-. "$HOME/.local/bin/env"
+# Bun completions
+[ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
+[ -s "/Users/tan.nguyen2/.bun/_bun" ] && source "/Users/tan.nguyen2/.bun/_bun"
 
-# opencode
-export PATH=/Users/tan.nguyen2/.opencode/bin:$PATH
+# Google Cloud SDK
+if [ -f '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc'; fi

@@ -34,6 +34,11 @@ if [ -e ~/.config/fd/.fdignore ]; then
 fi
 
 # opencode
-if [ -e ~/.config/opencode/config.json ]; then
-  rm ~/.config/opencode/config.json
+if [ -e ~/.config/opencode ] || [ -L ~/.config/opencode ]; then
+  rm -rf ~/.config/opencode
+fi
+
+# claude
+if [ -e ~/.claude ] || [ -L ~/.claude ]; then
+  rm -rf ~/.claude
 fi

@@ -1,1 +1,4 @@
 nvim/plugin/
+
+claude/*
+!claude/settings.json

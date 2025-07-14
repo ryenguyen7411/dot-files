@@ -142,4 +142,7 @@ return {
       require('toggleterm').setup {}
     end,
   },
+  {
+    'djoshea/vim-autoread',
+  },
 }
