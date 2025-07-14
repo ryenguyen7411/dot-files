@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(git:*)",
-      "Bash(yarn:*)",
+      "Bash(yarn check-format:*)",
+      "Bash(yarn check-lint:*)",
+      "Bash(yarn check-types:*)",
+      "Bash(yarn check-format:*)",
       "Bash(curl:*)",
       "Read(~/.zshrc)"
     ],

@@ -94,6 +94,14 @@ killp() { kill $(lsof -ti:$1) }
 alias otp='~/otp-cli/otp-cli clip'
 alias otpshow='~/otp-cli/otp-cli show'
 
+claudecode() {
+  if [ "$1" ]; then
+    cd "$1" && claude --dangerously-skip-permissions
+  else
+    claude --dangerously-skip-permissions
+  fi
+}
+
 senv() {
   if [ "$1" = "which" ]; then
     ~/env env;
