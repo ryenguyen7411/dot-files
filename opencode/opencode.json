@@ -30,7 +30,7 @@
     }
   },
   "keybinds": {
-    "input_newline": "ctrl+o",
+    "input_newline": "ctrl+o,<leader>o",
     "messages_half_page_up": "ctrl+k",
     "messages_half_page_down": "ctrl+j",
     "messages_previous": "ctrl+h",
