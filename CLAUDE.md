@@ -27,7 +27,7 @@ This script creates symbolic links for:
 
 ### Neovim Configuration
 - **Plugin Manager**: Uses Lazy.nvim for plugin management
-- **Structure**: 
+- **Structure**:
   - `init.lua`: Main entry point, sets up Lazy.nvim and imports modules
   - `lua/settings.lua`: Core Neovim settings and options
   - `lua/mappings.lua`: Key mappings
@@ -56,7 +56,7 @@ This script creates symbolic links for:
 
 ### Claude Code Configuration
 - Settings in `claude/settings.json`
-- Permissions allow git commands, ls, curl, and yarn format/lint/type checks
+- Permissions allow git commands, curl, ls, yarn format/lint/type checks and web fetch
 - Default mode: `acceptEdits`
 
 ## Development Tools
