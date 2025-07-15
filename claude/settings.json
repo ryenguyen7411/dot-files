@@ -8,7 +8,9 @@
       "Bash(yarn check-lint:*)",
       "Bash(yarn check-types:*)",
       "Bash(yarn check-format:*)",
-      "Read(~/.zshrc)"
+      "Read(~/.zshrc)",
+      "WebFetch(domain:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

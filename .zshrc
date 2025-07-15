@@ -143,6 +143,15 @@ senv() {
   fi
 }
 
+# Claudecode
+cc() {
+  if [ "$1" ]; then
+    cd "$1" && claude
+  else
+    claude
+  fi
+}
+
 # GCloud/Kubernetes environment switcher
 function swe() {
     case $1 in
