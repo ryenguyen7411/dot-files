@@ -55,3 +55,6 @@ render-page.js*
 .puppeteer
 
 charting_library/
+
+/claude/*
+!/claude/settings.json
