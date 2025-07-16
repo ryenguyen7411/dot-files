@@ -294,6 +294,14 @@ M.setup_opencode_integration = function()
     config = function()
       require('opencode').setup {
         default_global_keymaps = false,
+        keymap = {
+          window = {
+            submit = '<CR>',
+            submit_insert = '<C-s>',
+            close = '<C-c>',
+            stop = '<C-b>',
+          },
+        },
         ui = {
           window_width = 0.25,
           output = {
@@ -311,7 +319,7 @@ M.setup_opencode_integration = function()
   }
 
   vim.keymap.set('n', ',.', '<cmd>Opencode<CR>', { noremap = true, silent = true })
-  vim.keymap.set('n', ',I', '<cmd>OpencodeOpenInputNewSession<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', '<C-y>', '<cmd>OpencodeOpenInputNewSession<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', ',0', '<cmd>OpencodeConfigureProvider<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', ',9', '<cmd>OpencodeModeSelect<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', ',\\', '<cmd>OpencodeSelectSession<CR>', { noremap = true, silent = true })
