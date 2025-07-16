@@ -1,8 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git:*)",
       "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(git:*)",
       "Bash(ls:*)",
       "Bash(yarn check-format:*)",
       "Bash(yarn check-lint:*)",
