@@ -279,11 +279,42 @@ M.setup_code_companion = function()
     -- },
   }
 
-  vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', { noremap = true, silent = true })
-  vim.keymap.set('n', ",'", '<cmd>CodeCompanion<CR>', {})
-  vim.keymap.set('v', ",'", ":'<,'>CodeCompanion<CR>", {})
-  vim.keymap.set({ 'n', 'v' }, ',\\', '<cmd>CodeCompanionActions<cr>', { noremap = true, silent = true })
-  vim.g.codecompanion_auto_tool_mode = true
+  -- vim.keymap.set('n', ',.', '<cmd>CodeCompanionChat Toggle<CR>', { noremap = true, silent = true })
+  -- vim.keymap.set('n', ",'", '<cmd>CodeCompanion<CR>', {})
+  -- vim.keymap.set('v', ",'", ":'<,'>CodeCompanion<CR>", {})
+  -- vim.keymap.set({ 'n', 'v' }, ',\\', '<cmd>CodeCompanionActions<cr>', { noremap = true, silent = true })
+  -- vim.g.codecompanion_auto_tool_mode = true
+
+  return packages
+end
+
+M.setup_opencode_integration = function()
+  local packages = {
+    'sudo-tee/opencode.nvim',
+    config = function()
+      require('opencode').setup {
+        default_global_keymaps = false,
+        ui = {
+          window_width = 0.25,
+          output = {
+            tools = {
+              show_output = false,
+            },
+          },
+        },
+      }
+    end,
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      { 'OXY2DEV/markview.nvim' },
+    },
+  }
+
+  vim.keymap.set('n', ',.', '<cmd>Opencode<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', ',I', '<cmd>OpencodeOpenInputNewSession<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', ',0', '<cmd>OpencodeConfigureProvider<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', ',9', '<cmd>OpencodeModeSelect<CR>', { noremap = true, silent = true })
+  vim.keymap.set('n', ',\\', '<cmd>OpencodeSelectSession<CR>', { noremap = true, silent = true })
 
   return packages
 end
@@ -293,4 +324,5 @@ return {
   -- M.setup_copilot_chat(),
   M.setup_supermaven(),
   unpack(M.setup_code_companion()),
+  M.setup_opencode_integration(),
 }

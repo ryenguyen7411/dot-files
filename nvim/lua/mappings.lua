@@ -70,7 +70,7 @@ vim.keymap.set('n', 'zj', '<C-w>j', { silent = true })
 vim.keymap.set('n', 'zk', '<C-w>k', { silent = true })
 
 -- Window resizing
-vim.keymap.set('n', 'z<BS>', '<Space>15<C-w><', { silent = true })
+vim.keymap.set('n', 'z/', '<Space>15<C-w><', { silent = true })
 vim.keymap.set('n', 'z<CR>', '<Space>15<C-w>>', { silent = true })
 vim.keymap.set('n', 'zb', '<C-w>=', { silent = true })
 

@@ -28,7 +28,7 @@ M.setup_treesitter = function()
 
   require('markview').setup {
     preview = {
-      filetypes = { 'markdown', 'codecompanion' },
+      filetypes = { 'markdown', 'codecompanion', 'opencode_output' },
       ignore_buftypes = {},
       modes = { 'n', 'i', 'no', 'c' },
       hybrid_modes = { 'i' },
