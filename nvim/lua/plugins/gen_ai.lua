@@ -332,6 +332,7 @@ M.setup_opencode_integration = function()
     'sudo-tee/opencode.nvim',
     config = function()
       require('opencode').setup {
+        prefered_picker = 'snacks',
         default_global_keymaps = false,
         keymap = {
           window = {
@@ -345,7 +346,7 @@ M.setup_opencode_integration = function()
           window_width = 0.25,
           output = {
             tools = {
-              show_output = false,
+              show_output = true,
             },
           },
         },
