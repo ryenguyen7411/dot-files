@@ -327,7 +327,7 @@ M.setup_code_companion = function()
   return packages
 end
 
-M.setup_opencode_integration = function()
+M.setup_opencode = function()
   local packages = {
     'sudo-tee/opencode.nvim',
     config = function()
@@ -373,5 +373,5 @@ return {
   M.setup_supermaven(),
   -- M.setup_minuet(),
   unpack(M.setup_code_companion()),
-  M.setup_opencode_integration(),
+  M.setup_opencode(),
 }

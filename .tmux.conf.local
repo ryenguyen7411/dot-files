@@ -432,6 +432,9 @@ set-option -g default-terminal 'tmux-256color'
 set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
 
+# Toggle sidebar on/off with <prefix> o
+bind o display-popup -E -w 40% -h 100% -xR 'zsh -i -c opencode'
+
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important
 
