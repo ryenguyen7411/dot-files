@@ -1,6 +1,6 @@
 {
   "codecompanion-history.nvim": { "branch": "main", "commit": "c54e907ac615d4bc2e909abb498739e5d7166729" },
-  "codecompanion.nvim": { "branch": "main", "commit": "c648ca7ea708b5e62553d5cc9a3f407134bd05ae" },
+  "codecompanion.nvim": { "branch": "main", "commit": "e23e8e5a5643b089607f21f576f6e63174cc44dc" },
   "conform.nvim": { "branch": "master", "commit": "973f3cb73887d510321653044791d7937c7ec0fa" },
   "copilot.lua": { "branch": "master", "commit": "14bf786180b2ca4578915c56989b6d676dddc6f3" },
   "curl.nvim": { "branch": "main", "commit": "b3becc4286eeb1bf363696e2551e6d860c78de3a" },
@@ -25,7 +25,6 @@
   "nvim-ts-context-commentstring": { "branch": "main", "commit": "1b212c2eee76d787bbea6aa5e92a2b534e7b4f8f" },
   "nvim-web-devicons": { "branch": "master", "commit": "0422a19d9aa3aad2c7e5cca167e5407b13407a9d" },
   "oil.nvim": { "branch": "master", "commit": "bbad9a76b2617ce1221d49619e4e4b659b3c61fc" },
-  "opencode-context.nvim": { "branch": "master", "commit": "5b3f1d582cad8d72285e778a40c45a19b9cbd00b" },
   "opencode.nvim": { "branch": "main", "commit": "8763db5aaa6dc8580a1eff98b2d82020239855ce" },
   "plenary.nvim": { "branch": "master", "commit": "857c5ac632080dba10aae49dba902ce3abf91b35" },
   "popup.nvim": { "branch": "master", "commit": "b7404d35d5d3548a82149238289fa71f7f6de4ac" },
