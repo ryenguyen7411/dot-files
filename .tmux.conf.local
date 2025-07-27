@@ -431,11 +431,11 @@ set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
 
 # Toggle sidebar on/off with <prefix> o
-bind-key o display-popup -E -T "OpenCode" -w 40% -h 100% -xR -d "#{pane_current_path}" \
+bind-key o display-popup -E -T "OpenCode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
   'zsh -i -c "SESSION=opencode_$(pwd); tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION opencode"'
 
 # Toggle Claude with <prefix> p
-bind-key p display-popup -E -T "Claude" -w 40% -h 100% -xR -d "#{pane_current_path}" \
+bind-key p display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
   'zsh -i -c "SESSION=claude_$(pwd); tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION claude"'
 
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important

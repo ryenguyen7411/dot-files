@@ -11,7 +11,10 @@
       "Bash(yarn check-format:*)",
       "Read(~/.zshrc)",
       "WebFetch(domain:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__code-reasoning__code-reasoning"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
