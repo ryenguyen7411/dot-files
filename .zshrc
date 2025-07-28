@@ -66,6 +66,9 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# NPM
+export PATH="$HOME/.npm-cache/bin:$PATH"
+
 # OpenCode
 export PATH="$HOME/.opencode/bin:$PATH"
 
