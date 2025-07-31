@@ -14,6 +14,13 @@ M.config = function()
     end,
   })
 
+  vim.lsp.config('ruby_lsp', {
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
+    filetypes = { 'ruby' },
+  })
+
   vim.diagnostic.config {
     float = {
       source = 'always',
@@ -42,6 +49,7 @@ M.start = function()
   vim.lsp.enable 'html'
   vim.lsp.enable 'jsonls'
   vim.lsp.enable 'gopls'
+  vim.lsp.enable 'ruby_lsp'
 end
 
 M.attach = function(client, bufnr)

@@ -391,8 +391,8 @@ set -g history-limit 10000
 
 # force Vi mode
 #   really you should export VISUAL or EDITOR environment variable, see manual
-#set -g status-keys vi
-#set -g mode-keys vi
+set -g status-keys vi
+set -g mode-keys vi
 
 # replace C-b by ` instead of using both prefixes
 set -gu prefix
@@ -406,8 +406,6 @@ bind ` send-prefix -2
 # disable tmux status line
 set -g status off
 set -g base-index 1
-set -g status-keys vi
-setw -g mode-keys vi
 setw -g monitor-activity on
 
 # Pane helper
@@ -431,6 +429,14 @@ set -sg escape-time 0
 set-option -g default-terminal 'tmux-256color'
 set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
+
+# Toggle sidebar on/off with <prefix> o
+bind-key o display-popup -E -T "OpenCode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+  'zsh -i -c "SESSION=opencode_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION opencode"'
+
+# Toggle Claude with <prefix> p
+bind-key p display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+  'zsh -i -c "SESSION=claude_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION claude"'
 
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important

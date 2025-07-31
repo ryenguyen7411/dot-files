@@ -66,6 +66,9 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# NPM
+export PATH="$HOME/.npm-cache/bin:$PATH"
+
 # OpenCode
 export PATH="$HOME/.opencode/bin:$PATH"
 
@@ -106,6 +109,7 @@ alias gct='gac && git commit -m "temp" --no-verify'
 alias push='git push -u origin HEAD'
 alias uppush='npm version patch --no-git-tag-version && git add package.json && amend && git push -u origin HEAD'
 alias púh='push'
+alias fush='push'
 alias amend='git commit --amend --no-edit'
 alias amendf='git commit --amend --no-verify --no-edit'
 alias grc='git add --all && git rebase --continue'
@@ -140,6 +144,15 @@ senv() {
     rm -rf ~/env && ln -s ~/notes/env/prod ~/env;
   else
     rm -rf ~/env && ln -s ~/notes/env/dev ~/env;
+  fi
+}
+
+# Claudecode
+cc() {
+  if [ "$1" ]; then
+    cd "$1" && claude
+  else
+    claude
   fi
 }
 
@@ -194,6 +207,81 @@ function swe() {
 }
 
 # ========================
+# BITWARDEN CLI INTEGRATION
+# ========================
+
+# Session management
+export BW_SESSION_FILE="$HOME/.bw-session"
+
+# Auto-unlock with timeout (30 minutes)
+bw_unlock() {
+  if [ -f "$BW_SESSION_FILE" ]; then
+    export BW_SESSION=$(cat "$BW_SESSION_FILE")
+    if ! bw unlock --check &>/dev/null; then
+      echo "Bitwarden session expired. Please unlock:"
+      local session=$(bw unlock --raw)
+      if [ $? -eq 0 ]; then
+        echo "$session" > "$BW_SESSION_FILE"
+        export BW_SESSION="$session"
+      fi
+    fi
+  else
+    echo "No Bitwarden session found. Please unlock:"
+    local session=$(bw unlock --raw)
+    if [ $? -eq 0 ]; then
+      echo "$session" > "$BW_SESSION_FILE"
+      export BW_SESSION="$session"
+    fi
+  fi
+}
+
+# Auto-lock after timeout
+bw_lock() {
+  bw lock
+  rm -f "$BW_SESSION_FILE"
+  unset BW_SESSION
+}
+
+# Bitwarden aliases
+alias bwu='bw_unlock'
+alias bwl='bw_lock'
+alias bws='bw sync'
+alias bwst='bw status'
+
+# Password utilities
+bwp() {
+  bw_unlock
+  bw get password "$1" | pbcopy
+  echo "Password copied to clipboard"
+}
+
+bwt() {
+  bw_unlock
+  bw get totp "$1" | pbcopy
+  echo "TOTP code copied to clipboard"
+}
+
+bwshow() {
+  bw_unlock
+  bw get item "$1" | jq
+}
+
+bwsearch() {
+  bw_unlock
+  bw list items --search "$1" | jq -r '.[] | "\(.id) - \(.name)"'
+}
+
+# Generate password
+bwgen() {
+  local length=${1:-16}
+  bw generate --length "$length" --uppercase --lowercase --numbers --special | pbcopy
+  echo "Generated password copied to clipboard"
+}
+
+# Auto-unlock on shell start (optional - uncomment if desired)
+# bw_unlock
+
+# ========================
 # EXTERNAL SOURCES
 # ========================
 
@@ -204,3 +292,5 @@ function swe() {
 # Google Cloud SDK
 if [ -f '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc'; fi
 if [ -f '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc'; fi
+
+. "$HOME/.local/bin/env"

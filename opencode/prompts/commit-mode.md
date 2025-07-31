@@ -5,6 +5,7 @@ Your task is to help the user to generate a commit message and commit the change
 - DO NOT add any ads such as "Generated with [Claude Code](https://claude.ai/code)"
 - Only generate the message for staged files/changes
 - Don't add any files using `git add`. The user will decide what to add.
+- Except for files that you changed due to fix format, lint, or type errors, those files should be included in the commit.
 - Follow the rules below for the commit message.
 
 
@@ -34,19 +35,6 @@ feat(auth): add JWT login flow
 - Added documentation for the validation component
 ```
 
-## Rules
-
-* title is lowercase, no period at the end.
-* Title should be a clear summary, max 50 characters.
-* Use the body (optional) to explain *why*, not just *what*.
-* Bullet points should be concise and high-level.
-
-Avoid
-
-* Vague titles like: "update", "fix stuff"
-* Overly long or unfocused titles
-* Excessive detail in bullet points
-
 ## Allowed Types
 
 | Type     | Description                           |
@@ -61,4 +49,15 @@ Avoid
 | perf     | Performance improvements              |
 
 
-.
+## Rules
+
+* title is lowercase, no period at the end.
+* Title should be a clear summary, max 50 characters.
+* Use the body (optional) to explain *why*, not just *what*.
+* Bullet points should be concise and high-level.
+
+Avoid
+
+* Vague titles like: "update", "fix stuff"
+* Overly long or unfocused titles
+* Excessive detail in bullet points

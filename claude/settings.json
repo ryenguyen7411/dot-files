@@ -1,14 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git:*)",
       "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(git:*)",
       "Bash(ls:*)",
       "Bash(yarn check-format:*)",
       "Bash(yarn check-lint:*)",
       "Bash(yarn check-types:*)",
       "Bash(yarn check-format:*)",
-      "Read(~/.zshrc)"
+      "Read(~/.zshrc)",
+      "WebFetch(domain:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:opencode.ai)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__code-reasoning__code-reasoning"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

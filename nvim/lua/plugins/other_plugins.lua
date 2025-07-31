@@ -66,6 +66,8 @@ return {
         'any-jump',
         'codecompanion',
         'toggleterm',
+        'opencode_input',
+        'opencode_output',
       },
     },
   },
