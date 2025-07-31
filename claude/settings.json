@@ -12,6 +12,7 @@
       "Read(~/.zshrc)",
       "WebFetch(domain:*)",
       "WebFetch(domain:github.com)",
+      "WebFetch(domain:opencode.ai)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
       "mcp__code-reasoning__code-reasoning"

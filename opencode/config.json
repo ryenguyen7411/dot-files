@@ -2,9 +2,41 @@
   "$schema": "https://opencode.ai/config.json",
   "username": "Rye",
   "model": "anthropic/claude-sonnet-4-20250514",
+  "small_model": "anthropic/claude-3-haiku-20240307",
   "theme": "tokyonight",
   "share": "auto",
   "autoupdate": true,
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "octocode": {
+      "type": "local",
+      "command": [
+        "npx",
+        "octocode-mcp"
+      ]
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "@playwright/mcp@latest"
+      ],
+      "environment": {}
+    },
+    "code-reasoning": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@mettamatt/code-reasoning"
+      ]
+    }
+  },
+  "instructions": [],
+  "agent": {},
   "mode": {
     "build": {
       "tools": {
@@ -27,25 +59,9 @@
         "edit": false,
         "bash": true
       }
-    },
-    "gpt-beast": {
-      "model": "github-copilot/gpt-4.1",
-      "prompt": "{file:./prompts/gpt-4.1-beast-mode.md}",
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true,
-        "webfetch": true,
-        "todowrite": true,
-        "todoread": true
-      }
     }
   },
   "keybinds": {
-    "input_newline": "ctrl+o,<leader>o",
-    "messages_half_page_up": "ctrl+k",
-    "messages_half_page_down": "ctrl+j",
-    "messages_previous": "ctrl+h",
-    "messages_next": "ctrl+l"
+    "input_newline": "ctrl+j"
   }
 }
