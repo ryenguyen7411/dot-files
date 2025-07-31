@@ -88,3 +88,20 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     vim.lsp.buf.format { async = false }
   end,
 })
+
+-- Utility function to associate file patterns with filetypes
+local function set_filetypes(filetype_map)
+  for pattern, filetype in pairs(filetype_map) do
+    vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+      pattern = pattern,
+      callback = function()
+        vim.bo.filetype = filetype
+      end,
+    })
+  end
+end
+
+-- Example usage
+set_filetypes {
+  ['Fastfile'] = 'ruby',
+}
