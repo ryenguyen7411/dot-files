@@ -2,3 +2,4 @@ nvim/plugin/
 
 claude/*
 !claude/settings.json
+!claude/CLAUDE.md
