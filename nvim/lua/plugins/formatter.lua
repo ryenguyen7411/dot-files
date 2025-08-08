@@ -29,9 +29,9 @@ return {
       'gcF',
       function()
         vim.lsp.buf.format()
-        require('conform').format { async = true }
+        vim.cmd 'silent write'
       end,
-      desc = 'Format buffer',
+      desc = 'Format + Save buffer',
     },
   },
   config = function()

@@ -33,6 +33,7 @@ export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$PATH:/usr/local/sbin"
 export PATH="$PATH:/usr/local/opt/libtool/libexec/gnubin"
 export PATH="$PATH:/usr/local/opt/gnu-sed/libexec/gnubin"
+export PATH="$HOME/.local/bin:$PATH"
 
 # Development tools
 export PATH="$HOME/.rbenv/bin:$PATH"
