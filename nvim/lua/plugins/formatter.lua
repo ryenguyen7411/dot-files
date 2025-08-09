@@ -3,14 +3,14 @@ local M = {}
 M.setup_formatter = function()
   require('conform').setup {
     formatters_by_ft = {
-      javascript = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      javascriptreact = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      typescript = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      typescriptreact = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      vue = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      astro = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      css = { 'prettier_d_slim', 'prettier', stop_after_first = true },
-      html = { 'prettier_d_slim', 'prettier', stop_after_first = true },
+      javascript = { 'prettierd', 'prettier', stop_after_first = true },
+      javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+      typescript = { 'prettierd', 'prettier', stop_after_first = true },
+      typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+      vue = { 'prettierd', 'prettier', stop_after_first = true },
+      astro = { 'prettierd', 'prettier', stop_after_first = true },
+      css = { 'prettierd', 'prettier', stop_after_first = true },
+      html = { 'prettierd', 'prettier', stop_after_first = true },
       lua = { 'stylua' },
     },
     format_on_save = {
@@ -29,6 +29,7 @@ return {
       'gcF',
       function()
         vim.lsp.buf.format()
+        require('conform').format { async = true, timeout_ms = 10000, lsp_fallback = false }
         vim.cmd 'silent write'
       end,
       desc = 'Format + Save buffer',
