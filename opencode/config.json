@@ -1,8 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "username": "Rye",
-  "model": "anthropic/claude-sonnet-4-20250514",
-  "small_model": "anthropic/claude-3-haiku-20240307",
   "theme": "tokyonight",
   "share": "manual",
   "autoupdate": true,
