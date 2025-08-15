@@ -431,10 +431,28 @@ set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
 
 # Toggle Cursor with <prefix> p
-bind-key p run-shell 'DIR=$(basename "#{pane_current_path}"); SESSION="cursor_$DIR"; if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then tmux detach-client -s "$SESSION"; else tmux display-popup -E -T "Cursor" -w 30% -h 100% -xR -d "#{pane_current_path}" "tmux new-session -s \"$SESSION\" cursor-agent 2>/dev/null || tmux attach-session -t \"$SESSION\""; fi'
+bind-key p run-shell '
+  DIR=$(basename "#{pane_current_path}");
+  SESSION="cursor_$DIR";
+  if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then
+    tmux detach-client -s "$SESSION";
+  else
+    tmux display-popup -E -T "Cursor" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+      "tmux new-session -s \"$SESSION\" cursor-agent 2>/dev/null || tmux attach-session -t \"$SESSION\"";
+  fi
+'
 
 # Toggle Opencode with <prefix> o
-bind-key o run-shell 'DIR=$(basename "#{pane_current_path}"); SESSION="opencode_$DIR"; if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then tmux detach-client -s "$SESSION"; else tmux display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "#{pane_current_path}" "tmux new-session -s \"$SESSION\" opencode 2>/dev/null || tmux attach-session -t \"$SESSION\""; fi'
+bind-key o run-shell '
+  DIR=$(basename "#{pane_current_path}");
+  SESSION="opencode_$DIR";
+  if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then
+    tmux detach-client -s "$SESSION";
+  else
+    tmux display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+      "tmux new-session -s \"$SESSION\" opencode 2>/dev/null || tmux attach-session -t \"$SESSION\"";
+  fi
+'
 
 # Turn on cursor mode with <prefix> i (temporary)
 bind-key i display-popup -E -T "Cursor" -w 30% -h 100% -xR -d "#{pane_current_path}" \
