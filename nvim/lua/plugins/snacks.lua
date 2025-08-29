@@ -84,30 +84,35 @@ M.projects_picker = function()
     dev = { '~/dev', '~/projects' },
     confirm = 'load_session',
     patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
+    recent = true,
+    matcher = {
+      frecency = true, -- use frecency boosting
+      sort_empty = true, -- sort even when the filter is empty
+      cwd_bonus = false,
+    },
+    sort = { fields = { 'score:desc', 'idx' } },
     win = {
       preview = { minimal = true },
       input = {
         keys = {
-          -- every action will always first change the cwd to the project
-          ['<c-e>'] = { { 'cd', 'picker_explorer' }, mode = { 'n', 'i' } },
-          ['<c-f>'] = { { 'cd', 'picker_files' }, mode = { 'n', 'i' } },
-          ['<c-g>'] = { { 'cd', 'picker_grep' }, mode = { 'n', 'i' } },
-          ['<c-r>'] = { { 'cd', 'picker_recent' }, mode = { 'n', 'i' } },
-          ['<c-w>'] = { { 'cd' }, mode = { 'n', 'i' } },
+          -- every action will always first change the cwd of the current tabpage to the project
+          ['<c-e>'] = { { 'tcd', 'picker_explorer' }, mode = { 'n', 'i' } },
+          ['<c-f>'] = { { 'tcd', 'picker_files' }, mode = { 'n', 'i' } },
+          ['<c-g>'] = { { 'tcd', 'picker_grep' }, mode = { 'n', 'i' } },
+          ['<c-r>'] = { { 'tcd', 'picker_recent' }, mode = { 'n', 'i' } },
+          ['<c-w>'] = { { 'tcd' }, mode = { 'n', 'i' } },
+          ['<c-t>'] = {
+            function(picker)
+              vim.cmd 'tabnew'
+              Snacks.notify 'New tab opened'
+              picker:close()
+              Snacks.picker.projects()
+            end,
+            mode = { 'n', 'i' },
+          },
         },
       },
     },
-    -- dev = { '~/dev', '~/projects' },
-    -- confirm = 'load_session',
-    -- layout = { preset = 'vscode' },
-    -- patterns = { '.git', '_darcs', '.hg', '.bzr', '.svn', 'package.json', 'Makefile' },
-    -- win = {
-    --   input = {
-    --     keys = {
-    --       ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-    --     },
-    --   },
-    -- },
   }
 end
 
