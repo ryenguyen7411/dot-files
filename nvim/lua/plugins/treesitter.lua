@@ -78,11 +78,19 @@ return {
     event = 'VeryLazy',
     build = ':TSUpdate',
     dependencies = {
-      { 'JoosepAlviste/nvim-ts-context-commentstring' },
       { 'OXY2DEV/markview.nvim' },
     },
     config = function()
       M.setup_treesitter()
+    end,
+  },
+  {
+    'JoosepAlviste/nvim-ts-context-commentstring',
+    event = 'BufRead',
+    config = function()
+      require('ts_context_commentstring').setup {
+        enable_autocmd = false,
+      }
     end,
   },
   {

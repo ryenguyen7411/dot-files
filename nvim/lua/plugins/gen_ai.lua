@@ -1,23 +1,9 @@
 local M = {}
 
-M.setup_copilot = function()
-  local packages = {
-    'zbirenbaum/copilot.lua',
-    cmd = 'Copilot',
-    event = 'InsertEnter',
-    opts = {
-      suggestion = {
-        enabled = false,
-      },
-    },
-  }
-
-  return packages
-end
-
 M.setup_supermaven = function()
   return {
     'supermaven-inc/supermaven-nvim',
+    event = 'BufRead',
     config = function()
       require('supermaven-nvim').setup {
         -- disable annoying startup message
@@ -67,7 +53,6 @@ M.setup_minuet = function()
 end
 
 return {
-  M.setup_copilot(),
   M.setup_supermaven(),
   -- M.setup_minuet(),
 }

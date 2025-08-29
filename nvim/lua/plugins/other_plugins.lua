@@ -11,10 +11,7 @@ return {
     end,
   },
 
-  -- { 'tpope/' .. 'vim-commentary', event = 'BufRead' },
   { 'tpope/' .. 'vim-repeat', event = 'BufRead' },
-  -- { 'tpope/' .. 'vim-surround', event = 'BufRead' },
-  { 'justinmk/' .. 'vim-sneak', event = 'BufRead' },
   {
     'folke/' .. 'todo-comments.nvim',
     event = 'BufRead',
@@ -114,35 +111,7 @@ return {
     end,
   },
   {
-    'HakonHarnes/img-clip.nvim',
-    opts = {
-      filetypes = {
-        codecompanion = {
-          prompt_for_file_name = false,
-          template = '[Image]($FILE_PATH)',
-          use_absolute_path = true,
-        },
-      },
-    },
-  },
-  {
     'tpope/vim-abolish',
-  },
-  {
-    'akinsho/toggleterm.nvim',
-    version = '*',
-    config = function()
-      vim.api.nvim_create_autocmd('TermEnter', {
-        pattern = 'term://*toggleterm#*',
-        callback = function()
-          vim.keymap.set('t', '<C-t>', '<cmd>ToggleTerm<CR>', { silent = true, buffer = true })
-        end,
-      })
-
-      vim.keymap.set('n', '<C-t>', '<cmd>ToggleTerm direction=vertical size=60<CR>', { silent = true })
-
-      require('toggleterm').setup {}
-    end,
   },
   {
     'djoshea/vim-autoread',
