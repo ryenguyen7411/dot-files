@@ -1,10 +1,10 @@
-# User is never prompted: if the command fails, Codex will automatically try
-# something out. Note the `exec` subcommand always uses this mode.
 approval_policy = "never"
-
-sandbox_mode = "workspace-write"
+sandbox_mode = "danger-full-access"
 network_access = true
 model = "gpt-5-codex"
+hide_agent_reasoning = true
+show_raw_agent_reasoning = false
+web_search_request = true
 
 [mcp_servers.context7]
 args = ["-y", "@upstash/context7-mcp"]
