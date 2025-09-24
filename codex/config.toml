@@ -1,0 +1,23 @@
+# User is never prompted: if the command fails, Codex will automatically try
+# something out. Note the `exec` subcommand always uses this mode.
+approval_policy = "never"
+
+sandbox_mode = "workspace-write"
+network_access = true
+model = "gpt-5-codex"
+
+[mcp_servers.context7]
+args = ["-y", "@upstash/context7-mcp"]
+command = "npx"
+
+[mcp_servers.code-reasoning]
+args = ["-y", "@mettamatt/code-reasoning"]
+command = "npx"
+
+[mcp_servers.playwright]
+args = ["-y", "@playwright/mcp@latest"]
+command = "npx"
+
+[mcp_servers.octocode]
+args = ["-y", "octocode-mcp"]
+command = "npx"

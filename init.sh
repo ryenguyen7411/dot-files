@@ -52,3 +52,9 @@ if [ -e ~/.claude ] || [ -L ~/.claude ]; then
   rm -rf ~/.claude
 fi
 ln -s "$(pwd)/claude" ~/.claude
+
+# codex
+if [ -e ~/.codex ] || [ -L ~/.codex ]; then
+  rm -rf ~/.codex
+fi
+ln -s "$(pwd)/codex" ~/.codex

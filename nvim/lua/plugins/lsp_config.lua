@@ -42,6 +42,7 @@ M.start = function()
   vim.lsp.enable 'html'
   vim.lsp.enable 'jsonls'
   vim.lsp.enable 'gopls'
+  vim.lsp.enable 'oxlint'
 end
 
 M.attach = function(client, bufnr)
