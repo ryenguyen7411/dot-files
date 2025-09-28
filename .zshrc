@@ -29,55 +29,87 @@ export GPG_TTY=$(tty)
 # ========================
 
 # System paths
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="$PATH:/usr/local/sbin"
-export PATH="$PATH:/usr/local/opt/libtool/libexec/gnubin"
-export PATH="$PATH:/usr/local/opt/gnu-sed/libexec/gnubin"
+if [ -d "/opt/homebrew/bin" ]; then
+  export PATH="/opt/homebrew/bin:$PATH"
+fi
+if [ -d "/usr/local/sbin" ]; then
+  export PATH="$PATH:/usr/local/sbin"
+fi
+if [ -d "/usr/local/opt/libtool/libexec/gnubin" ]; then
+  export PATH="$PATH:/usr/local/opt/libtool/libexec/gnubin"
+fi
+if [ -d "/usr/local/opt/gnu-sed/libexec/gnubin" ]; then
+  export PATH="$PATH:/usr/local/opt/gnu-sed/libexec/gnubin"
+fi
 export PATH="$HOME/.local/bin:$PATH"
 
 # Development tools
-export PATH="$HOME/.rbenv/bin:$PATH"
-export PATH="$HOME/.rbenv/shims:${PATH}"
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
+if [ -d "$HOME/.rbenv/bin" ]; then
+  export PATH="$HOME/.rbenv/bin:$PATH"
+  export PATH="$HOME/.rbenv/shims:${PATH}"
+fi
+if [ -d "$HOME/.cargo/bin" ]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+if [ -d "$HOME/PHP_CodeSniffer/bin" ]; then
+  export PATH="$HOME/PHP_CodeSniffer/bin:$PATH"
+fi
 
 # Go
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+if [ -d "$HOME/go/bin" ]; then
+  export GOPATH=$HOME/go
+  export PATH=$PATH:$GOPATH/bin
+fi
 
 # Ruby
-eval "$(rbenv init -)"
+if command -v rbenv >/dev/null 2>&1; then
+  eval "$(rbenv init -)"
+fi
 
 # Android SDK
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/tools/bin
-export PATH=$PATH:$ANDROID_HOME/platform-tools
+if [ -d "$HOME/Library/Android/sdk" ]; then
+  export ANDROID_HOME=$HOME/Library/Android/sdk
+  export PATH=$PATH:$ANDROID_HOME/emulator
+  export PATH=$PATH:$ANDROID_HOME/tools
+  export PATH=$PATH:$ANDROID_HOME/tools/bin
+  export PATH=$PATH:$ANDROID_HOME/platform-tools
+fi
 
 # Flutter
-export PATH="$PATH:$HOME/flutter/bin"
+if [ -d "$HOME/flutter/bin" ]; then
+  export PATH="$PATH:$HOME/flutter/bin"
+fi
 
 # Node.js package managers
-export PNPM_HOME="/Users/ryeng/Library/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+if [ -d "$HOME/Library/pnpm" ]; then
+  export PNPM_HOME="$HOME/Library/pnpm"
+  export PATH="$PNPM_HOME:$PATH"
+fi
+if [ -d "$HOME/.yarn/bin" ]; then
+  export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+fi
 
 # Bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+if [ -d "$HOME/.bun" ]; then
+  export BUN_INSTALL="$HOME/.bun"
+  export PATH="$BUN_INSTALL/bin:$PATH"
+fi
 
 # NPM
-export PATH="$HOME/.npm-cache/bin:$PATH"
+if [ -d "$HOME/.npm-cache/bin" ]; then
+  export PATH="$HOME/.npm-cache/bin:$PATH"
+fi
 
 # OpenCode
-export PATH="$HOME/.opencode/bin:$PATH"
+if [ -d "$HOME/.opencode/bin" ]; then
+  export PATH="$HOME/.opencode/bin:$PATH"
+fi
 
 # ========================
 # TMUX AUTO-START
 # ========================
 
-if [ -v $TMUX ]; then
+if [ -z "$TMUX" ]; then
   tmux attach || tmux
 fi
 
@@ -119,8 +151,10 @@ alias skip='git update-index --skip-worktree'
 alias nskip='git update-index --no-skip-worktree'
 
 # OTP
-alias otp='~/otp-cli/otp-cli clip'
-alias otpshow='~/otp-cli/otp-cli show'
+if [ -x "$HOME/otp-cli/otp-cli" ]; then
+  alias otp='~/otp-cli/otp-cli clip'
+  alias otpshow='~/otp-cli/otp-cli show'
+fi
 
 # Kubernetes
 alias k=kubectl
@@ -135,25 +169,24 @@ rhard() { gac; git reset --hard HEAD~"$1" }
 git-cherry() { git cherry -v $1 | tail -n 50 | awk '/^\+/ {print "\033[31m" $0 "\033[39m"} /^\-/ {print "\033[32m" $0 "\033[39m"}' }
 
 # Process killer
-killp() { kill $(lsof -ti:$1) }
+if command -v lsof >/dev/null 2>&1; then
+  killp() { kill $(lsof -ti:$1) }
+fi
 
 # Environment switcher
 senv() {
   if [ "$1" = "which" ]; then
-    ~/env env;
+    if [ -x "$HOME/env" ]; then
+      ~/env env
+    fi
   elif [ "$1" = "prod" ]; then
-    rm -rf ~/env && ln -s ~/notes/env/prod ~/env;
+    if [ -d "$HOME/notes/env/prod" ]; then
+      rm -rf ~/env && ln -s ~/notes/env/prod ~/env
+    fi
   else
-    rm -rf ~/env && ln -s ~/notes/env/dev ~/env;
-  fi
-}
-
-# Claudecode
-cc() {
-  if [ "$1" ]; then
-    cd "$1" && claude
-  else
-    claude
+    if [ -d "$HOME/notes/env/dev" ]; then
+      rm -rf ~/env && ln -s ~/notes/env/dev ~/env
+    fi
   fi
 }
 
@@ -211,87 +244,89 @@ function swe() {
 # BITWARDEN CLI INTEGRATION
 # ========================
 
-# Session management
-export BW_SESSION_FILE="$HOME/.bw-session"
+if command -v bw >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+  # Session management
+  export BW_SESSION_FILE="$HOME/.bw-session"
 
-# Auto-unlock with timeout (30 minutes)
-bw_unlock() {
-  if [ -f "$BW_SESSION_FILE" ]; then
-    export BW_SESSION=$(cat "$BW_SESSION_FILE")
-    if ! bw unlock --check &>/dev/null; then
-      echo "Bitwarden session expired. Please unlock:"
+  # Auto-unlock with timeout (30 minutes)
+  bw_unlock() {
+    if [ -f "$BW_SESSION_FILE" ]; then
+      export BW_SESSION=$(cat "$BW_SESSION_FILE")
+      if ! bw unlock --check &>/dev/null; then
+        echo "Bitwarden session expired. Please unlock:"
+        local session=$(bw unlock --raw)
+        if [ $? -eq 0 ]; then
+          echo "$session" > "$BW_SESSION_FILE"
+          export BW_SESSION="$session"
+        fi
+      fi
+    else
+      echo "No Bitwarden session found. Please unlock:"
       local session=$(bw unlock --raw)
       if [ $? -eq 0 ]; then
         echo "$session" > "$BW_SESSION_FILE"
         export BW_SESSION="$session"
       fi
     fi
-  else
-    echo "No Bitwarden session found. Please unlock:"
-    local session=$(bw unlock --raw)
-    if [ $? -eq 0 ]; then
-      echo "$session" > "$BW_SESSION_FILE"
-      export BW_SESSION="$session"
-    fi
-  fi
-}
+  }
 
-# Auto-lock after timeout
-bw_lock() {
-  bw lock
-  rm -f "$BW_SESSION_FILE"
-  unset BW_SESSION
-}
+  # Auto-lock after timeout
+  bw_lock() {
+    bw lock
+    rm -f "$BW_SESSION_FILE"
+    unset BW_SESSION
+  }
 
-# Bitwarden aliases
-alias bwu='bw_unlock'
-alias bwl='bw_lock'
-alias bws='bw sync'
-alias bwst='bw status'
+  # Bitwarden aliases
+  alias bwu='bw_unlock'
+  alias bwl='bw_lock'
+  alias bws='bw sync'
+  alias bwst='bw status'
 
-# Password utilities
-bwp() {
-  bw_unlock
-  bw get password "$1" | pbcopy
-  echo "Password copied to clipboard"
-}
+  # Password utilities
+  bwp() {
+    bw_unlock
+    bw get password "$1" | pbcopy
+    echo "Password copied to clipboard"
+  }
 
-bwt() {
-  bw_unlock
-  bw get totp "$1" | pbcopy
-  echo "TOTP code copied to clipboard"
-}
+  bwt() {
+    bw_unlock
+    bw get totp "$1" | pbcopy
+    echo "TOTP code copied to clipboard"
+  }
 
-bwshow() {
-  bw_unlock
-  bw get item "$1" | jq
-}
+  bwshow() {
+    bw_unlock
+    bw get item "$1" | jq
+  }
 
-bwsearch() {
-  bw_unlock
-  bw list items --search "$1" | jq -r '.[] | "\(.id) - \(.name)"'
-}
+  bwsearch() {
+    bw_unlock
+    bw list items --search "$1" | jq -r '.[] | "\(.id) - \(.name)"'
+  }
 
-# Generate password
-bwgen() {
-  local length=${1:-16}
-  bw generate --length "$length" --uppercase --lowercase --numbers --special | pbcopy
-  echo "Generated password copied to clipboard"
-}
+  # Generate password
+  bwgen() {
+    local length=${1:-16}
+    bw generate --length "$length" --uppercase --lowercase --numbers --special | pbcopy
+    echo "Generated password copied to clipboard"
+  }
 
-# Auto-unlock on shell start (optional - uncomment if desired)
-# bw_unlock
+  # Auto-unlock on shell start (optional - uncomment if desired)
+  # bw_unlock
+fi
 
 # ========================
 # EXTERNAL SOURCES
 # ========================
 
 # Bun completions
-[ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
-[ -s "/Users/tan.nguyen2/.bun/_bun" ] && source "/Users/tan.nguyen2/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # Google Cloud SDK
-if [ -f '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/path.zsh.inc'; fi
-if [ -f '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/tan.nguyen2/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
 
-. "$HOME/.local/bin/env"
+# External environment file
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
