@@ -253,7 +253,7 @@ zsh_debug "Setting up aliases"
 
 alias vi='nvim'
 alias suvi='sudo nvim'
-alias n='sudo nvim'
+alias n='sudo n'
 
 # ---------------------------
 # System & Utilities
