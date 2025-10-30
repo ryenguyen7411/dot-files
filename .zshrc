@@ -190,6 +190,7 @@ if [[ -d "$HOME/Library/Android/sdk" ]]; then
   add_path "$ANDROID_HOME/tools"
   add_path "$ANDROID_HOME/tools/bin"
   add_path "$ANDROID_HOME/platform-tools"
+  add_path "$ANDROID_HOME/build-tools/36.0.0"
 fi
 
 # Flutter
@@ -237,7 +238,8 @@ export PATH=$(echo "$PATH" | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed
 # TMUX AUTO-START
 # ========================
 
-if [ -z "$TMUX" ]; then
+# Only auto-start tmux in Kitty terminal (not in integrated terminals like Cursor/VSCode)
+if [ -z "$TMUX" ] && [ -n "$KITTY_WINDOW_ID" ]; then
   tmux attach || tmux
 fi
 
