@@ -65,6 +65,7 @@ return {
         'toggleterm',
         'opencode_input',
         'opencode_output',
+        'sidekick',
       },
     },
   },
