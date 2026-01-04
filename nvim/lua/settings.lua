@@ -51,3 +51,26 @@ vim.keymap.set = function(mode, lhs, rhs, opts)
   opts.silent = opts.silent ~= false -- Make keymaps silent unless specified
   return keymap_set(mode, lhs, rhs, opts)
 end
+
+local is_ssh = vim.env.SSH_CONNECTION ~= nil or vim.env.SSH_TTY ~= nil
+
+if is_ssh then
+  -- Remote: OSC 52 → local clipboard
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy '+',
+      ['*'] = require('vim.ui.clipboard.osc52').copy '*',
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste '+',
+      ['*'] = require('vim.ui.clipboard.osc52').paste '*',
+    },
+    osc52 = {
+      max_length = 100000,
+    },
+  }
+else
+  -- Local: native system clipboard
+  vim.opt.clipboard = 'unnamedplus'
+end

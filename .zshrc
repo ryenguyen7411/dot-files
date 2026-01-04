@@ -19,7 +19,6 @@
 # - Tab: Auto-completion
 # - zshr: Reload configuration
 # - swe <env>: Switch Kubernetes environment
-# - bw*: Bitwarden CLI shortcuts (if installed)
 #
 # =============================================================================
 
@@ -179,6 +178,9 @@ if [[ -d "$HOME/go/bin" ]]; then
   export PATH="$PATH:$GOPATH/bin"
 fi
 
+# fnm (Fast Node Manager)
+eval "$(fnm env --use-on-cd)"
+
 # ---------------------------
 # Mobile Development
 # ---------------------------
@@ -314,12 +316,6 @@ alias nskip='git update-index --no-skip-worktree'
 # ---------------------------
 # Development Tools
 # ---------------------------
-
-# OTP
-if [[ -x "$HOME/otp-cli/otp-cli" ]]; then
-  alias otp='~/otp-cli/otp-cli clip'
-  alias otpshow='~/otp-cli/otp-cli show'
-fi
 
 # Kubernetes
 if command_exists kubectl; then
@@ -498,83 +494,6 @@ _load_swe() {
 }
 
 lazy_load swe _load_swe
-
-# ========================
-# BITWARDEN CLI INTEGRATION
-# ========================
-
-if command -v bw >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
-  # Session management
-  export BW_SESSION_FILE="$HOME/.bw-session"
-
-  # Auto-unlock with timeout (30 minutes)
-  bw_unlock() {
-    if [ -f "$BW_SESSION_FILE" ]; then
-      export BW_SESSION=$(cat "$BW_SESSION_FILE")
-      if ! bw unlock --check &>/dev/null; then
-        echo "Bitwarden session expired. Please unlock:"
-        local session=$(bw unlock --raw)
-        if [ $? -eq 0 ]; then
-          echo "$session" > "$BW_SESSION_FILE"
-          export BW_SESSION="$session"
-        fi
-      fi
-    else
-      echo "No Bitwarden session found. Please unlock:"
-      local session=$(bw unlock --raw)
-      if [ $? -eq 0 ]; then
-        echo "$session" > "$BW_SESSION_FILE"
-        export BW_SESSION="$session"
-      fi
-    fi
-  }
-
-  # Auto-lock after timeout
-  bw_lock() {
-    bw lock
-    rm -f "$BW_SESSION_FILE"
-    unset BW_SESSION
-  }
-
-  # Bitwarden aliases
-  alias bwu='bw_unlock'
-  alias bwl='bw_lock'
-  alias bws='bw sync'
-  alias bwst='bw status'
-
-  # Password utilities
-  bwp() {
-    bw_unlock
-    bw get password "$1" | pbcopy
-    echo "Password copied to clipboard"
-  }
-
-  bwt() {
-    bw_unlock
-    bw get totp "$1" | pbcopy
-    echo "TOTP code copied to clipboard"
-  }
-
-  bwshow() {
-    bw_unlock
-    bw get item "$1" | jq
-  }
-
-  bwsearch() {
-    bw_unlock
-    bw list items --search "$1" | jq -r '.[] | "\(.id) - \(.name)"'
-  }
-
-  # Generate password
-  bwgen() {
-    local length=${1:-16}
-    bw generate --length "$length" --uppercase --lowercase --numbers --special | pbcopy
-    echo "Generated password copied to clipboard"
-  }
-
-  # Auto-unlock on shell start (optional - uncomment if desired)
-  # bw_unlock
-fi
 
 # ========================
 # EXTERNAL SOURCES
