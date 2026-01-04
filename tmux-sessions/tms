@@ -1,0 +1,620 @@
+#!/usr/bin/env bash
+#
+# tms - Tmux Session Manager
+# A fzf-based TUI for managing project windows within tmux
+# Theme: Tokyo Night
+#
+
+set -euo pipefail
+
+# Configuration paths
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessions"
+CONFIG_FILE="$CONFIG_DIR/projects.yaml"
+LAYOUTS_DIR="$CONFIG_DIR/layouts"
+
+# Tokyo Night color palette
+TN_BG="#1a1b26"
+TN_BG_DARK="#16161e"
+TN_BG_HL="#292e42"
+TN_FG="#c0caf5"
+TN_FG_DARK="#a9b1d6"
+TN_COMMENT="#565f89"
+TN_CYAN="#7dcfff"
+TN_BLUE="#7aa2f7"
+TN_PURPLE="#bb9af7"
+TN_GREEN="#9ece6a"
+TN_YELLOW="#e0af68"
+TN_RED="#f7768e"
+TN_ORANGE="#ff9e64"
+
+# ANSI color codes (Tokyo Night inspired)
+C_RESET='\033[0m'
+C_BOLD='\033[1m'
+C_DIM='\033[2m'
+C_BLUE='\033[38;2;122;162;247m'      # #7aa2f7
+C_CYAN='\033[38;2;125;207;255m'      # #7dcfff
+C_GREEN='\033[38;2;158;206;106m'     # #9ece6a
+C_PURPLE='\033[38;2;187;154;247m'    # #bb9af7
+C_YELLOW='\033[38;2;224;175;104m'    # #e0af68
+C_RED='\033[38;2;247;118;142m'       # #f7768e
+C_ORANGE='\033[38;2;255;158;100m'    # #ff9e64
+C_FG='\033[38;2;192;202;245m'        # #c0caf5
+C_COMMENT='\033[38;2;86;95;137m'     # #565f89
+
+# Check dependencies
+check_deps() {
+  local missing=()
+  command -v fzf >/dev/null 2>&1 || missing+=("fzf")
+  command -v tmux >/dev/null 2>&1 || missing+=("tmux")
+  command -v yq >/dev/null 2>&1 || missing+=("yq")
+
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo -e "${C_RED}Error: Missing dependencies: ${missing[*]}${C_RESET}" >&2
+    echo "Install with: brew install ${missing[*]}" >&2
+    exit 1
+  fi
+}
+
+# Check if config exists
+check_config() {
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo -e "${C_YELLOW}Config not found at $CONFIG_FILE${C_RESET}" >&2
+    echo "Run 'tms init' or set MACHINE_NAME and run init.sh" >&2
+    exit 1
+  fi
+}
+
+# Get list of projects from config
+get_projects() {
+  yq -r '.projects[].name' "$CONFIG_FILE" 2>/dev/null || echo ""
+}
+
+# Get project path by name (with ~ expansion)
+get_project_path() {
+  local name="$1"
+  local path
+  path=$(yq -r ".projects[] | select(.name == \"$name\") | .path" "$CONFIG_FILE")
+  echo "${path/#\~/$HOME}"
+}
+
+# Get project layout by name
+get_project_layout() {
+  local name="$1"
+  local layout
+  layout=$(yq -r ".projects[] | select(.name == \"$name\") | .layout // \"default\"" "$CONFIG_FILE")
+  echo "${layout:-default}"
+}
+
+# Check if a window with this name exists in current session
+window_exists() {
+  local name="$1"
+  tmux list-windows -F "#{window_name}" 2>/dev/null | grep -q "^${name}$"
+}
+
+# Get list of active project windows in current session
+get_active_windows() {
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux list-windows -F "#{window_name}" 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
+}
+
+# Format project for fzf display
+format_project_line() {
+  local name="$1"
+  local path="$2"
+  local is_active="$3"
+  local display_path="${path/#$HOME/~}"
+  
+  if [[ "$is_active" == "true" ]]; then
+    # Active: green bullet, cyan name
+    printf "● %-18s  %s" "$name" "$display_path"
+  else
+    # Inactive: dim
+    printf "  %-18s  %s" "$name" "$display_path"
+  fi
+}
+
+# Get formatted project list for fzf
+get_project_list() {
+  local active_windows
+  active_windows=$(get_active_windows)
+
+  while IFS= read -r project; do
+    [[ -z "$project" ]] && continue
+    local path
+    path=$(get_project_path "$project")
+    local is_active="false"
+
+    if echo "$active_windows" | grep -q "^${project}$"; then
+      is_active="true"
+    fi
+
+    format_project_line "$project" "$path" "$is_active"
+    echo ""
+  done < <(get_projects)
+}
+
+# Apply layout to project windows
+apply_layout() {
+  local project="$1"
+  local layout_name="$2"
+  local project_path="$3"
+  local layout_file="$LAYOUTS_DIR/${layout_name}.yaml"
+
+  # Check for project-specific layout first
+  if [[ -f "$LAYOUTS_DIR/${project}.yaml" ]]; then
+    layout_file="$LAYOUTS_DIR/${project}.yaml"
+  elif [[ ! -f "$layout_file" ]]; then
+    layout_file="$LAYOUTS_DIR/default.yaml"
+  fi
+
+  if [[ ! -f "$layout_file" ]]; then
+    return 0
+  fi
+
+  # Get tmux pane-base-index (usually 0 or 1)
+  local pane_base_index
+  pane_base_index=$(tmux show-options -gv pane-base-index 2>/dev/null || echo "0")
+
+  local num_windows
+  num_windows=$(yq -r '.windows | length' "$layout_file")
+  local focus_window=""
+  local focus_pane=""
+
+  for ((w = 0; w < num_windows; w++)); do
+    local window_name
+    window_name=$(yq -r ".windows[$w].name" "$layout_file")
+    
+    local full_window_name="${project}"
+    if [[ $w -gt 0 ]]; then
+      full_window_name="${project}-${window_name}"
+    fi
+
+    if [[ $w -gt 0 ]]; then
+      tmux new-window -n "$full_window_name" -c "$project_path"
+    fi
+
+    local target_window="$full_window_name"
+    local num_panes
+    num_panes=$(yq -r ".windows[$w].panes | length" "$layout_file")
+
+    for ((p = 1; p < num_panes; p++)); do
+      local split_type
+      split_type=$(yq -r ".windows[$w].panes[$p].split // \"horizontal\"" "$layout_file")
+      local size
+      size=$(yq -r ".windows[$w].panes[$p].size // \"50%\"" "$layout_file")
+      local size_num="${size%\%}"
+
+      if [[ "$split_type" == "vertical" ]]; then
+        tmux split-window -t "$target_window" -v -l "${size_num}%" -c "$project_path"
+      else
+        tmux split-window -t "$target_window" -h -l "${size_num}%" -c "$project_path"
+      fi
+    done
+
+    for ((p = 0; p < num_panes; p++)); do
+      local tmux_pane_idx=$((p + pane_base_index))
+      local cmd
+      cmd=$(yq -r ".windows[$w].panes[$p].command // \"\"" "$layout_file")
+      local should_focus
+      should_focus=$(yq -r ".windows[$w].panes[$p].focus // false" "$layout_file")
+      
+      if [[ "$should_focus" == "true" ]]; then
+        focus_window="$target_window"
+        focus_pane="$tmux_pane_idx"
+      fi
+      
+      if [[ -n "$cmd" && "$cmd" != "null" && "$cmd" != "" ]]; then
+        sleep 0.1
+        tmux send-keys -t "${target_window}.${tmux_pane_idx}" "$cmd" Enter
+      fi
+    done
+  done
+
+  if [[ -n "$focus_window" && -n "$focus_pane" ]]; then
+    tmux select-window -t "$focus_window"
+    tmux select-pane -t "${focus_window}.${focus_pane}"
+  else
+    local pbi
+    pbi=$(tmux show-options -gv pane-base-index 2>/dev/null || echo "0")
+    tmux select-window -t "$project"
+    tmux select-pane -t "${project}.${pbi}"
+  fi
+}
+
+# Start/switch to a project
+start_project() {
+  local name="$1"
+  local path
+  path=$(get_project_path "$name")
+  local layout
+  layout=$(get_project_layout "$name")
+
+  if [[ -z "$path" || "$path" == "null" ]]; then
+    echo -e "${C_RED}✗ Project '$name' not found${C_RESET}" >&2
+    return 1
+  fi
+
+  if [[ ! -d "$path" ]]; then
+    echo -e "${C_RED}✗ Path '$path' does not exist${C_RESET}" >&2
+    return 1
+  fi
+
+  if [[ -z "${TMUX:-}" ]]; then
+    echo -e "${C_YELLOW}→ Creating new session...${C_RESET}"
+    tmux new-session -s "$name" -c "$path"
+    return 0
+  fi
+
+  if window_exists "$name"; then
+    echo -e "${C_CYAN}→ Switching to '$name'${C_RESET}"
+    tmux select-window -t "$name"
+    return 0
+  fi
+
+  echo -e "${C_GREEN}✓ Opening '$name'${C_RESET}"
+  tmux new-window -n "$name" -c "$path"
+  apply_layout "$name" "$layout" "$path"
+}
+
+# Stop/close a project window
+stop_project() {
+  local name="$1"
+
+  if [[ -z "${TMUX:-}" ]]; then
+    echo -e "${C_RED}✗ Not inside tmux${C_RESET}" >&2
+    return 1
+  fi
+
+  if window_exists "$name"; then
+    local windows
+    windows=$(tmux list-windows -F "#{window_name}" | grep "^${name}" || true)
+    
+    while IFS= read -r win; do
+      [[ -z "$win" ]] && continue
+      tmux kill-window -t "$win" 2>/dev/null || true
+    done <<< "$windows"
+    
+    echo -e "${C_GREEN}✓ Closed '$name'${C_RESET}"
+  else
+    echo -e "${C_YELLOW}○ '$name' is not open${C_RESET}"
+  fi
+}
+
+# Save current layout
+save_layout() {
+  local project="${1:-}"
+
+  if [[ -z "${TMUX:-}" ]]; then
+    echo -e "${C_RED}✗ Not inside tmux${C_RESET}" >&2
+    return 1
+  fi
+
+  if [[ -z "$project" ]]; then
+    project=$(tmux display-message -p '#{window_name}')
+  fi
+
+  mkdir -p "$LAYOUTS_DIR"
+  local layout_file="$LAYOUTS_DIR/${project}.yaml"
+
+  echo "windows:" > "$layout_file"
+
+  local windows
+  windows=$(tmux list-windows -F "#{window_index}:#{window_name}" | grep ":${project}" || tmux list-windows -F "#{window_index}:#{window_name}" | head -1)
+
+  while IFS=: read -r win_idx win_name; do
+    [[ -z "$win_name" ]] && continue
+    
+    local simple_name="${win_name#${project}-}"
+    [[ "$simple_name" == "$project" ]] && simple_name="main"
+    
+    echo "  - name: $simple_name" >> "$layout_file"
+    echo "    panes:" >> "$layout_file"
+
+    local panes
+    panes=$(tmux list-panes -t "$win_idx" -F "#{pane_index}")
+    local first_pane=true
+
+    while IFS= read -r pane_idx; do
+      echo "      - command: \"\"" >> "$layout_file"
+
+      if [[ "$first_pane" == "true" ]]; then
+        first_pane=false
+      else
+        echo "        split: horizontal" >> "$layout_file"
+        echo "        size: 50%" >> "$layout_file"
+      fi
+    done <<< "$panes"
+  done <<< "$windows"
+
+  echo -e "${C_GREEN}✓ Layout saved${C_RESET}"
+}
+
+# Add a new project
+add_project() {
+  local name="${1:-}"
+  local path="${2:-}"
+
+  if [[ -z "$name" ]]; then
+    echo -ne "${C_CYAN}Project name: ${C_RESET}"
+    read -r name
+  fi
+
+  if [[ -z "$path" ]]; then
+    echo -ne "${C_CYAN}Project path: ${C_RESET}"
+    read -r path
+  fi
+
+  local expanded_path="${path/#\~/$HOME}"
+
+  if [[ ! -d "$expanded_path" ]]; then
+    echo -e "${C_YELLOW}⚠ Path '$path' does not exist${C_RESET}"
+    echo -ne "${C_COMMENT}Add anyway? [y/N] ${C_RESET}"
+    read -r confirm
+    [[ "$confirm" != [yY] ]] && return 1
+  fi
+
+  if yq -e ".projects[] | select(.name == \"$name\")" "$CONFIG_FILE" >/dev/null 2>&1; then
+    echo -e "${C_RED}✗ Project '$name' already exists${C_RESET}" >&2
+    return 1
+  fi
+
+  local store_path="${path}"
+  if [[ "$path" == "$HOME"* ]]; then
+    store_path="~${path#$HOME}"
+  fi
+
+  yq -i ".projects += [{\"name\": \"$name\", \"path\": \"$store_path\", \"layout\": \"default\"}]" "$CONFIG_FILE"
+
+  echo -e "${C_GREEN}✓ Added '$name'${C_RESET}"
+}
+
+# Remove a project
+remove_project() {
+  local name="${1:-}"
+
+  if [[ -z "$name" ]]; then
+    name=$(get_projects | fzf \
+      --prompt="Remove › " \
+      --height=40% \
+      --reverse \
+      --color="$FZF_COLORS")
+    [[ -z "$name" ]] && return 0
+  fi
+
+  echo -ne "${C_YELLOW}Remove '$name'? [y/N] ${C_RESET}"
+  read -r confirm
+  [[ "$confirm" != [yY] ]] && return 0
+
+  yq -i "del(.projects[] | select(.name == \"$name\"))" "$CONFIG_FILE"
+
+  echo -e "${C_GREEN}✓ Removed '$name'${C_RESET}"
+}
+
+# List all projects
+list_projects() {
+  local active_windows
+  active_windows=$(get_active_windows)
+
+  echo -e "${C_BOLD}${C_BLUE}Projects${C_RESET}"
+  echo -e "${C_COMMENT}─────────────────────────────────────────${C_RESET}"
+  
+  while IFS= read -r project; do
+    [[ -z "$project" ]] && continue
+    local path
+    path=$(get_project_path "$project")
+    local display_path="${path/#$HOME/~}"
+
+    if echo "$active_windows" | grep -q "^${project}$"; then
+      echo -e "${C_GREEN}●${C_RESET} ${C_CYAN}${project}${C_RESET}  ${C_COMMENT}${display_path}${C_RESET}"
+    else
+      echo -e "${C_COMMENT}  ${project}  ${display_path}${C_RESET}"
+    fi
+  done < <(get_projects)
+  
+  echo ""
+}
+
+# Edit config file
+edit_config() {
+  ${EDITOR:-vim} "$CONFIG_FILE"
+}
+
+# Initialize config for new machine
+init_config() {
+  local machine="${MACHINE_NAME:-}"
+
+  if [[ -z "$machine" ]]; then
+    echo -ne "${C_CYAN}Machine name: ${C_RESET}"
+    read -r machine
+  fi
+
+  mkdir -p "$CONFIG_DIR"
+  mkdir -p "$LAYOUTS_DIR"
+
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    cat > "$CONFIG_FILE" << EOF
+# TMS projects for $machine
+projects: []
+EOF
+    echo -e "${C_GREEN}✓ Created config${C_RESET}"
+  else
+    echo -e "${C_YELLOW}○ Config already exists${C_RESET}"
+  fi
+  
+  if [[ ! -f "$LAYOUTS_DIR/default.yaml" ]]; then
+    cat > "$LAYOUTS_DIR/default.yaml" << 'EOF'
+windows:
+  - name: main
+    panes:
+      - command: ""
+      - command: "nvim"
+        split: horizontal
+        size: 75%
+        focus: true
+EOF
+    echo -e "${C_GREEN}✓ Created default layout${C_RESET}"
+  fi
+}
+
+# FZF color scheme (Tokyo Night)
+FZF_COLORS="bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5,hl:#7aa2f7,hl+:#7dcfff,info:#9ece6a,prompt:#7aa2f7,pointer:#f7768e,marker:#9ece6a,spinner:#bb9af7,header:#565f89,border:#292e42"
+
+# Main TUI
+main_tui() {
+  check_config
+
+  local header
+  header=$(cat << 'EOF'
+ ctrl-j/k nav │ type search │ enter open │ ctrl-d close │ ctrl-a add │ ctrl-p/esc quit
+EOF
+)
+
+  local result
+  result=$(get_project_list | fzf \
+    --ansi \
+    --prompt=" ❯ " \
+    --header="$header" \
+    --header-first \
+    --height=100% \
+    --reverse \
+    --margin=1,2 \
+    --padding=1 \
+    --border=rounded \
+    --border-label=" Projects " \
+    --border-label-pos=3 \
+    --color="$FZF_COLORS" \
+    --bind="ctrl-j:down,ctrl-k:up" \
+    --bind="ctrl-p:abort" \
+    --bind="ctrl-d:execute(echo STOP {})+abort" \
+    --bind="ctrl-x:execute(echo REMOVE {})+abort" \
+    --bind="ctrl-a:execute(echo ADD)+abort" \
+    --bind="ctrl-e:execute(echo EDIT)+abort" \
+    --expect="ctrl-d,ctrl-x,ctrl-a,ctrl-e" \
+    2>/dev/null) || true
+
+  [[ -z "$result" ]] && return 0
+
+  local key selection project
+  key=$(echo "$result" | head -1)
+  selection=$(echo "$result" | tail -1)
+  # Extract project name (handle both active "● name" and inactive "  name")
+  project=$(echo "$selection" | sed 's/^[● ]*//' | awk '{print $1}')
+
+  case "$key" in
+    "ctrl-d")
+      [[ -n "$project" ]] && stop_project "$project"
+      ;;
+    "ctrl-x")
+      [[ -n "$project" ]] && remove_project "$project"
+      ;;
+    "ctrl-a")
+      add_project
+      ;;
+    "ctrl-e")
+      edit_config
+      ;;
+    *)
+      [[ -n "$project" ]] && start_project "$project"
+      ;;
+  esac
+}
+
+# Show help
+show_help() {
+  cat << EOF
+${C_BOLD}${C_BLUE}tms${C_RESET} ${C_COMMENT}- Tmux Session Manager${C_RESET}
+
+${C_BOLD}Usage${C_RESET}
+  tms              Interactive project picker
+  tms start NAME   Open project window
+  tms stop NAME    Close project window
+  tms add          Add new project
+  tms remove       Remove project
+  tms save [NAME]  Save current layout
+  tms list         List all projects
+  tms edit         Edit config
+  tms init         Initialize for new machine
+
+${C_BOLD}Keybindings${C_RESET}
+  ${C_CYAN}ctrl-j/k${C_RESET}   Navigate down/up
+  ${C_CYAN}type${C_RESET}       Search/filter
+  ${C_CYAN}enter${C_RESET}      Open project
+  ${C_CYAN}ctrl-d${C_RESET}     Close project window
+  ${C_CYAN}ctrl-x${C_RESET}     Remove from config
+  ${C_CYAN}ctrl-a${C_RESET}     Add new project
+  ${C_CYAN}ctrl-e${C_RESET}     Edit config
+  ${C_CYAN}esc${C_RESET}        Quit
+
+${C_BOLD}Config${C_RESET}
+  $CONFIG_FILE
+EOF
+}
+
+# Main entry point
+main() {
+  check_deps
+
+  local cmd="${1:-}"
+  shift || true
+
+  case "$cmd" in
+    ""|"tui")
+      main_tui
+      ;;
+    "start"|"s"|"open"|"o")
+      check_config
+      if [[ -n "${1:-}" ]]; then
+        start_project "$1"
+      else
+        local project
+        project=$(get_projects | fzf --prompt="Open › " --height=40% --reverse --color="$FZF_COLORS" --bind="j:down,k:up")
+        [[ -n "$project" ]] && start_project "$project"
+      fi
+      ;;
+    "stop"|"k"|"close"|"c")
+      check_config
+      if [[ -n "${1:-}" ]]; then
+        stop_project "$1"
+      else
+        local project
+        project=$(get_active_windows | fzf --prompt="Close › " --height=40% --reverse --color="$FZF_COLORS" --bind="j:down,k:up")
+        [[ -n "$project" ]] && stop_project "$project"
+      fi
+      ;;
+    "add"|"a")
+      check_config
+      add_project "${1:-}" "${2:-}"
+      ;;
+    "remove"|"rm"|"r")
+      check_config
+      remove_project "${1:-}"
+      ;;
+    "save")
+      save_layout "${1:-}"
+      ;;
+    "list"|"ls"|"l")
+      check_config
+      list_projects
+      ;;
+    "edit"|"e")
+      check_config
+      edit_config
+      ;;
+    "init"|"i")
+      init_config
+      ;;
+    "help"|"h"|"-h"|"--help")
+      show_help
+      ;;
+    *)
+      echo -e "${C_RED}Unknown command: $cmd${C_RESET}" >&2
+      show_help
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

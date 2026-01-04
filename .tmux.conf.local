@@ -431,8 +431,17 @@ set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
 set -ga terminal-overrides ',*:clipboard:pass-through'
 
-# # Toggle Codex with <prefix> p
-# bind-key p run-shell '
+# -- tms (Tmux Session Manager) ------------------------------------------------
+
+# Toggle tms project picker with ctrl-p (no prefix needed)
+# Press ctrl-p to open, esc or ctrl-p again to close
+bind-key -n C-p display-popup -E -w 70% -h 70% "~/.local/bin/tms"
+
+# Quick save current layout with <prefix> S
+bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"
+
+# # Toggle Codex with <prefix> C
+# bind-key C run-shell '
 #   DIR=$(basename "#{pane_current_path}");
 #   SESSION="codex_$DIR";
 #   if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then
@@ -455,7 +464,7 @@ set -ga terminal-overrides ',*:clipboard:pass-through'
 #   fi
 # '
 #
-# # Turn on cursor mode with <prefix> i (temporary)
+# # Toggle Cursor agent with <prefix> i
 # bind-key i display-popup -E -T "Cursor" -w 30% -h 100% -xR -d "#{pane_current_path}" \
 #   'zsh -i -c "SESSION=cursor_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION cursor-agent"'
 

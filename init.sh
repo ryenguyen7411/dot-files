@@ -58,3 +58,36 @@ if [ -e ~/.codex ] || [ -L ~/.codex ]; then
   rm -rf ~/.codex
 fi
 ln -s "$(pwd)/codex" ~/.codex
+
+# tmux-sessions (tms)
+# Requires MACHINE_NAME environment variable to be set
+# Structure: tmux-sessions/<machine>/projects.yaml + layouts/
+mkdir -p ~/.local/bin
+
+if [ -n "$MACHINE_NAME" ]; then
+  MACHINE_DIR="$(pwd)/tmux-sessions/${MACHINE_NAME}"
+  DEFAULT_DIR="$(pwd)/tmux-sessions/default"
+
+  # Create machine directory from template if it doesn't exist
+  if [ ! -d "$MACHINE_DIR" ]; then
+    echo "Creating new machine config from template..."
+    cp -r "$DEFAULT_DIR" "$MACHINE_DIR"
+    echo "Created: $MACHINE_DIR"
+  fi
+
+  # Symlink entire machine directory to ~/.config/tmux-sessions
+  if [ -e ~/.config/tmux-sessions ] || [ -L ~/.config/tmux-sessions ]; then
+    rm -rf ~/.config/tmux-sessions
+  fi
+  ln -s "$MACHINE_DIR" ~/.config/tmux-sessions
+  echo "Linked tmux-sessions config for: $MACHINE_NAME"
+else
+  echo "Warning: MACHINE_NAME not set, skipping tmux-sessions config symlinks"
+  echo "Set MACHINE_NAME in ~/.env.local (e.g., export MACHINE_NAME=work)"
+fi
+
+# Symlink tms executable
+if [ -e ~/.local/bin/tms ] || [ -L ~/.local/bin/tms ]; then
+  rm -f ~/.local/bin/tms
+fi
+ln -s "$(pwd)/tmux-sessions/tms" ~/.local/bin/tms

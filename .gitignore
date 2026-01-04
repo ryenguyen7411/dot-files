@@ -6,3 +6,6 @@ claude/*
 
 codex/*
 !codex/config.toml
+
+# Local environment file
+.env.local

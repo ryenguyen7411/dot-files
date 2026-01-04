@@ -1,0 +1,11 @@
+# Default layout for home machine
+# Creates: shell (20% left) | nvim (80% right)
+
+windows:
+  - name: main
+    panes:
+      - command: ""
+      - command: "nvim"
+        split: horizontal
+        size: 80%
+        focus: true

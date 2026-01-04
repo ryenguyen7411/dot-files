@@ -1,0 +1,18 @@
+# Default layout template
+# Creates: shell (25% left) | nvim (75% right)
+#
+# Layout rules:
+# - Panes are created in order, first pane is the initial one
+# - split: horizontal = split left|right (new pane on RIGHT)
+# - split: vertical = split top/bottom (new pane on BOTTOM)
+# - size: percentage of the NEW pane
+# - focus: true = select this pane after layout is applied
+
+windows:
+  - name: main
+    panes:
+      - command: ""
+      - command: "nvim"
+        split: horizontal
+        size: 75%
+        focus: true

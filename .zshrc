@@ -509,6 +509,9 @@ safe_source "$HOME/google-cloud-sdk/completion.zsh.inc"
 # External environment file
 safe_source "$HOME/.local/bin/env"
 
+# Local environment file
+safe_source "$HOME/.env.local"
+
 # ========================
 # UTILITY & MAINTENANCE
 # ========================

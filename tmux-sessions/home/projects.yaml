@@ -1,0 +1,21 @@
+# Home machine configuration
+
+projects:
+  - name: bizops
+    path: ~/projects/be/bizops
+    layout: default
+  - name: finops
+    path: ~/projects/be/finops
+    layout: default
+  - name: mofi
+    path: ~/projects/goonma/mofi-mobile-app
+    layout: default
+  - name: hva
+    path: ~/projects/goonma/hva-mobile-app
+    layout: default
+  - name: jms
+    path: ~/projects/jms/jms-mobile-app
+    layout: default
+  - name: tevi
+    path: ~/projects/tevi
+    layout: default

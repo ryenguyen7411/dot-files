@@ -1,0 +1,6 @@
+# Template projects file
+# Copy this entire 'default' folder to create a new machine config
+# e.g., cp -r default work
+
+projects: []
+
