@@ -186,11 +186,19 @@ apply_layout() {
       local size
       size=$(yq -r ".windows[$w].panes[$p].size // \"50%\"" "$layout_file")
       local size_num="${size%\%}"
+      local target_pane
+      target_pane=$(yq -r ".windows[$w].panes[$p].target // \"\"" "$layout_file")
+
+      local split_target="$target_window"
+      if [[ -n "$target_pane" && "$target_pane" != "null" ]]; then
+        local tmux_target_idx=$((target_pane + pane_base_index))
+        split_target="${target_window}.${tmux_target_idx}"
+      fi
 
       if [[ "$split_type" == "vertical" ]]; then
-        tmux split-window -t "$target_window" -v -l "${size_num}%" -c "$project_path"
+        tmux split-window -t "$split_target" -v -l "${size_num}%" -c "$project_path"
       else
-        tmux split-window -t "$target_window" -h -l "${size_num}%" -c "$project_path"
+        tmux split-window -t "$split_target" -h -l "${size_num}%" -c "$project_path"
       fi
     done
 

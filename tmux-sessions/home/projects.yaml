@@ -4,6 +4,9 @@ projects:
   - name: bizops
     path: ~/projects/be/bizops
     layout: default
+  - name: bizops-micro
+    path: ~/projects/be/bizops-micro
+    layout: default
   - name: finops
     path: ~/projects/be/finops
     layout: default
