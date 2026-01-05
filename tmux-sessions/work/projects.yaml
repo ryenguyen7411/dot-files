@@ -25,5 +25,8 @@ projects:
     path: ~/projects/be/sre/charts
     layout: default
   - name: dot-files
-    path: ~/projects/be/dot-files
+    path: ~/projects/colorye/dot-files
+    layout: default
+  - name: tevi
+    path: ~/projects/tevi
     layout: default

@@ -435,7 +435,7 @@ set -ga terminal-overrides ',*:clipboard:pass-through'
 
 # Toggle tms project picker with ctrl-p (no prefix needed)
 # Press ctrl-p to open, esc or ctrl-p again to close
-bind-key -n C-p display-popup -E -w 70% -h 70% "~/.local/bin/tms"
+bind-key -n C-p display-popup -E -T "Tmux Session Manager" -h 100% -w 30% -x "#{client_width}-#{popup_width}" -y 0 "~/.local/bin/tms"
 
 # Quick save current layout with <prefix> S
 bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"

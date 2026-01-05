@@ -11,6 +11,7 @@ set -euo pipefail
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessions"
 CONFIG_FILE="$CONFIG_DIR/projects.yaml"
 LAYOUTS_DIR="$CONFIG_DIR/layouts"
+FRECENCY_FILE="$CONFIG_DIR/.frecency"
 
 # Tokyo Night color palette
 TN_BG="#1a1b26"
@@ -69,6 +70,83 @@ get_projects() {
   yq -r '.projects[].name' "$CONFIG_FILE" 2>/dev/null || echo ""
 }
 
+# Frecency scoring: combines frequency and recency
+# Format in file: timestamp:count:project_name
+get_frecency_score() {
+  local name="$1"
+  local now
+  now=$(date +%s)
+  
+  if [[ ! -f "$FRECENCY_FILE" ]]; then
+    echo "0"
+    return
+  fi
+  
+  local entry
+  entry=$(grep ":${name}$" "$FRECENCY_FILE" 2>/dev/null | tail -1)
+  
+  if [[ -z "$entry" ]]; then
+    echo "0"
+    return
+  fi
+  
+  local timestamp count
+  timestamp=$(echo "$entry" | cut -d: -f1)
+  count=$(echo "$entry" | cut -d: -f2)
+  
+  # Frecency formula: count * recency_weight
+  # Recency weight decays over time (half-life of 7 days)
+  local age=$((now - timestamp))
+  local half_life=$((7 * 24 * 3600))
+  local recency_weight
+  recency_weight=$(awk "BEGIN {printf \"%.2f\", 100 / (1 + $age / $half_life)}")
+  
+  awk "BEGIN {printf \"%.0f\", $count * $recency_weight}"
+}
+
+# Update frecency when a project is opened
+update_frecency() {
+  local name="$1"
+  local now
+  now=$(date +%s)
+  
+  mkdir -p "$CONFIG_DIR"
+  touch "$FRECENCY_FILE"
+  
+  local entry count
+  entry=$(grep ":${name}$" "$FRECENCY_FILE" 2>/dev/null | tail -1 || true)
+  
+  if [[ -n "$entry" ]]; then
+    count=$(echo "$entry" | cut -d: -f2)
+    count=$((count + 1))
+    # Remove old entry - use temp var to avoid pipe failure
+    local tmp
+    tmp=$(grep -v ":${name}$" "$FRECENCY_FILE" 2>/dev/null || true)
+    echo "$tmp" > "$FRECENCY_FILE"
+  else
+    count=1
+  fi
+  
+  echo "${now}:${count}:${name}" >> "$FRECENCY_FILE"
+}
+
+# Get projects sorted by frecency (most used/recent first)
+get_projects_sorted() {
+  local projects=()
+  local scores=()
+  
+  while IFS= read -r project; do
+    [[ -z "$project" ]] && continue
+    projects+=("$project")
+    scores+=("$(get_frecency_score "$project")")
+  done < <(get_projects)
+  
+  # Sort by score descending
+  for i in "${!projects[@]}"; do
+    echo "${scores[$i]} ${projects[$i]}"
+  done | sort -rn | awk '{print $2}'
+}
+
 # Get project path by name (with ~ expansion)
 get_project_path() {
   local name="$1"
@@ -116,7 +194,7 @@ format_project_line() {
   fi
 }
 
-# Get formatted project list for fzf
+# Get formatted project list for fzf (sorted by frecency)
 get_project_list() {
   local active_windows
   active_windows=$(get_active_windows)
@@ -133,7 +211,7 @@ get_project_list() {
 
     format_project_line "$project" "$path" "$is_active"
     echo ""
-  done < <(get_projects)
+  done < <(get_projects_sorted)
 }
 
 # Apply layout to project windows
@@ -249,6 +327,9 @@ start_project() {
     echo -e "${C_RED}✗ Path '$path' does not exist${C_RESET}" >&2
     return 1
   fi
+
+  # Update frecency tracking
+  update_frecency "$name"
 
   if [[ -z "${TMUX:-}" ]]; then
     echo -e "${C_YELLOW}→ Creating new session...${C_RESET}"
@@ -474,57 +555,67 @@ FZF_COLORS="bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5,hl:#7aa2f7,hl+:#7dcfff
 main_tui() {
   check_config
 
-  local header
-  header=$(cat << 'EOF'
- ctrl-j/k nav │ type search │ enter open │ ctrl-d close │ ctrl-a add │ ctrl-p/esc quit
-EOF
-)
+  local help_short=$'? help\n '
+  local help_full=$'j/k nav | C-j/k fast | enter open\nC-d close | C-a add | C-e edit | C-x rm | q quit\n '
+  local toggle_file="/tmp/tms_help_toggle_$$"
+  rm -f "$toggle_file"
 
   local result
   result=$(get_project_list | fzf \
     --ansi \
-    --prompt=" ❯ " \
-    --header="$header" \
-    --header-first \
+    --disabled \
+    --pointer="▶" \
+    --header="$help_short" \
     --height=100% \
     --reverse \
-    --margin=1,2 \
-    --padding=1 \
-    --border=rounded \
-    --border-label=" Projects " \
-    --border-label-pos=3 \
     --color="$FZF_COLORS" \
-    --bind="ctrl-j:down,ctrl-k:up" \
-    --bind="ctrl-p:abort" \
-    --bind="ctrl-d:execute(echo STOP {})+abort" \
-    --bind="ctrl-x:execute(echo REMOVE {})+abort" \
-    --bind="ctrl-a:execute(echo ADD)+abort" \
-    --bind="ctrl-e:execute(echo EDIT)+abort" \
-    --expect="ctrl-d,ctrl-x,ctrl-a,ctrl-e" \
+    --bind="j:down,k:up" \
+    --bind="ctrl-j:down+down+down+down+down" \
+    --bind="ctrl-k:up+up+up+up+up" \
+    --bind="ctrl-p:abort,q:abort" \
+    --bind="ctrl-d:become(echo STOP {})" \
+    --bind="ctrl-x:become(echo REMOVE {})" \
+    --bind="ctrl-a:become(echo ADD)" \
+    --bind="ctrl-e:become(echo EDIT)" \
+    --bind="?:transform:[[ -f $toggle_file ]] && { rm $toggle_file; echo \"change-header($help_short)\"; } || { touch $toggle_file; echo \"change-header($help_full)\"; }" \
     2>/dev/null) || true
+
+  rm -f "$toggle_file"
 
   [[ -z "$result" ]] && return 0
 
-  local key selection project
-  key=$(echo "$result" | head -1)
-  selection=$(echo "$result" | tail -1)
-  # Extract project name (handle both active "● name" and inactive "  name")
-  project=$(echo "$selection" | sed 's/^[● ]*//' | awk '{print $1}')
+  # Parse result - with become(), output is "ACTION selection" or just "selection"
+  local action project
+  
+  if [[ "$result" == STOP\ * ]]; then
+    action="stop"
+    project=$(echo "${result#STOP }" | sed 's/^[● ]*//' | awk '{print $1}')
+  elif [[ "$result" == REMOVE\ * ]]; then
+    action="remove"
+    project=$(echo "${result#REMOVE }" | sed 's/^[● ]*//' | awk '{print $1}')
+  elif [[ "$result" == "ADD" ]]; then
+    action="add"
+  elif [[ "$result" == "EDIT" ]]; then
+    action="edit"
+  else
+    action="open"
+    project=$(echo "$result" | sed 's/^[● ]*//' | awk '{print $1}')
+  fi
 
-  case "$key" in
-    "ctrl-d")
+  case "$action" in
+    "stop")
       [[ -n "$project" ]] && stop_project "$project"
       ;;
-    "ctrl-x")
+    "remove")
       [[ -n "$project" ]] && remove_project "$project"
       ;;
-    "ctrl-a")
+    "add")
       add_project
       ;;
-    "ctrl-e")
+    "edit")
       edit_config
       ;;
-    *)
+    "open")
       [[ -n "$project" ]] && start_project "$project"
       ;;
   esac
@@ -547,17 +638,21 @@ ${C_BOLD}Usage${C_RESET}
   tms init         Initialize for new machine
 
 ${C_BOLD}Keybindings${C_RESET}
-  ${C_CYAN}ctrl-j/k${C_RESET}   Navigate down/up
-  ${C_CYAN}type${C_RESET}       Search/filter
+  ${C_CYAN}j/k${C_RESET}        Navigate down/up
+  ${C_CYAN}ctrl-j/k${C_RESET}   Fast navigate (5 lines)
   ${C_CYAN}enter${C_RESET}      Open project
   ${C_CYAN}ctrl-d${C_RESET}     Close project window
   ${C_CYAN}ctrl-x${C_RESET}     Remove from config
   ${C_CYAN}ctrl-a${C_RESET}     Add new project
   ${C_CYAN}ctrl-e${C_RESET}     Edit config
-  ${C_CYAN}esc${C_RESET}        Quit
+  ${C_CYAN}?${C_RESET}          Toggle help
+  ${C_CYAN}q/esc${C_RESET}      Quit
 
 ${C_BOLD}Config${C_RESET}
   $CONFIG_FILE
+
+${C_BOLD}Notes${C_RESET}
+  Projects are sorted by frecency (frequency + recency)
 EOF
 }
 
