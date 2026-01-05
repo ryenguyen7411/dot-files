@@ -1,0 +1,11 @@
+# Default layout template
+# Creates: shell (25% left) | nvim (75% right)
+
+windows:
+  - name: main
+    panes:
+      - command: ""
+      - command: "nvim"
+        split: horizontal
+        size: 80%
+        focus: true

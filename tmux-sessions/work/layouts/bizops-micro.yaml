@@ -1,0 +1,32 @@
+# Bizops micro layout
+# Creates: 4 stacked panes on left (25%) | 1 large pane on right (75%)
+#
+# pane0 | pane1 (nvim)
+# pane2 |
+# pane3 |
+# pane4 |
+#
+# Note: The tms script splits the active pane each time.
+# After horizontal split, we need vertical splits to target pane0 (left side).
+# This requires the 'target' parameter support in tms.
+
+windows:
+  - name: main
+    panes:
+      # Step 1: create left (25%) and right (75%)
+      - command: ""
+      - command: ""
+        split: horizontal
+        size: 80%
+
+      # Step 2: stack left pane
+      - command: ""
+        split: vertical
+        target: 0
+      - command: ""
+        split: vertical
+        target: 1
+      - command: "nvim"
+        split: vertical
+        target: 0
+        focus: true

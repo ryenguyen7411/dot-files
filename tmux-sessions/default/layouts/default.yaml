@@ -14,5 +14,5 @@ windows:
       - command: ""
       - command: "nvim"
         split: horizontal
-        size: 75%
+        size: 80%
         focus: true
