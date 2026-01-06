@@ -11,7 +11,7 @@ windows:
   - name: main
     panes:
       # Pane 0: initial pane
-      - command: ""
+      - command: "cd ~/projects/be/bizops-micro/bizops-common; clear"
       # Pane 1: right side (80%)
       - split: horizontal
         size: 80%
@@ -23,7 +23,7 @@ windows:
         command: ""
       - split: vertical
         target: 0
-        command: ""
+        command: "cd ~/projects/be/bizops-micro/bizops-worker; clear"
       - split: vertical
         target: 2
         command: ""

@@ -4,11 +4,11 @@
 STOW := stow
 STOW_FLAGS := -v --target=$(HOME)
 STOW_ADOPT := -v --target=$(HOME) --adopt
-PACKAGES := shell nvim kitty tmux git
+PACKAGES := shell nvim kitty tmux git starship
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship
+.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship
 .PHONY: backup check dry-run
 
 # Default target
@@ -42,6 +42,9 @@ dry-run:
 	@echo ""
 	@echo "Git package:"
 	@$(STOW) --simulate $(STOW_FLAGS) git 2>&1 || true
+	@echo ""
+	@echo "Starship package:"
+	@$(STOW) --simulate $(STOW_FLAGS) starship 2>&1 || true
 
 backup:
 	@echo "Backing up existing configs..."
@@ -58,7 +61,7 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -87,12 +90,15 @@ install-force: check backup
 	@rm -rf $(HOME)/.claude
 	@rm -rf $(HOME)/.codex
 	@rm -rf $(HOME)/.config/opencode
+	@# Starship
+	@rm -f $(HOME)/.config/starship.toml
 	@# Now stow everything
 	$(STOW) $(STOW_FLAGS) shell
 	$(STOW) $(STOW_FLAGS) nvim
 	$(STOW) $(STOW_FLAGS) kitty
 	$(STOW) $(STOW_FLAGS) tmux
 	$(STOW) $(STOW_FLAGS) git
+	$(STOW) $(STOW_FLAGS) starship
 	$(STOW) $(STOW_FLAGS) ai-tools
 	@mkdir -p $(HOME)/.local/bin
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
@@ -138,6 +144,10 @@ install-git:
 	@echo "Installing git config..."
 	$(STOW) $(STOW_FLAGS) git
 
+install-starship:
+	@echo "Installing starship config..."
+	$(STOW) $(STOW_FLAGS) starship
+
 install-ai:
 	@echo "Installing AI tools config..."
 	@mkdir -p $(HOME)/.config
@@ -153,7 +163,7 @@ install-tools:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai
+uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai
 	@rm -f $(HOME)/.local/bin/tms
 	@echo "✓ All packages uninstalled"
 
@@ -172,6 +182,9 @@ uninstall-tmux:
 
 uninstall-git:
 	$(STOW) $(STOW_FLAGS) -D git || true
+
+uninstall-starship:
+	$(STOW) $(STOW_FLAGS) -D starship || true
 
 uninstall-ai:
 	$(STOW) $(STOW_FLAGS) -D ai-tools || true
@@ -234,6 +247,7 @@ help:
 	@echo "  install-kitty    Install kitty config only"
 	@echo "  install-tmux     Install tmux config only"
 	@echo "  install-git      Install git config only"
+	@echo "  install-starship Install starship config only"
 	@echo "  install-ai       Install AI tools config only"
 	@echo "  install-tools    Install standalone tools (tms)"
 	@echo ""
