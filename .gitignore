@@ -10,3 +10,4 @@ codex/*
 # Local environment file
 .env.local
 .frecency
+.lastused.conf

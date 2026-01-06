@@ -61,7 +61,7 @@ ln -s "$(pwd)/codex" ~/.codex
 
 # tmux-sessions (tms)
 # Requires MACHINE_NAME environment variable to be set
-# Structure: tmux-sessions/<machine>/projects.yaml + layouts/
+# Structure: tmux-sessions/<machine>/projects.conf + layouts/
 mkdir -p ~/.local/bin
 
 if [ -n "$MACHINE_NAME" ]; then
