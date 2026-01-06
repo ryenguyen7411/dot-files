@@ -5,7 +5,7 @@ windows:
   - name: main
     panes:
       - command: ""
-      - command: "nvim"
-        split: horizontal
+      - split: horizontal
         size: 80%
+        command: "nvim"
         focus: true

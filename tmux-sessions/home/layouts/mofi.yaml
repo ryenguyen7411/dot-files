@@ -1,11 +1,9 @@
-# Bizops micro layout
-# Creates: 4 stacked panes on left (20%) | nvim on right (80%)
+# Mofi layout
+# Creates: 2 stacked panes on left (20%) | nvim on right (80%)
 #
 # Visual:
-#   pane0 | pane4 (nvim, focused)
+#   pane0 | pane2 (nvim, focused)
 #   pane1 |
-#   pane2 |
-#   pane3 |
 
 windows:
   - name: main
@@ -20,10 +18,4 @@ windows:
 
       - split: vertical
         target: 0
-        command: ""
-      - split: vertical
-        target: 0
-        command: ""
-      - split: vertical
-        target: 2
         command: ""

@@ -128,6 +128,9 @@ export HISTSIZE="${HISTSIZE:-10000}"
 export SAVEHIST="${SAVEHIST:-10000}"
 export HISTFILE="${HISTFILE:-$HOME/.zsh_history}"
 
+# Disable duplicate history entries (Zsh 5.8+)
+export DISABLE_AUTO_TITLE='true'
+
 # Disable duplicate history entries
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS

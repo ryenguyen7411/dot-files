@@ -13,7 +13,7 @@ PROJECTS_FILE="$CONFIG_DIR/projects.conf"
 LAYOUTS_DIR="$CONFIG_DIR/layouts"
 LASTUSED_FILE="$CONFIG_DIR/.lastused.conf"
 
-# ANSI color codes (Tokyo Night inspired)
+# ANSI color codes (Tokyo Night)
 C_RESET='\033[0m'
 C_BOLD='\033[1m'
 C_CYAN='\033[38;2;125;207;255m'
@@ -23,10 +23,14 @@ C_RED='\033[38;2;247;118;142m'
 C_BLUE='\033[38;2;122;162;247m'
 C_COMMENT='\033[38;2;86;95;137m'
 
+# FZF colors
+FZF_COLORS="bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5,hl:#7aa2f7,hl+:#7dcfff,info:#9ece6a,prompt:#7aa2f7,pointer:#f7768e,marker:#9ece6a,spinner:#bb9af7,header:#565f89,border:#292e42"
+
 # Check dependencies
 check_deps() {
   command -v fzf >/dev/null 2>&1 || { echo -e "${C_RED}Error: fzf not found${C_RESET}" >&2; exit 1; }
   command -v tmux >/dev/null 2>&1 || { echo -e "${C_RED}Error: tmux not found${C_RESET}" >&2; exit 1; }
+  command -v yq >/dev/null 2>&1 || { echo -e "${C_RED}Error: yq not found${C_RESET}" >&2; exit 1; }
 }
 
 # Check if config exists
@@ -38,66 +42,45 @@ check_config() {
   fi
 }
 
-# Get formatted project list for fzf - SINGLE PASS, no per-line subprocess
+# Get formatted project list for fzf
 get_project_list() {
   local active_windows=""
   [[ -n "${TMUX:-}" ]] && active_windows=$(tmux list-windows -F "#{window_name}" 2>/dev/null | tr '\n' '|')
-  
-  # Single awk pass: read lastused file, join with projects, sort, format output
+
   awk -F'|' -v active="$active_windows" -v lastused_file="$LASTUSED_FILE" '
     BEGIN {
       count = 0
-      # Read lastused file
       while ((getline line < lastused_file) > 0) {
-        if (split(line, parts, "|") == 2) {
-          ts[parts[2]] = parts[1]
-        }
+        if (split(line, parts, "|") == 2) { ts[parts[2]] = parts[1] }
       }
       close(lastused_file)
     }
     /^#/ || /^$/ { next }
     {
-      name = $1
-      path = $2
+      name = $1; path = $2
       if (name == "") next
-      
       timestamp = (name in ts) ? ts[name] : 0
       is_active = (index(active, name "|") > 0) ? 1 : 0
-      
-      # Store for sorting with separate counter
       count++
       data[count] = timestamp "|" is_active "|" name "|" path
     }
     END {
-      # Sort by timestamp desc (simple bubble sort, fine for <50 items)
       for (i = 1; i <= count; i++) {
         for (j = i + 1; j <= count; j++) {
-          split(data[i], a, "|")
-          split(data[j], b, "|")
-          if (b[1] > a[1]) {
-            tmp = data[i]; data[i] = data[j]; data[j] = tmp
-          }
+          split(data[i], a, "|"); split(data[j], b, "|")
+          if (b[1] > a[1]) { tmp = data[i]; data[i] = data[j]; data[j] = tmp }
         }
       }
-      
-      # Output formatted lines
       for (i = 1; i <= count; i++) {
         split(data[i], parts, "|")
-        is_active = parts[2]
-        name = parts[3]
-        path = parts[4]
-        
-        if (is_active) {
-          printf "● %-18s  %s\n", name, path
-        } else {
-          printf "  %-18s  %s\n", name, path
-        }
+        if (parts[2]) printf "● %-18s  %s\n", parts[3], parts[4]
+        else printf "  %-18s  %s\n", parts[3], parts[4]
       }
     }
   ' "$PROJECTS_FILE"
 }
 
-# Get project path by name
+# Get project info
 get_project_path() {
   local name="$1"
   local path
@@ -105,7 +88,6 @@ get_project_path() {
   echo "${path/#\~/$HOME}"
 }
 
-# Get project layout by name
 get_project_layout() {
   local name="$1"
   awk -F'|' -v n="$name" '$1 == n { print ($3 ? $3 : "default"); exit }' "$PROJECTS_FILE"
@@ -114,92 +96,99 @@ get_project_layout() {
 # Update last used timestamp
 update_lastused() {
   local name="$1"
-  local now
-  now=$(date +%s)
-  
   mkdir -p "$CONFIG_DIR"
-  
   if [[ -f "$LASTUSED_FILE" ]]; then
     grep -v "|${name}$" "$LASTUSED_FILE" 2>/dev/null > "${LASTUSED_FILE}.tmp" || true
     mv "${LASTUSED_FILE}.tmp" "$LASTUSED_FILE"
   fi
-  
-  echo "${now}|${name}" >> "$LASTUSED_FILE"
+  echo "$(date +%s)|${name}" >> "$LASTUSED_FILE"
 }
 
-# Check if a window exists
+# Check if window exists
 window_exists() {
   local name="$1"
   tmux list-windows -F "#{window_name}" 2>/dev/null | grep -q "^${name}$"
 }
 
-# Apply layout (uses yq if available)
+# Apply layout to window - deterministic: create panes first, then run commands
 apply_layout() {
   local project="$1"
   local layout_name="$2"
   local project_path="$3"
   local layout_file="$LAYOUTS_DIR/${layout_name}.yaml"
 
+  # Check for project-specific layout first
   [[ -f "$LAYOUTS_DIR/${project}.yaml" ]] && layout_file="$LAYOUTS_DIR/${project}.yaml"
   [[ ! -f "$layout_file" ]] && layout_file="$LAYOUTS_DIR/default.yaml"
   [[ ! -f "$layout_file" ]] && return 0
-  command -v yq >/dev/null 2>&1 || return 0
 
-  local pane_base_index
-  pane_base_index=$(tmux show-options -gv pane-base-index 2>/dev/null || echo "0")
+  local num_panes focus_pane_id=""
+  num_panes=$(yq -r '.windows[0].panes | length' "$layout_file")
 
-  local num_windows focus_window="" focus_pane=""
-  num_windows=$(yq -r '.windows | length' "$layout_file")
+  # Arrays to store pane info - use pane_id (stable) not pane_index (changes)
+  local -a pane_commands=()
+  local -a pane_ids=()
 
-  for ((w = 0; w < num_windows; w++)); do
-    local window_name full_window_name
-    window_name=$(yq -r ".windows[$w].name" "$layout_file")
-    full_window_name="${project}"
-    [[ $w -gt 0 ]] && full_window_name="${project}-${window_name}"
-    [[ $w -gt 0 ]] && tmux new-window -n "$full_window_name" -c "$project_path"
+  # Get pane-base-index for targeting the first pane
+  local pane_base
+  pane_base=$(tmux show-options -gv pane-base-index 2>/dev/null || echo "0")
 
-    local target_window="$full_window_name"
-    local num_panes
-    num_panes=$(yq -r ".windows[$w].panes | length" "$layout_file")
+  # Phase 1: Create all panes
+  for ((p = 0; p < num_panes; p++)); do
+    local split_type size target
 
-    for ((p = 1; p < num_panes; p++)); do
-      local split_type size size_num target_pane split_target
-      split_type=$(yq -r ".windows[$w].panes[$p].split // \"horizontal\"" "$layout_file")
-      size=$(yq -r ".windows[$w].panes[$p].size // \"50%\"" "$layout_file")
-      size_num="${size%\%}"
-      target_pane=$(yq -r ".windows[$w].panes[$p].target // \"\"" "$layout_file")
-      split_target="$target_window"
-      
-      [[ -n "$target_pane" && "$target_pane" != "null" ]] && split_target="${target_window}.$((target_pane + pane_base_index))"
+    if [[ $p -eq 0 ]]; then
+      # First pane already exists - get its stable pane_id using window.pane_base target
+      pane_ids+=("$(tmux list-panes -t "${project}" -F '#{pane_id}' | head -1)")
+    else
+      split_type=$(yq -r ".windows[0].panes[$p].split // \"horizontal\"" "$layout_file")
+      size=$(yq -r ".windows[0].panes[$p].size // \"50%\"" "$layout_file")
+      target=$(yq -r ".windows[0].panes[$p].target // \"\"" "$layout_file")
 
-      if [[ "$split_type" == "vertical" ]]; then
-        tmux split-window -t "$split_target" -v -l "${size_num}%" -c "$project_path"
+      # Determine which pane to split - use pane_id from our array
+      local split_target
+      if [[ -n "$target" && "$target" != "null" ]]; then
+        # Target refers to pane definition index (0, 1, 2...), look up actual pane_id
+        split_target="${pane_ids[$target]}"
       else
-        tmux split-window -t "$split_target" -h -l "${size_num}%" -c "$project_path"
+        # Default: split the last created pane
+        local last_idx=$((${#pane_ids[@]} - 1))
+        split_target="${pane_ids[$last_idx]}"
       fi
-    done
 
-    for ((p = 0; p < num_panes; p++)); do
-      local tmux_pane_idx=$((p + pane_base_index))
-      local cmd should_focus
-      cmd=$(yq -r ".windows[$w].panes[$p].command // \"\"" "$layout_file")
-      should_focus=$(yq -r ".windows[$w].panes[$p].focus // false" "$layout_file")
-      
-      [[ "$should_focus" == "true" ]] && focus_window="$target_window" && focus_pane="$tmux_pane_idx"
-      
-      if [[ -n "$cmd" && "$cmd" != "null" && "$cmd" != "" ]]; then
-        sleep 0.1
-        tmux send-keys -t "${target_window}.${tmux_pane_idx}" "$cmd" Enter
+      local new_pane_id
+      if [[ "$split_type" == "vertical" ]]; then
+        new_pane_id=$(tmux split-window -t "$split_target" -v -l "${size%\%}%" -c "$project_path" -P -F "#{pane_id}")
+      else
+        new_pane_id=$(tmux split-window -t "$split_target" -h -l "${size%\%}%" -c "$project_path" -P -F "#{pane_id}")
       fi
-    done
+      pane_ids+=("$new_pane_id")
+    fi
+
+    # Store command for this pane
+    local cmd
+    cmd=$(yq -r ".windows[0].panes[$p].command // \"\"" "$layout_file")
+    pane_commands+=("$cmd")
+
+    # Check if this pane should be focused
+    local should_focus
+    should_focus=$(yq -r ".windows[0].panes[$p].focus // false" "$layout_file")
+    [[ "$should_focus" == "true" ]] && focus_pane_id="${pane_ids[$p]}"
   done
 
-  if [[ -n "$focus_window" && -n "$focus_pane" ]]; then
-    tmux select-window -t "$focus_window"
-    tmux select-pane -t "${focus_window}.${focus_pane}"
+  # Phase 2: Apply commands to panes (after all panes exist)
+  for ((p = 0; p < num_panes; p++)); do
+    local cmd="${pane_commands[$p]}"
+    if [[ -n "$cmd" && "$cmd" != "null" && "$cmd" != "" ]]; then
+      tmux send-keys -t "${pane_ids[$p]}" "$cmd" Enter
+    fi
+  done
+
+  # Phase 3: Focus the designated pane
+  if [[ -n "$focus_pane_id" ]]; then
+    tmux select-pane -t "${focus_pane_id}"
   else
-    tmux select-window -t "$project"
-    tmux select-pane -t "${project}.$(tmux show-options -gv pane-base-index 2>/dev/null || echo 0)"
+    tmux select-pane -t "${pane_ids[0]}"
   fi
 }
 
@@ -216,15 +205,18 @@ start_project() {
   update_lastused "$name"
 
   if [[ -z "${TMUX:-}" ]]; then
+    # Not in tmux - create new session
     tmux new-session -s "$name" -c "$path"
     return 0
   fi
 
+  # Already in tmux
   if window_exists "$name"; then
     tmux select-window -t "$name"
     return 0
   fi
 
+  # Create new window and apply layout
   tmux new-window -n "$name" -c "$path"
   apply_layout "$name" "$layout" "$path"
 }
@@ -235,50 +227,11 @@ stop_project() {
   [[ -z "${TMUX:-}" ]] && { echo -e "${C_RED}✗ Not inside tmux${C_RESET}" >&2; return 1; }
 
   if window_exists "$name"; then
-    tmux list-windows -F "#{window_name}" | grep "^${name}" | while read -r win; do
-      tmux kill-window -t "$win" 2>/dev/null || true
-    done
+    tmux kill-window -t "$name" 2>/dev/null || true
     echo -e "${C_GREEN}✓ Closed '$name'${C_RESET}"
   else
     echo -e "${C_YELLOW}○ '$name' is not open${C_RESET}"
   fi
-}
-
-# Save current layout
-save_layout() {
-  local project="${1:-}"
-  [[ -z "${TMUX:-}" ]] && { echo -e "${C_RED}✗ Not inside tmux${C_RESET}" >&2; return 1; }
-  [[ -z "$project" ]] && project=$(tmux display-message -p '#{window_name}')
-
-  mkdir -p "$LAYOUTS_DIR"
-  local layout_file="$LAYOUTS_DIR/${project}.yaml"
-
-  {
-    echo "windows:"
-    local windows
-    windows=$(tmux list-windows -F "#{window_index}:#{window_name}" | grep ":${project}" || tmux list-windows -F "#{window_index}:#{window_name}" | head -1)
-
-    while IFS=: read -r win_idx win_name; do
-      [[ -z "$win_name" ]] && continue
-      local simple_name="${win_name#${project}-}"
-      [[ "$simple_name" == "$project" ]] && simple_name="main"
-      
-      echo "  - name: $simple_name"
-      echo "    panes:"
-
-      local first_pane=true
-      tmux list-panes -t "$win_idx" -F "#{pane_index}" | while read -r pane_idx; do
-        echo "      - command: \"\""
-        if [[ "$first_pane" != "true" ]]; then
-          echo "        split: horizontal"
-          echo "        size: 50%"
-        fi
-        first_pane=false
-      done
-    done <<< "$windows"
-  } > "$layout_file"
-
-  echo -e "${C_GREEN}✓ Layout saved${C_RESET}"
 }
 
 # Add a new project
@@ -331,27 +284,23 @@ list_projects() {
 
   echo -e "${C_BOLD}${C_BLUE}Projects${C_RESET}"
   echo -e "${C_COMMENT}─────────────────────────────────────────${C_RESET}"
-  
+
   awk -F'|' -v active="$active_windows" '
     /^#/ || /^$/ { next }
     {
-      name = $1
-      path = $2
-      if (index(active, name "|") > 0) {
+      name = $1; path = $2
+      if (index(active, name "|") > 0)
         printf "\033[38;2;158;206;106m●\033[0m \033[38;2;125;207;255m%s\033[0m  \033[38;2;86;95;137m%s\033[0m\n", name, path
-      } else {
+      else
         printf "\033[38;2;86;95;137m  %s  %s\033[0m\n", name, path
-      }
     }
   ' "$PROJECTS_FILE"
-  
   echo ""
 }
 
-# Edit config file
-edit_config() {
-  ${EDITOR:-vim} "$PROJECTS_FILE"
-}
+# Edit config/layouts
+edit_config() { ${EDITOR:-vim} "$PROJECTS_FILE"; }
+edit_layouts() { ${EDITOR:-vim} "$LAYOUTS_DIR"; }
 
 # Initialize config
 init_config() {
@@ -366,24 +315,22 @@ EOF
   else
     echo -e "${C_YELLOW}○ Config already exists${C_RESET}"
   fi
-  
+
   if [[ ! -f "$LAYOUTS_DIR/default.yaml" ]]; then
     cat > "$LAYOUTS_DIR/default.yaml" << 'EOF'
+# Default layout: shell (20%) | nvim (80%)
 windows:
   - name: main
     panes:
       - command: ""
-      - command: "nvim"
-        split: horizontal
-        size: 75%
+      - split: horizontal
+        size: 80%
+        command: "nvim"
         focus: true
 EOF
     echo -e "${C_GREEN}✓ Created default layout${C_RESET}"
   fi
 }
-
-# FZF colors
-FZF_COLORS="bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5,hl:#7aa2f7,hl+:#7dcfff,info:#9ece6a,prompt:#7aa2f7,pointer:#f7768e,marker:#9ece6a,spinner:#bb9af7,header:#565f89,border:#292e42"
 
 # Main TUI
 main_tui() {
@@ -417,7 +364,7 @@ main_tui() {
   [[ -z "$result" ]] && return 0
 
   local action project
-  
+
   if [[ "$result" == STOP\ * ]]; then
     action="stop"
     project=$(echo "${result#STOP }" | sed 's/^[● ]*//' | awk '{print $1}')
@@ -453,13 +400,14 @@ ${C_BOLD}Usage${C_RESET}
   tms stop NAME    Close project window
   tms add          Add new project
   tms remove       Remove project
-  tms save [NAME]  Save current layout
   tms list         List all projects
-  tms edit         Edit config
+  tms edit         Edit projects config
+  tms layouts      Edit layout templates
   tms init         Initialize for new machine
 
 ${C_BOLD}Config${C_RESET}
   $PROJECTS_FILE
+  $LAYOUTS_DIR/
 EOF
 }
 
@@ -494,9 +442,9 @@ main() {
       ;;
     "add"|"a") check_config; add_project "${1:-}" "${2:-}" ;;
     "remove"|"rm"|"r") check_config; remove_project "${1:-}" ;;
-    "save") save_layout "${1:-}" ;;
     "list"|"ls"|"l") check_config; list_projects ;;
     "edit"|"e") check_config; edit_config ;;
+    "layouts"|"lay") check_config; edit_layouts ;;
     "init"|"i") init_config ;;
     "help"|"h"|"-h"|"--help") show_help ;;
     *) echo -e "${C_RED}Unknown command: $cmd${C_RESET}" >&2; show_help; exit 1 ;;
