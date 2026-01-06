@@ -3,3 +3,11 @@ nvim/plugin/
 claude/*
 !claude/settings.json
 !claude/CLAUDE.md
+
+codex/*
+!codex/config.toml
+
+# Local environment file
+.env.local
+.frecency
+.lastused.conf

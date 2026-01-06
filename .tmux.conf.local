@@ -429,18 +429,44 @@ set -sg escape-time 0
 set-option -g default-terminal 'tmux-256color'
 set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
+set -ga terminal-overrides ',*:clipboard:pass-through'
 
-# Toggle sidebar on/off with <prefix> o
-bind-key o display-popup -E -T "OpenCode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-  'zsh -i -c "SESSION=opencode_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION opencode"'
+# -- tms (Tmux Session Manager) ------------------------------------------------
 
-# Toggle Claude with <prefix> i
-bind-key i display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-  'zsh -i -c "SESSION=claude_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION claude"'
+# Toggle tms project picker with ctrl-p (no prefix needed)
+# Press ctrl-p to open, esc or ctrl-p again to close
+bind-key -n C-p display-popup -E -T "Tmux Session Manager" -h 100% -w 30% -x "#{client_width}-#{popup_width}" -y 0 "~/.local/bin/tms"
 
-# Toggle Claude with <prefix> p
-bind-key p display-popup -E -T "Cursor" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-  'zsh -i -c "SESSION=cursor_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION cursor-agent"'
+# Quick save current layout with <prefix> S
+bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"
+
+# # Toggle Codex with <prefix> C
+# bind-key C run-shell '
+#   DIR=$(basename "#{pane_current_path}");
+#   SESSION="codex_$DIR";
+#   if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then
+#     tmux detach-client -s "$SESSION";
+#   else
+#     tmux display-popup -E -T "Codex" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+#       "tmux new-session -s \"$SESSION\" codex 2>/dev/null || tmux attach-session -t \"$SESSION\"";
+#   fi
+# '
+#
+# # Toggle Opencode with <prefix> o
+# bind-key o run-shell '
+#   DIR=$(basename "#{pane_current_path}");
+#   SESSION="opencode_$DIR";
+#   if tmux list-clients -t "$SESSION" 2>/dev/null | grep -q .; then
+#     tmux detach-client -s "$SESSION";
+#   else
+#     tmux display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+#       "tmux new-session -s \"$SESSION\" opencode 2>/dev/null || tmux attach-session -t \"$SESSION\"";
+#   fi
+# '
+#
+# # Toggle Cursor agent with <prefix> i
+# bind-key i display-popup -E -T "Cursor" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+#   'zsh -i -c "SESSION=cursor_\${PWD##*/}; tmux has-session -t \$SESSION 2>/dev/null && tmux attach -t \$SESSION || tmux new-session -s \$SESSION cursor-agent"'
 
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important

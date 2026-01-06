@@ -53,6 +53,30 @@ A comprehensive guide to all custom key mappings in this Neovim configuration.
 | `<Space>uw` | Toggle Wrap | Enable/disable line wrapping |
 | `<Space>us` | Toggle Spelling | Enable/disable spell checking |
 
+## AI & Copilot Operations
+
+### Next Edit Suggestions (NES)
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<M-l>` | Accept NES | Accept AI suggestion (Alt+L) |
+| `<M-h>` | Reject NES | Reject AI suggestion (Alt+H) |
+| `<M-]>` | Next Suggestion | Show next suggestion (Alt+]) |
+| `<M-[>` | Previous Suggestion | Show previous suggestion (Alt+[) |
+| `<Space>snu` | Update NES | Manually trigger new suggestion |
+| `<Space>sne` | Enable NES | Enable Next Edit Suggestions |
+| `<Space>snd` | Disable NES | Disable Next Edit Suggestions |
+| `<Space>snc` | Clear NES | Clear current suggestion |
+
+### Cursor CLI Integration
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<Space>sct` | Toggle CLI | Open/close Cursor CLI window |
+| `<Space>scs` | Send Selection | Send visual selection to Cursor (visual mode) |
+| `<Space>scf` | Focus CLI | Focus the CLI window |
+| `<Space>sch` | Hide CLI | Hide the CLI window |
+
 ## LSP Operations (g prefix)
 
 | Key | Action | Description |
@@ -162,6 +186,8 @@ This configuration leverages several modern Neovim plugins:
 
 - **Snacks.nvim**: File picker, explorer, and utilities
 - **Mini.nvim Suite**: Jump, move, surround, comment, and more
+- **Sidekick.nvim**: AI-powered Next Edit Suggestions (NES) and CLI integration
+- **Supermaven**: Inline AI code completions
 - **CodeCompanion**: AI-powered code assistance
 - **Hardtime**: Movement restrictions for better habits
 - **Diffview**: Git diff and merge operations

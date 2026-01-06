@@ -1,0 +1,23 @@
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+network_access = true
+model = "gpt-5-codex"
+hide_agent_reasoning = true
+show_raw_agent_reasoning = false
+web_search_request = true
+
+[mcp_servers.context7]
+args = ["-y", "@upstash/context7-mcp"]
+command = "npx"
+
+[mcp_servers.code-reasoning]
+args = ["-y", "@mettamatt/code-reasoning"]
+command = "npx"
+
+[mcp_servers.playwright]
+args = ["-y", "@playwright/mcp@latest"]
+command = "npx"
+
+[mcp_servers.octocode]
+args = ["-y", "octocode-mcp"]
+command = "npx"

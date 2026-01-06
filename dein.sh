@@ -42,3 +42,8 @@ fi
 if [ -e ~/.claude ] || [ -L ~/.claude ]; then
   rm -rf ~/.claude
 fi
+
+# codex
+if [ -e ~/.codex ] || [ -L ~/.codex ]; then
+  rm -rf ~/.codex
+fi

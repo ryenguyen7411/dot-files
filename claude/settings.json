@@ -20,10 +20,6 @@
       "mcp__octocode__packageSearch"
     ],
     "deny": [],
-    "defaultMode": "acceptEdits"
-  },
-  "feedbackSurveyState": {
-    "lastShownTime": 1754291926217
-  },
-  "model": "sonnet"
+    "defaultMode": "bypassPermissions"
+  }
 }

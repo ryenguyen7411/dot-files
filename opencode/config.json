@@ -4,6 +4,10 @@
   "theme": "tokyonight",
   "share": "manual",
   "autoupdate": true,
+  "instructions": [],
+  "keybinds": {
+    "input_newline": "ctrl+j"
+  },
   "mcp": {
     "context7": {
       "type": "remote",
@@ -32,34 +36,5 @@
         "@mettamatt/code-reasoning"
       ]
     }
-  },
-  "instructions": [],
-  "agent": {},
-  "mode": {
-    "build": {
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true
-      }
-    },
-    "plan": {
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": false
-      }
-    },
-    "commit": {
-      "prompt": "{file:./prompts/commit-mode.md}",
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": true
-      }
-    }
-  },
-  "keybinds": {
-    "input_newline": "ctrl+j"
   }
 }
