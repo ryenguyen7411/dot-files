@@ -30,6 +30,13 @@ brew "fnm"                 # Fast Node Manager
 brew "stylua"              # Lua formatter
 brew "shellcheck"          # Shell script linter
 brew "jq"                  # JSON processor
+brew "direnv"              # Per-directory environment variables
+
+# Modern CLI Enhancements
+brew "starship"            # Cross-shell prompt
+brew "atuin"               # Better shell history with sync
+brew "tldr"                # Simplified man pages
+brew "btop"                # Beautiful system monitor
 
 # Git Enhancements
 brew "gh"                  # GitHub CLI

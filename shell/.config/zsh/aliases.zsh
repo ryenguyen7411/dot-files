@@ -17,12 +17,24 @@ alias n='sudo n'
 alias :q='exit'
 alias zm='exit'
 
-# Enhanced ls with colors
-if command_exists ls; then
+# Modern CLI replacements
+if command_exists eza; then
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza -la --icons --group-directories-first'
+  alias la='eza -a --icons --group-directories-first'
+  alias lt='eza --tree --level=2 --icons'
+  alias l='eza -F --icons'
+else
   alias ls='ls -a --color=auto'
   alias ll='ls -alF --color=auto'
   alias la='ls -A --color=auto'
   alias l='ls -CF --color=auto'
+fi
+
+# bat (better cat)
+if command_exists bat; then
+  alias cat='bat --paging=never'
+  alias catp='bat'  # with paging
 fi
 
 # ---------------------------

@@ -73,6 +73,7 @@ safe_source "$ZSH_CONFIG_DIR/exports.zsh"
 safe_source "$ZSH_CONFIG_DIR/path.zsh"
 safe_source "$ZSH_CONFIG_DIR/aliases.zsh"
 safe_source "$ZSH_CONFIG_DIR/functions.zsh"
+safe_source "$ZSH_CONFIG_DIR/tools.zsh"
 
 # Machine-specific config (not tracked in git)
 safe_source "$ZSH_CONFIG_DIR/local.zsh"
