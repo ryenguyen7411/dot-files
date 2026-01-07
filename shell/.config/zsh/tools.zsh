@@ -38,11 +38,3 @@ fi
 if command_exists direnv; then
   eval "$(direnv hook zsh)"
 fi
-
-# ---------------------------
-# bat theme
-# ---------------------------
-# Set bat theme to match your terminal
-if command_exists bat; then
-  export BAT_THEME="tokyonight_night"
-fi

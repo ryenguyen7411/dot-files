@@ -1,0 +1,12 @@
+# bat configuration
+# https://github.com/sharkdp/bat
+
+# Theme (requires: bat cache --build after installing)
+--theme="tokyonight_night"
+
+# Show line numbers
+--style="numbers,changes,header"
+
+# Use italic text on the terminal
+--italic-text=always
+
