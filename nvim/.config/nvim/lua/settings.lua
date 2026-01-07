@@ -72,5 +72,4 @@ if is_ssh then
   }
 else
   -- Local: native system clipboard
-  vim.opt.clipboard = 'unnamedplus'
 end

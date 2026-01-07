@@ -1,0 +1,39 @@
+# Stow ignore file - files that should not be symlinked
+# https://www.gnu.org/software/stow/manual/stow.html#Types-And-Syntax-Of-Ignore-Lists
+
+# Version control
+\.git
+\.gitignore
+
+# Documentation
+README.*
+LICENSE
+CHANGELOG.*
+AGENTS\.md
+CLAUDE\.md
+
+# Build/config files
+Makefile
+Brewfile
+package\.json
+\.stylua\.toml
+\.eslintrc
+
+# Legacy files (kept for reference, not stowed)
+init\.sh
+dein\.sh
+roles\.md
+alacritty\.yml
+kitty\.conf
+\.zshrc
+\.tmux\.conf\.local
+
+# Original directories (before stow migration)
+^claude$
+^codex$
+^opencode$
+^tmux-sessions$
+
+# Misc
+check_secure_input
+

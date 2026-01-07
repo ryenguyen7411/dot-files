@@ -1,13 +1,120 @@
-nvim/plugin/
+# =============================================================================
+# DOTFILES GITIGNORE
+# =============================================================================
 
-claude/*
+# -----------------------------------------------------------------------------
+# Neovim
+# -----------------------------------------------------------------------------
+
+nvim/.config/nvim/plugin/
+
+# -----------------------------------------------------------------------------
+# Claude AI
+# -----------------------------------------------------------------------------
+
+# Keep only settings and documentation
+claude/
 !claude/settings.json
 !claude/CLAUDE.md
 
-codex/*
+# Explicitly ignore runtime data (in case of nested structure)
+**/claude/projects/
+**/claude/shell-snapshots/
+**/claude/statsig/
+**/claude/todos/
+
+# -----------------------------------------------------------------------------
+# Codex AI
+# -----------------------------------------------------------------------------
+
+# Keep only config
+codex/
 !codex/config.toml
 
-# Local environment file
-.env.local
+# Explicitly ignore runtime data
+**/codex/sessions/
+**/codex/log/
+**/codex/auth.json
+**/codex/history.jsonl
+**/codex/internal_storage.json
+**/codex/version.json
+
+# -----------------------------------------------------------------------------
+# OpenCode AI
+# -----------------------------------------------------------------------------
+
+# Keep config files, ignore providers (may contain sensitive data)
+opencode/providers/
+
+# -----------------------------------------------------------------------------
+# AI Tools (stow package)
+# -----------------------------------------------------------------------------
+
+ai-tools/.claude/projects/
+ai-tools/.claude/shell-snapshots/
+ai-tools/.claude/statsig/
+ai-tools/.claude/todos/
+ai-tools/.codex/sessions/
+ai-tools/.codex/log/
+ai-tools/.codex/auth.json
+ai-tools/.codex/history.jsonl
+ai-tools/.codex/internal_storage.json
+ai-tools/.codex/version.json
+
+# -----------------------------------------------------------------------------
+# Shell
+# -----------------------------------------------------------------------------
+
+# Machine-specific local config (created from local.zsh.example)
+shell/.config/zsh/local.zsh
+
+# -----------------------------------------------------------------------------
+# Tmux Sessions
+# -----------------------------------------------------------------------------
+
+# Frecency and last used tracking files
 .frecency
 .lastused.conf
+tmux/.config/tmux-sessions/.frecency
+tmux/.config/tmux-sessions/.lastused.conf
+tmux-sessions/*/.frecency
+tmux-sessions/*/.lastused.conf
+
+# -----------------------------------------------------------------------------
+# Local Environment
+# -----------------------------------------------------------------------------
+
+.env.local
+*.local
+
+# -----------------------------------------------------------------------------
+# OS Generated
+# -----------------------------------------------------------------------------
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# -----------------------------------------------------------------------------
+# Editor/IDE
+# -----------------------------------------------------------------------------
+
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-*
+
+# -----------------------------------------------------------------------------
+# Temporary Files
+# -----------------------------------------------------------------------------
+
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup

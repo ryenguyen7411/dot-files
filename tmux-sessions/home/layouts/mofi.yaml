@@ -1,0 +1,21 @@
+# Mofi layout
+# Creates: 2 stacked panes on left (20%) | nvim on right (80%)
+#
+# Visual:
+#   pane0 | pane2 (nvim, focused)
+#   pane1 |
+
+windows:
+  - name: main
+    panes:
+      # Pane 0: initial pane
+      - command: ""
+      # Pane 1: right side (80%)
+      - split: horizontal
+        size: 80%
+        command: "nvim"
+        focus: true
+
+      - split: vertical
+        target: 0
+        command: ""

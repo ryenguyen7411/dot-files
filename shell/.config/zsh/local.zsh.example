@@ -1,0 +1,36 @@
+# =============================================================================
+# LOCAL CONFIGURATION (Machine-Specific)
+# =============================================================================
+#
+# Copy this file to ~/.config/zsh/local.zsh and customize for your machine.
+# This file is NOT tracked in git.
+#
+# Usage:
+#   cp ~/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh
+#   nvim ~/.config/zsh/local.zsh
+#
+
+# Machine identifier (used by tms for tmux session configs)
+# Values: 'work', 'home', 'default', or custom
+export MACHINE_NAME="default"
+
+# Git user (if different per machine)
+# git config --global user.name "Your Name"
+# git config --global user.email "your@email.com"
+
+# Work-specific aliases
+# alias vpn='sudo openconnect --user=youruser vpn.company.com'
+
+# Machine-specific paths
+# export PATH="$HOME/custom-tools:$PATH"
+
+# API keys and secrets (NEVER commit these!)
+# export OPENAI_API_KEY="sk-..."
+# export ANTHROPIC_API_KEY="sk-ant-..."
+# export GITHUB_TOKEN="ghp_..."
+
+# Work proxy settings
+# export HTTP_PROXY="http://proxy.company.com:8080"
+# export HTTPS_PROXY="http://proxy.company.com:8080"
+# export NO_PROXY="localhost,127.0.0.1,.company.com"
+
