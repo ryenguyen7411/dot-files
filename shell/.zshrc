@@ -78,9 +78,6 @@ safe_source "$ZSH_CONFIG_DIR/tools.zsh"
 # Machine-specific config (not tracked in git)
 safe_source "$ZSH_CONFIG_DIR/local.zsh"
 
-# Legacy: Also check ~/.env.local for backwards compatibility
-safe_source "$HOME/.env.local"
-
 # ========================
 # TMUX AUTO-START
 # ========================

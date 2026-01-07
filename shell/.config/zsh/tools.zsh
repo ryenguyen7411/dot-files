@@ -15,13 +15,13 @@ if command_exists zoxide; then
   alias cdi='zi'  # interactive selection
 fi
 
-# ---------------------------
-# starship (modern prompt)
-# ---------------------------
-# Cross-shell prompt with git status, language versions, etc.
-if command_exists starship; then
-  eval "$(starship init zsh)"
-fi
+# # ---------------------------
+# # starship (modern prompt)
+# # ---------------------------
+# # Cross-shell prompt with git status, language versions, etc.
+# if command_exists starship; then
+#   eval "$(starship init zsh)"
+# fi
 
 # ---------------------------
 # atuin (better history)
@@ -37,12 +37,4 @@ fi
 # Auto-load .envrc files when entering directories
 if command_exists direnv; then
   eval "$(direnv hook zsh)"
-fi
-
-# ---------------------------
-# bat theme
-# ---------------------------
-# Set bat theme to match your terminal
-if command_exists bat; then
-  export BAT_THEME="tokyonight_night"
 fi

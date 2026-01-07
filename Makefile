@@ -4,11 +4,11 @@
 STOW := stow
 STOW_FLAGS := -v --target=$(HOME)
 STOW_ADOPT := -v --target=$(HOME) --adopt
-PACKAGES := shell nvim kitty tmux git starship
+PACKAGES := shell nvim kitty tmux git starship bat
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat
+.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat
 .PHONY: backup check dry-run
 
 # Default target
@@ -61,7 +61,7 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools install-bat
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -92,6 +92,8 @@ install-force: check backup
 	@rm -rf $(HOME)/.config/opencode
 	@# Starship
 	@rm -f $(HOME)/.config/starship.toml
+	@# Bat
+	@rm -rf $(HOME)/.config/bat
 	@# Now stow everything
 	$(STOW) $(STOW_FLAGS) shell
 	$(STOW) $(STOW_FLAGS) nvim
@@ -99,7 +101,9 @@ install-force: check backup
 	$(STOW) $(STOW_FLAGS) tmux
 	$(STOW) $(STOW_FLAGS) git
 	$(STOW) $(STOW_FLAGS) starship
+	$(STOW) $(STOW_FLAGS) bat
 	$(STOW) $(STOW_FLAGS) ai-tools
+	@if command -v bat >/dev/null 2>&1; then bat cache --build; fi
 	@mkdir -p $(HOME)/.local/bin
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
 	@echo ""
@@ -148,6 +152,18 @@ install-starship:
 	@echo "Installing starship config..."
 	$(STOW) $(STOW_FLAGS) starship
 
+install-bat:
+	@echo "Installing bat config..."
+	@mkdir -p $(HOME)/.config/bat/themes
+	$(STOW) $(STOW_FLAGS) bat
+	@if command -v bat >/dev/null 2>&1; then \
+		echo "Building bat theme cache..."; \
+		bat cache --build; \
+		echo "✓ bat themes installed"; \
+	else \
+		echo "⚠ bat not found, skipping cache build (run 'bat cache --build' after installing bat)"; \
+	fi
+
 install-ai:
 	@echo "Installing AI tools config..."
 	@mkdir -p $(HOME)/.config
@@ -163,7 +179,7 @@ install-tools:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai
+uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai uninstall-bat
 	@rm -f $(HOME)/.local/bin/tms
 	@echo "✓ All packages uninstalled"
 
@@ -185,6 +201,9 @@ uninstall-git:
 
 uninstall-starship:
 	$(STOW) $(STOW_FLAGS) -D starship || true
+
+uninstall-bat:
+	$(STOW) $(STOW_FLAGS) -D bat || true
 
 uninstall-ai:
 	$(STOW) $(STOW_FLAGS) -D ai-tools || true
@@ -248,6 +267,7 @@ help:
 	@echo "  install-tmux     Install tmux config only"
 	@echo "  install-git      Install git config only"
 	@echo "  install-starship Install starship config only"
+	@echo "  install-bat      Install bat config and themes"
 	@echo "  install-ai       Install AI tools config only"
 	@echo "  install-tools    Install standalone tools (tms)"
 	@echo ""
