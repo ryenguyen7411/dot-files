@@ -1,10 +1,6 @@
 # Brewfile - Declarative package management for macOS
 # Install with: brew bundle
 
-# Taps
-tap "homebrew/bundle"
-tap "homebrew/cask-fonts"
-
 # Core CLI Tools
 brew "git"
 brew "stow"                # Symlink farm manager
