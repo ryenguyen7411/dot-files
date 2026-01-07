@@ -1,0 +1,24 @@
+# =============================================================================
+# LOCAL GIT CONFIGURATION (Machine-Specific)
+# =============================================================================
+#
+# Copy this file to ~/.gitconfig-local and customize for your machine.
+# This file is NOT tracked in git.
+#
+# Usage:
+#   cp ~/.gitconfig-local.example ~/.gitconfig-local
+#   nvim ~/.gitconfig-local
+#
+
+[user]
+  email = your@email.com
+  name = Your Name
+
+# Machine-specific settings examples:
+#
+# [core]
+#   sshCommand = ssh -i ~/.ssh/id_work
+#
+# [credential]
+#   helper = osxkeychain
+

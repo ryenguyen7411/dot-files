@@ -56,10 +56,18 @@ ai-tools/.claude/statsig/
 ai-tools/.claude/todos/
 ai-tools/.codex/sessions/
 ai-tools/.codex/log/
+ai-tools/.codex/skills/
 ai-tools/.codex/auth.json
 ai-tools/.codex/history.jsonl
 ai-tools/.codex/internal_storage.json
 ai-tools/.codex/version.json
+
+# -----------------------------------------------------------------------------
+# Git
+# -----------------------------------------------------------------------------
+
+# Machine-specific local config (created from .gitconfig-local.example)
+git/.gitconfig-local
 
 # -----------------------------------------------------------------------------
 # Shell

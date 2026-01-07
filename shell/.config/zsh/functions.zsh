@@ -22,6 +22,52 @@ git-cherry() {
   git cherry -v $1 | tail -n 50 | awk '/^\+/ {print "\033[31m" $0 "\033[39m"} /^\-/ {print "\033[32m" $0 "\033[39m"}'
 }
 
+# Open merge/pull request creation page for current branch
+gmr() {
+  local remote_url branch base_url mr_url
+
+  remote_url=$(git remote get-url origin 2>/dev/null)
+  if [[ -z "$remote_url" ]]; then
+    echo "Error: Not a git repository or no origin remote" >&2
+    return 1
+  fi
+
+  branch=$(git branch --show-current)
+  if [[ -z "$branch" ]]; then
+    echo "Error: Not on a branch (detached HEAD?)" >&2
+    return 1
+  fi
+
+  # Convert SSH to HTTPS format
+  # git@host:path.git -> https://host/path
+  if [[ "$remote_url" =~ ^git@ ]]; then
+    base_url=$(echo "$remote_url" | sed -E 's|^git@([^:]+):(.+)$|https://\1/\2|')
+  else
+    base_url="$remote_url"
+  fi
+  base_url="${base_url%.git}"
+
+  # URL-encode the branch name
+  local encoded_branch=$(printf '%s' "$branch" | sed 's|/|%2F|g')
+
+  # Construct MR/PR URL based on host
+  case "$base_url" in
+    *github.com*)
+      mr_url="${base_url}/compare/${encoded_branch}?expand=1"
+      ;;
+    *bitbucket*)
+      mr_url="${base_url}/pull-requests/new?source=${encoded_branch}"
+      ;;
+    *)
+      # GitLab (default for any other host)
+      mr_url="${base_url}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encoded_branch}"
+      ;;
+  esac
+
+  echo "Opening: $mr_url"
+  open "$mr_url"
+}
+
 # ---------------------------
 # Process Management
 # ---------------------------
