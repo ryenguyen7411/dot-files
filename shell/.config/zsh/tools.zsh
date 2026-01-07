@@ -15,13 +15,13 @@ if command_exists zoxide; then
   alias cdi='zi'  # interactive selection
 fi
 
-# ---------------------------
-# starship (modern prompt)
-# ---------------------------
-# Cross-shell prompt with git status, language versions, etc.
-if command_exists starship; then
-  eval "$(starship init zsh)"
-fi
+# # ---------------------------
+# # starship (modern prompt)
+# # ---------------------------
+# # Cross-shell prompt with git status, language versions, etc.
+# if command_exists starship; then
+#   eval "$(starship init zsh)"
+# fi
 
 # ---------------------------
 # atuin (better history)
