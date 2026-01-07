@@ -4,24 +4,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a personal dotfiles configuration repository containing Neovim configs, shell configurations, terminal emulators, and development tool setups. The repository is managed through symbolic links created by the `init.sh` script.
+This is a personal dotfiles configuration repository containing Neovim configs, shell configurations, terminal emulators, and development tool setups. The repository is managed with [GNU Stow](https://www.gnu.org/software/stow/) via Makefile.
 
 ## Installation and Setup
 
-To install the dotfiles, run:
+Prerequisites:
 ```bash
-./init.sh
+brew install stow
 ```
 
-This script creates symbolic links for:
+To install the dotfiles:
+```bash
+# Check prerequisites
+make check
+
+# Preview what will be installed
+make dry-run
+
+# Install all packages
+make install
+
+# Or install individual packages
+make install-shell
+make install-nvim
+make install-kitty
+make install-tmux
+make install-git
+make install-starship
+make install-bat
+make install-ai
+make install-tools
+```
+
+This creates symbolic links for:
+- Shell config (`~/.zshrc`, `~/.config/zsh/`)
 - Neovim config (`~/.config/nvim`)
-- Alacritty config (`~/.config/alacritty/alacritty.yml`)
-- Shell config (`~/.zshrc`)
-- Tmux config (`~/.tmux.conf.local`)
 - Kitty config (`~/.config/kitty/kitty.conf`)
-- Ripgrep/fd ignore files (`~/.config/rg/.rgignore`, `~/.config/fd/.fdignore`)
-- OpenCode config (`~/.config/opencode`)
-- Claude config (`~/.claude`)
+- Tmux config (`~/.tmux.conf.local`)
+- Git config (`~/.gitconfig`)
+- Starship prompt (`~/.config/starship.toml`)
+- Bat config (`~/.config/bat/`)
+- AI tools (`~/.claude`, `~/.codex`, `~/.config/opencode`)
 
 ## Architecture
 
@@ -55,9 +78,9 @@ This script creates symbolic links for:
 - JSX uses double quotes
 
 ### Claude Code Configuration
-- Settings in `claude/settings.json`
-- Permissions allow git commands, curl, ls, yarn format/lint/type checks and web fetch
-- Default mode: `acceptEdits`
+- Settings in `ai-tools/.claude/settings.json`
+- Permissions allow git commands, curl, ls, yarn format/lint/type checks, web fetch, and MCP tools (context7, code-reasoning, octocode)
+- Default mode: `bypassPermissions`
 
 ## Development Tools
 
@@ -65,10 +88,11 @@ This script creates symbolic links for:
 - **Lua**: StyLua formatter (`.stylua.toml`)
 - **JavaScript/TypeScript**: ESLint (`.eslintrc`)
 - **Yarn commands**: `check-format`, `check-lint`, `check-types` (allowed in Claude permissions)
+- **Make commands**: `make lint` (check), `make lint-fix` (auto-fix)
 
 ### Utilities
 - `check_secure_input`: Python script to identify processes using macOS Secure Input
-- `dein.sh`: Legacy plugin manager script
+- `tms`: Tmux session manager for project-based workflows (installed to `~/.local/bin/tms`)
 
 ## Important Notes
 
@@ -76,4 +100,4 @@ This script creates symbolic links for:
 - Focus on consistency with existing formatting and structure patterns
 - Neovim config uses modern Lua API and disables legacy providers
 - Terminal configurations support true color and Nerd Font icons
-- All symbolic links are managed through `init.sh` - avoid manual linking
+- All symbolic links are managed through GNU Stow via `make install` - avoid manual linking

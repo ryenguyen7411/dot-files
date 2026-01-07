@@ -1,13 +1,15 @@
 # Dot Files Repository - Agent Guidelines
 
 ## Project Type
-Personal dotfiles configuration repository containing Neovim configs, shell configs, and linting rules.
+Personal dotfiles configuration repository containing Neovim configs, shell configs, and linting rules. Managed with GNU Stow.
 
 ## Build/Lint/Test Commands
 - **No build/test commands** - This is a configuration repository
-- **Lua formatting**: `stylua .` (configured via `.stylua.toml`)
+- **Lua formatting**: `make lint` (check) / `make lint-fix` (auto-fix) - uses stylua via `.stylua.toml`
 - **JS/TS linting**: ESLint configured in `.eslintrc` (standard, standard-jsx, standard-react)
-- **Installation**: `./init.sh` creates symbolic links to home directory
+- **Prerequisites check**: `make check` - verifies stow and other tools are installed
+- **Installation**: `make install` creates symbolic links via GNU Stow
+- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, etc.
 
 ## Code Style Guidelines
 
