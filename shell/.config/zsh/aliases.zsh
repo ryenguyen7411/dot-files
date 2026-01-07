@@ -57,8 +57,8 @@ alias gcmm='git checkout main && git pull'
 alias gcd='git checkout develop && git pull'
 
 # Advanced operations
-alias gcs='gac && stash && git checkout release && git pull'
-alias gct='gac && git commit -m "temp" --no-verify'
+alias gcs='gac && stash push -m "auto-stash: $(git branch --show-current)" && git checkout release && git pull'
+alias gct='gac && git commit --fixup=HEAD --no-verify'
 alias push='git push -u origin HEAD'
 alias pull='git pull'
 alias fetch='git fetch'
@@ -71,6 +71,10 @@ alias amendf='git commit --amend --no-verify --no-edit'
 alias grc='git add --all && git rebase --continue'
 alias stash='git stash'
 alias pop='git stash pop'
+
+# Git fast commit
+alias gmm='git commit -m'
+alias gmmn='git commit -m --no-verify'
 
 # Git configuration
 alias skip='git update-index --skip-worktree'

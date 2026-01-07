@@ -66,9 +66,12 @@ install: check install-shell install-nvim install-kitty install-tmux install-git
 	@echo "✓ All packages installed"
 	@echo ""
 	@echo "Next steps:"
-	@echo "  1. Copy local config: cp ~/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh"
+	@echo "  1. Copy local config:"
+	@echo "     cp ~/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh"
+	@echo "     cp ~/.gitconfig-local.example ~/.gitconfig-local"
 	@echo "  2. Set MACHINE_NAME in ~/.config/zsh/local.zsh"
-	@echo "  3. Reload shell: source ~/.zshrc"
+	@echo "  3. Update gitconfig with your name and email, also add any other git config settings for this machine"
+	@echo "  4. Reload shell: source ~/.zshrc"
 
 # Install with force: removes existing files and creates symlinks
 # Use this for first-time setup when you have existing configs
