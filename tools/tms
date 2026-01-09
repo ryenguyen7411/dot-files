@@ -261,16 +261,33 @@ add_project() {
 
 # Remove a project
 remove_project() {
-  local name="${1:-}"
+  local force=false name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -y|--yes|--force) force=true; shift ;;
+      *) name="$1"; shift ;;
+    esac
+  done
+
+  # Trim whitespace from name
+  name="${name#"${name%%[![:space:]]*}"}"
+  name="${name%"${name##*[![:space:]]}"}"
 
   if [[ -z "$name" ]]; then
+    if [[ "$force" == true ]]; then
+      echo -e "${C_RED}✗ No project name provided${C_RESET}" >&2
+      return 1
+    fi
     name=$(awk -F'|' '/^[^#]/ && NF { print $1 }' "$PROJECTS_FILE" | fzf --prompt="Remove › " --height=40% --reverse --color="$FZF_COLORS")
     [[ -z "$name" ]] && return 0
   fi
 
-  echo -ne "${C_YELLOW}Remove '$name'? [y/N] ${C_RESET}"
-  read -r confirm
-  [[ "$confirm" != [yY] ]] && return 0
+  if [[ "$force" != true ]]; then
+    echo -ne "${C_YELLOW}Remove '$name'? [y/N] ${C_RESET}"
+    read -r confirm
+    [[ "$confirm" != [yY] ]] && return 0
+  fi
 
   grep -v "^${name}|" "$PROJECTS_FILE" > "${PROJECTS_FILE}.tmp"
   mv "${PROJECTS_FILE}.tmp" "$PROJECTS_FILE"
@@ -337,7 +354,7 @@ main_tui() {
   check_config
 
   local help_short=$'? help\n '
-  local help_full=$'j/k/J/K nav | C-j/k fast | enter open\nC-d close | C-a add | C-e edit | C-x rm | q quit\n '
+  local help_full=$'j/k/C-j/C-k nav | enter open\nC-d close | C-a add | C-e edit | C-x rm | q quit\n '
   local toggle_file="/tmp/tms_help_$$"
 
   local result
@@ -349,12 +366,10 @@ main_tui() {
     --height=100% \
     --reverse \
     --color="$FZF_COLORS" \
-    --bind="j:down,k:up,J:down,K:up" \
-    --bind="ctrl-j:down+down+down+down" \
-    --bind="ctrl-k:up+up+up+up" \
+    --bind="j:down,k:up,J:down,K:up,ctrl-j:down,ctrl-k:up" \
     --bind="ctrl-p:abort,q:abort" \
-    --bind="ctrl-d:execute-silent(tms stop {2})+reload(tms --get-list)" \
-    --bind="ctrl-x:execute(tms remove {2})+reload(tms --get-list)" \
+    --bind="ctrl-d:execute-silent(tms stop \$(echo {} | sed 's/^[● ]*//' | awk '{print \$1}'))+reload(tms --get-list)" \
+    --bind="ctrl-x:execute(tms remove --yes \$(echo {} | sed 's/^[● ]*//' | awk '{print \$1}'))+reload(tms --get-list)" \
     --bind="ctrl-a:execute(tms add)+reload(tms --get-list)" \
     --bind="ctrl-e:execute(tms edit)+reload(tms --get-list)" \
     --bind="?:transform:[[ -f $toggle_file ]] && { rm $toggle_file; echo \"change-header($help_short)\"; } || { touch $toggle_file; echo \"change-header($help_full)\"; }" \
@@ -422,7 +437,7 @@ main() {
       fi
       ;;
     "add"|"a") check_config; add_project "${1:-}" "${2:-}" ;;
-    "remove"|"rm"|"r") check_config; remove_project "${1:-}" ;;
+    "remove"|"rm"|"r") check_config; remove_project "$@" ;;
     "list"|"ls"|"l") check_config; list_projects ;;
     "edit"|"e") check_config; edit_config ;;
     "layouts"|"lay") check_config; edit_layouts ;;
