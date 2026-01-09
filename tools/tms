@@ -337,7 +337,7 @@ main_tui() {
   check_config
 
   local help_short=$'? help\n '
-  local help_full=$'j/k nav | C-j/k fast | enter open\nC-d close | C-a add | C-e edit | C-x rm | q quit\n '
+  local help_full=$'j/k/J/K nav | C-j/k fast | enter open\nC-d close | C-a add | C-e edit | C-x rm | q quit\n '
   local toggle_file="/tmp/tms_help_$$"
 
   local result
@@ -349,44 +349,24 @@ main_tui() {
     --height=100% \
     --reverse \
     --color="$FZF_COLORS" \
-    --bind="j:down,k:up" \
+    --bind="j:down,k:up,J:down,K:up" \
     --bind="ctrl-j:down+down+down+down" \
     --bind="ctrl-k:up+up+up+up" \
     --bind="ctrl-p:abort,q:abort" \
-    --bind="ctrl-d:become(echo STOP {})" \
-    --bind="ctrl-x:become(echo REMOVE {})" \
-    --bind="ctrl-a:become(echo ADD)" \
-    --bind="ctrl-e:become(echo EDIT)" \
+    --bind="ctrl-d:execute-silent(tms stop {2})+reload(tms --get-list)" \
+    --bind="ctrl-x:execute(tms remove {2})+reload(tms --get-list)" \
+    --bind="ctrl-a:execute(tms add)+reload(tms --get-list)" \
+    --bind="ctrl-e:execute(tms edit)+reload(tms --get-list)" \
     --bind="?:transform:[[ -f $toggle_file ]] && { rm $toggle_file; echo \"change-header($help_short)\"; } || { touch $toggle_file; echo \"change-header($help_full)\"; }" \
     2>/dev/null) || true
 
   rm -f "$toggle_file"
   [[ -z "$result" ]] && return 0
 
-  local action project
-
-  if [[ "$result" == STOP\ * ]]; then
-    action="stop"
-    project=$(echo "${result#STOP }" | sed 's/^[● ]*//' | awk '{print $1}')
-  elif [[ "$result" == REMOVE\ * ]]; then
-    action="remove"
-    project=$(echo "${result#REMOVE }" | sed 's/^[● ]*//' | awk '{print $1}')
-  elif [[ "$result" == "ADD" ]]; then
-    action="add"
-  elif [[ "$result" == "EDIT" ]]; then
-    action="edit"
-  else
-    action="open"
-    project=$(echo "$result" | sed 's/^[● ]*//' | awk '{print $1}')
-  fi
-
-  case "$action" in
-    "stop") [[ -n "$project" ]] && stop_project "$project" ;;
-    "remove") [[ -n "$project" ]] && remove_project "$project" ;;
-    "add") add_project ;;
-    "edit") edit_config ;;
-    "open") [[ -n "$project" ]] && start_project "$project" ;;
-  esac
+  # Extract project name (second field after bullet/space indicator)
+  local project
+  project=$(echo "$result" | sed 's/^[● ]*//' | awk '{print $1}')
+  [[ -n "$project" ]] && start_project "$project"
 }
 
 # Show help
@@ -419,6 +399,7 @@ main() {
   shift || true
 
   case "$cmd" in
+    "--get-list") check_config; get_project_list ;;
     ""|"tui") main_tui ;;
     "start"|"s"|"open"|"o")
       check_config
