@@ -7,8 +7,8 @@ STOW_ADOPT := -v --target=$(HOME) --adopt
 PACKAGES := shell nvim kitty tmux git starship bat
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat install-ssh
+.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat uninstall-ssh
 .PHONY: backup check dry-run
 
 # Default target
@@ -61,7 +61,7 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools install-bat
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools install-bat install-ssh
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -172,6 +172,25 @@ install-ai:
 	@mkdir -p $(HOME)/.config
 	$(STOW) $(STOW_FLAGS) ai-tools
 
+install-ssh:
+	@echo "Installing SSH config with multiplexing..."
+	@if [ ! -f "$(CURDIR)/ssh/.ssh/config.local" ]; then \
+		echo "✗ Error: ssh/.ssh/config.local not found"; \
+		echo ""; \
+		echo "  Create it from the template:"; \
+		echo "    cp ssh/.ssh/config.example ssh/.ssh/config.local"; \
+		echo "    # Edit config.local with your server details"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@mkdir -p $(HOME)/.ssh/sockets
+	@chmod 700 $(HOME)/.ssh
+	@chmod 700 $(HOME)/.ssh/sockets
+	@rm -f $(HOME)/.ssh/config
+	@ln -sf $(CURDIR)/ssh/.ssh/config.local $(HOME)/.ssh/config
+	@chmod 600 $(HOME)/.ssh/config
+	@echo "✓ SSH config installed with multiplexing enabled"
+
 install-tools:
 	@echo "Installing standalone tools..."
 	@mkdir -p $(HOME)/.local/bin
@@ -182,7 +201,7 @@ install-tools:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai uninstall-bat
+uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai uninstall-bat uninstall-ssh
 	@rm -f $(HOME)/.local/bin/tms
 	@echo "✓ All packages uninstalled"
 
@@ -210,6 +229,9 @@ uninstall-bat:
 
 uninstall-ai:
 	$(STOW) $(STOW_FLAGS) -D ai-tools || true
+
+uninstall-ssh:
+	@rm -f $(HOME)/.ssh/config
 
 #------------------------------------------------------------------------------
 # Restow (refresh symlinks)
@@ -272,6 +294,7 @@ help:
 	@echo "  install-starship Install starship config only"
 	@echo "  install-bat      Install bat config and themes"
 	@echo "  install-ai       Install AI tools config only"
+	@echo "  install-ssh      Install SSH config with multiplexing"
 	@echo "  install-tools    Install standalone tools (tms)"
 	@echo ""
 	@echo "Uninstallation:"
