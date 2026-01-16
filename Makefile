@@ -7,7 +7,7 @@ STOW_ADOPT := -v --target=$(HOME) --adopt
 PACKAGES := shell nvim kitty tmux git starship bat
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat install-ssh
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat install-ssh install-ubuntu-server
 .PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat uninstall-ssh
 .PHONY: backup check dry-run
 
@@ -72,6 +72,10 @@ install: check install-shell install-nvim install-kitty install-tmux install-git
 	@echo "  2. Set MACHINE_NAME in ~/.config/zsh/local.zsh"
 	@echo "  3. Update gitconfig with your name and email, also add any other git config settings for this machine"
 	@echo "  4. Reload shell: source ~/.zshrc"
+
+install-ubuntu-server:
+	@echo "Installing dotfiles for Ubuntu server (shell + nvim only)..."
+	@./tools/install-ubuntu-server.sh
 
 # Install with force: removes existing files and creates symlinks
 # Use this for first-time setup when you have existing configs
@@ -296,6 +300,7 @@ help:
 	@echo "  install-ai       Install AI tools config only"
 	@echo "  install-ssh      Install SSH config with multiplexing"
 	@echo "  install-tools    Install standalone tools (tms)"
+	@echo "  install-ubuntu-server Install minimal shell+nvim for Ubuntu server"
 	@echo ""
 	@echo "Uninstallation:"
 	@echo "  uninstall        Uninstall all packages"
