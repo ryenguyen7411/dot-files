@@ -31,7 +31,6 @@ sudo apt-get install -y \
   git \
   zsh \
   stow \
-  neovim \
   ripgrep \
   fd-find \
   fzf \

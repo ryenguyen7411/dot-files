@@ -42,6 +42,30 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+# Auto-install zsh plugins (interactive shells only)
+ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH/custom}"
+install_plugin() {
+  local name="$1"
+  local repo="$2"
+  local target="$ZSH_CUSTOM/plugins/$name"
+
+  if [[ ! -d "$target" ]]; then
+    if command_exists git; then
+      echo "Installing zsh plugin: $name"
+      git clone --depth=1 "$repo" "$target"
+    else
+      echo "Git not available, cannot install $name" >&2
+    fi
+  fi
+}
+
+if [[ -o interactive ]]; then
+  install_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions.git
+  install_plugin zsh-completions https://github.com/zsh-users/zsh-completions.git
+  install_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
+  install_plugin zsh-z https://github.com/agkozak/zsh-z.git
+fi
+
 # Plugins - conditionally load based on availability
 plugins=()
 command_exists git && plugins+=(git)
