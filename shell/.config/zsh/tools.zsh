@@ -11,8 +11,6 @@
 # Learns your most-used directories and lets you jump to them with `z`
 if command_exists zoxide; then
   eval "$(zoxide init zsh)"
-  alias cd='z'
-  alias cdi='zi'  # interactive selection
 fi
 
 # # ---------------------------
