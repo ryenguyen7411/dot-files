@@ -226,6 +226,41 @@ _load_swe() {
 lazy_load swe _load_swe
 
 # ---------------------------
+# Kubernetes (k3s via SSH tunnel)
+# ---------------------------
+
+# Wrapper for kubectl that ensures SSH tunnel to k3s is active
+kubectl() {
+  local tunnel_host="rye-opc"
+  local local_port=6443
+  local remote_port=6443
+
+  # Check if tunnel already exists
+  if ! pgrep -f "ssh.*-L.*${local_port}:127.0.0.1:${remote_port}.*${tunnel_host}" > /dev/null 2>&1; then
+    echo "Starting SSH tunnel to k3s..." >&2
+    ssh -f -N -L ${local_port}:127.0.0.1:${remote_port} ${tunnel_host}
+    sleep 1  # Give tunnel time to establish
+  fi
+
+  # Run the actual kubectl command
+  command kubectl "$@"
+}
+
+# Helper to stop the k3s tunnel
+k3s-tunnel-stop() {
+  pkill -f "ssh.*-L.*6443:127.0.0.1:6443.*rye-opc" && echo "k3s tunnel stopped" || echo "No tunnel running"
+}
+
+# Check tunnel status
+k3s-tunnel-status() {
+  if pgrep -f "ssh.*-L.*6443:127.0.0.1:6443.*rye-opc" > /dev/null 2>&1; then
+    echo "k3s tunnel is running (PID: $(pgrep -f 'ssh.*-L.*6443:127.0.0.1:6443.*rye-opc'))"
+  else
+    echo "k3s tunnel is not running"
+  fi
+}
+
+# ---------------------------
 # External Sources
 # ---------------------------
 
