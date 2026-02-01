@@ -13,9 +13,9 @@ windows:
       # Pane 1: right side (80%)
       - split: horizontal
         size: 80%
-        command: "ssh rye-opc"
+        command: "nvim"
         focus: true
 
       - split: vertical
         target: 0
-        command: "ssh rye-opc"
+        command: ""

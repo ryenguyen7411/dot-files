@@ -19,32 +19,64 @@ M.setup_minuet = function()
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('minuet').setup {
-        provider = 'codestral', -- Default provider with good performance
-        request_timeout = 3,
-        context_window = 16000,
-        throttle = 1000,
-        debounce = 400,
-        n_completions = 3,
-        add_single_line_entry = true,
-        notify = 'warn',
+        provider = 'codestral',
+        virtualtext = {
+          auto_trigger_ft = { '*' },
+          keymap = {
+            accept = '<C-m>',
+            accept_line = '<C-l>',
+            prev = '<C-j> ',
+            next = '<C-k>',
+            -- accept_line = '<S-Tab>',
+            -- accept_n_lines = '<A-z>',
+            -- prev = '<A-[>',
+            -- next = '<A-]>',
+            -- dismiss = '<Esc>',
+          },
+        },
         provider_options = {
           codestral = {
+            model = 'codestral-latest',
+            end_point = 'https://codestral.mistral.ai/v1/fim/completions',
+            api_key = 'CODESTRAL_API_KEY',
+            stream = true,
+            template = {
+              prompt = 'See [Prompt Section for default value]',
+              suffix = 'See [Prompt Section for default value]',
+            },
             optional = {
               max_tokens = 256,
               stop = { '\n\n' },
             },
           },
-        },
-        -- Virtual text configuration (optional)
-        virtualtext = {
-          auto_trigger_ft = {}, -- Add filetypes you want auto-completion for
-          keymap = {
-            accept = '<A-A>',
-            accept_line = '<A-a>',
-            accept_n_lines = '<A-z>',
-            prev = '<A-[>',
-            next = '<A-]>',
-            dismiss = '<A-e>',
+          gemini = {
+            model = 'gemini-2.5-flash',
+            -- system = 'see [Prompt] section for the default value',
+            -- few_shots = 'see [Prompt] section for the default value',
+            -- chat_input = 'See [Prompt Section for default value]',
+            -- stream = true,
+            -- api_key = 'GEMINI_API_KEY',
+            -- end_point = 'https://generativelanguage.googleapis.com/v1beta/models',
+            optional = {
+              generationConfig = {
+                maxOutputTokens = 256,
+                -- When using `gemini-2.5-flash`, it is recommended to entirely
+                -- disable thinking for faster completion retrieval.
+                thinkingConfig = {
+                  thinkingBudget = 0,
+                },
+              },
+              safetySettings = {
+                {
+                  -- HARM_CATEGORY_HATE_SPEECH,
+                  -- HARM_CATEGORY_HARASSMENT
+                  -- HARM_CATEGORY_SEXUALLY_EXPLICIT
+                  category = 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                  -- BLOCK_NONE
+                  threshold = 'BLOCK_ONLY_HIGH',
+                },
+              },
+            },
           },
         },
       }
