@@ -35,6 +35,8 @@ yarn-error.log
 .git
 build
 dist
+dist-lib
+dist-ssr
 .build
 .idea/
 Pods/
@@ -58,5 +60,6 @@ render-page.js*
 
 charting_library/
 
+ai-tools/.codex/tmp/
 /claude/*
 !/claude/settings.json
