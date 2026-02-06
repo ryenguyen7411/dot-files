@@ -97,6 +97,7 @@ install-force: check backup
 	@rm -rf $(HOME)/.claude
 	@rm -rf $(HOME)/.codex
 	@rm -rf $(HOME)/.config/opencode
+	@rm -rf $(HOME)/.cursor
 	@# Starship
 	@rm -f $(HOME)/.config/starship.toml
 	@# Bat

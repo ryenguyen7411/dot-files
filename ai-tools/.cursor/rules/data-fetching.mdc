@@ -1,0 +1,105 @@
+---
+description: Data fetching conventions using custom useFetcher hook
+globs: "**/fetcher.ts,**/fetchers.ts"
+alwaysApply: false
+---
+
+# Data Fetching Patterns
+
+All API calls use the custom `useFetcher` hook from `@/infra/fetch`.
+
+## Query
+
+```tsx
+import { useFetcher } from "@/infra/fetch";
+
+export const useInvestmentCategories = () => {
+  return useFetcher({
+    url: "/app/fund/category",
+    dataParser: (body: ApiResponse) => body.data,
+  });
+};
+```
+
+## Query with params and options
+
+```tsx
+export const usePoolDetail = (poolId: number) => {
+  return useFetcher({
+    url: "/investpool/pools/#{poolId}/detail",
+    params: { poolId },
+    gw: "hva_v2",
+    dataParser: (body: PoolDetailResponse) => body.data,
+    queryOptions: {
+      staleTime: 5 * 60 * 1000,
+      enabled: poolId > 0,
+    },
+  });
+};
+```
+
+## Mutation
+
+```tsx
+import { type FetcherType, useFetcher } from "@/infra/fetch";
+
+export const useDeposit = ({
+  poolId,
+  mutationOptions,
+}: {
+  poolId: number;
+  mutationOptions: FetcherType.MutationOptions<DepositResponse>;
+}) => {
+  return useFetcher({
+    type: "mutation",
+    method: "POST",
+    url: "/investpool/pools/#{poolId}/deposit-cash",
+    params: { poolId },
+    gw: "hva_v2",
+    mutationOptions,
+  });
+};
+```
+
+## Infinite Query
+
+```tsx
+export const useAssetHistory = (limit: number) => {
+  return useFetcher({
+    type: "infinite_query",
+    url: "/app/payment/history-assets",
+    query: { limit },
+    initialPageParam: { page: 1 },
+    queryOptions: {
+      getNextPageParam: (lastPage, __, lastPageParam: { page: number }) => {
+        if (lastPage.extra?.total <= lastPageParam.page * limit) return;
+        return { page: lastPageParam.page + 1 };
+      },
+    },
+  });
+};
+```
+
+## Standalone fetch (non-hook)
+
+```tsx
+import { fetchFn } from "@/infra/fetch";
+
+export const sendOtp = async () => {
+  return await fetchFn({
+    method: "POST",
+    url: "/contract/otp",
+    gw: "hva_v2",
+    body: { method: "deposit" },
+    dataParser: (body: OtpResponse) => body.data,
+  });
+};
+```
+
+## Key Conventions
+
+- URL params use `#{paramName}` syntax (e.g., `/pools/#{poolId}/detail`)
+- Always define `dataParser` to extract the payload from the API response wrapper
+- Gateway (`gw`) options: `"hva"` (default), `"hva_v2"`, `"orionx"`, `"config"`, `"mofi"`
+- Mutation options type: `FetcherType.MutationOptions<ResponseType>`
+- Response types are co-located in the feature's `interface.ts`

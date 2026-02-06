@@ -44,7 +44,7 @@ This creates symbolic links for:
 - Git config (`~/.gitconfig`)
 - Starship prompt (`~/.config/starship.toml`)
 - Bat config (`~/.config/bat/`)
-- AI tools (`~/.claude`, `~/.codex`, `~/.config/opencode`)
+- AI tools (`~/.claude`, `~/.codex`, `~/.config/opencode`, `~/.cursor`)
 
 ## Architecture
 

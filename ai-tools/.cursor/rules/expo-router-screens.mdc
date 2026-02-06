@@ -1,0 +1,39 @@
+---
+description: Expo Router screen file conventions for mobile apps
+globs: app/**/*.tsx
+alwaysApply: false
+---
+
+# Expo Router Screen Patterns
+
+Screens are thin wrappers that delegate to feature components in `src/components/`.
+
+## Structure
+
+```tsx
+import { useLocalSearchParams } from "expo-router";
+import { FeatureComponent } from "@/components/feature-name";
+import { KeyboardAvoidingView, NavigationBar, SafeAreaView } from "@/uikit/core";
+
+export default function Page() {
+  const { paramName } = useLocalSearchParams<{ paramName: string }>();
+
+  return (
+    <SafeAreaView className="page">
+      <NavigationBar title="Screen Title" />
+      <KeyboardAvoidingView>
+        <FeatureComponent />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+```
+
+## Rules
+
+- Always use `export default function Page()`
+- Parse route params with `useLocalSearchParams<{ ... }>()`
+- Wrap content in `SafeAreaView className="page"` with a `NavigationBar`
+- Add `KeyboardAvoidingView` if the screen has inputs
+- Keep screens thin -- all business logic belongs in the feature component under `src/components/`
+- Layout files (`_layout.tsx`) use `Stack`, `Tabs`, or `Slot` from expo-router

@@ -1,0 +1,39 @@
+---
+description: UI kit component conventions in src/uikit/
+globs: src/uikit/**/*.tsx
+alwaysApply: false
+---
+
+# UIKit Component Patterns
+
+## Export Style
+
+Use default exports for uikit components:
+
+```tsx
+interface ButtonProps {
+  className?: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+}
+
+export default function Button({ className, children, ...props }: ButtonProps) {
+  return (
+    <Pressable className={cx("flex-row items-center", className)} {...props}>
+      {children}
+    </Pressable>
+  );
+}
+```
+
+## Rules
+
+- TypeScript interface for all props
+- Accept `className` prop and merge with internal classes using `cx` from `clsx`
+- Use `__combinedStyles` prop on React Native primitives for react-native-css integration
+- Add barrel export in `src/uikit/core/index.ts`:
+  ```ts
+  export { default as Button } from "./button";
+  ```
+- Core primitives available from `@/uikit/core`: Button, Text, View, Row, Pressable, Icon, Image, Input, Modal, ScrollView, SafeAreaView, NavigationBar, Toast, Spinner, Empty, Select, Checkbox, RadioButton, BottomSheet, FlashList, TabView, Switch, Slider, Tooltip, KeyboardAvoidingView

@@ -1,0 +1,22 @@
+---
+description: Run format, type, and lint checks after every code change
+alwaysApply: true
+---
+
+# Quality Checks
+
+After completing any code changes, run all three checks and fix issues before considering the task done.
+
+## Commands (run in order)
+
+1. `yarn check-format` -- Prettier formatting + Tailwind class sorting
+2. `yarn check-types` -- TypeScript type checking
+3. `yarn check-lint` -- ESLint linting
+
+## Process
+
+- Run each command sequentially
+- If any check fails, fix the reported issues in the affected files
+- Re-run the failing check to confirm the fix
+- Do not consider work complete until all three checks pass cleanly
+- Never skip this step, even for "small" changes
