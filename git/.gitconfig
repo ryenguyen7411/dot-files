@@ -5,6 +5,7 @@
 
 [alias]
 	rm-merged = !git branch --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" { print $1 }' | xargs -r git branch -D
+	fetcht = "!f() { \\\n  git fetch origin --tags && \\\n  git fetch --all --no-tags; \\\n}; f"
 
 [column]
   ui = auto

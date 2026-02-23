@@ -62,6 +62,7 @@ ai-tools/.codex/auth.json
 ai-tools/.codex/history.jsonl
 ai-tools/.codex/internal_storage.json
 ai-tools/.codex/version.json
+ai-tools/.codex/.personality_migration
 ai-tools/.cursor/ai-tracking/
 ai-tools/.cursor/chats/
 ai-tools/.cursor/extensions/
