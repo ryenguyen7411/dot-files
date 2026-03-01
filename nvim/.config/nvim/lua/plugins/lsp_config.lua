@@ -6,6 +6,17 @@ M.config = function()
     on_attach = function(client, bufnr)
       M.attach(client, bufnr)
     end,
+    root_dir = function(bufnr, on_dir)
+      if vim.fs.root(bufnr, { '.oxfmtrc.json' }) then return end
+      local root = vim.fs.root(bufnr, { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' })
+      if root then on_dir(root) end
+    end,
+  })
+
+  vim.lsp.config('tsgo', {
+    on_attach = function(client, bufnr)
+      M.attach(client, bufnr)
+    end,
   })
 
   vim.lsp.config('gopls', {
@@ -37,6 +48,7 @@ end
 
 M.start = function()
   vim.lsp.enable 'ts_ls'
+  vim.lsp.enable 'tsgo'
   vim.lsp.enable 'eslint'
   vim.lsp.enable 'quick_lint_js'
   vim.lsp.enable 'html'

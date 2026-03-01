@@ -1,10 +1,10 @@
 ---
 name: update-cursor-settings
-description: Modify Cursor/VSCode user settings in settings.json. Use when the user wants to change editor settings, preferences, configuration, themes, font size, tab size, format on save, auto save, keybindings, or any settings.json values.
+description: Modify Cursor/VSCode user settings in settings.json. Use when you want to change editor settings, preferences, configuration, themes, font size, tab size, format on save, auto save, keybindings, or any settings.json values.
 ---
 # Updating Cursor Settings
 
-This skill guides you through modifying Cursor/VSCode user settings. Use this when the user wants to change editor settings, preferences, configuration, themes, keybindings, or any `settings.json` values.
+This skill guides you through modifying Cursor/VSCode user settings. Use this when you want to change editor settings, preferences, configuration, themes, keybindings, or any `settings.json` values.
 
 ## Settings File Location
 
@@ -88,6 +88,8 @@ If user says "use dark theme" or "change my theme":
 4. **Workspace vs User Settings**:
    - User settings (what this skill covers): Apply globally to all projects
    - Workspace settings (`.vscode/settings.json`): Apply only to the current project
+
+5. **Commit Attribution**: When the user asks about commit attribution, clarify whether they want to edit the **CLI agent** or the **IDE agent**. For the CLI agent, modify `~/.cursor/cli-config.json`. For the IDE agent, it is controlled from the UI at **Cursor Settings > Agent > Attribution** (not settings.json).
 
 ## Common User Requests → Settings
 

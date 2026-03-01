@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: Guides users through creating effective Agent Skills for Cursor. Use when the user wants to create, write, or author a new skill, or asks about skill structure, best practices, or SKILL.md format.
+description: Guides users through creating effective Agent Skills for Cursor. Use when you want to create, write, or author a new skill, or asks about skill structure, best practices, or SKILL.md format.
 ---
 # Creating Skills in Cursor
 
