@@ -1,12 +1,13 @@
 # =============================================================================
-# ZSH CONFIGURATION - Modular Edition
+# ZSH CONFIGURATION - Zinit Edition
 # =============================================================================
 #
-# Version: 4.0.0
-# Last Updated: 2026-01-07
+# Version: 5.0.0
+# Last Updated: 2026-03-01
 # Compatible: macOS, Linux, WSL
-# Dependencies: zsh, oh-my-zsh
+# Dependencies: zsh, zinit
 #
+# Migrated from Oh-My-Zsh to Zinit for faster shell startup.
 # This is a slim loader that sources modular config files from ~/.config/zsh/
 # =============================================================================
 
@@ -29,62 +30,51 @@ zsh_debug() {
   [[ -n "$ZSH_DEBUG" ]] && echo "[DEBUG] $*" >&2
 }
 
-# ========================
-# OH-MY-ZSH SETUP
-# ========================
-
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
-DISABLE_UPDATE_PROMPT="true"
-
 # Check if command exists
 command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Auto-install zsh plugins (interactive shells only)
-ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH/custom}"
-install_plugin() {
-  local name="$1"
-  local repo="$2"
-  local target="$ZSH_CUSTOM/plugins/$name"
+# ========================
+# ZINIT SETUP
+# ========================
 
-  if [[ ! -d "$target" ]]; then
-    if command_exists git; then
-      echo "Installing zsh plugin: $name"
-      git clone --depth=1 "$repo" "$target"
-    else
-      echo "Git not available, cannot install $name" >&2
-    fi
-  fi
-}
+ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
 
-if [[ -o interactive ]]; then
-  install_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions.git
-  install_plugin zsh-completions https://github.com/zsh-users/zsh-completions.git
-  install_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
-  install_plugin zsh-z https://github.com/agkozak/zsh-z.git
+if [[ ! -d "$ZINIT_HOME" ]]; then
+  echo "Installing Zinit..."
+  mkdir -p "$(dirname $ZINIT_HOME)"
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
-# Plugins - conditionally load based on availability
-plugins=()
-command_exists git && plugins+=(git)
-command_exists sudo && plugins+=(sudo)
+source "${ZINIT_HOME}/zinit.zsh"
 
-for plugin in zsh-autosuggestions zsh-completions zsh-syntax-highlighting zsh-z; do
-  if [[ -d "$ZSH/plugins/$plugin" ]] || [[ -d "$ZSH/custom/plugins/$plugin" ]]; then
-    plugins+=("$plugin")
-  fi
-done
+# OMZ library snippets (key-bindings, history, completion, prompt colors, etc.)
+zinit snippet OMZL::history.zsh
+zinit snippet OMZL::key-bindings.zsh
+zinit snippet OMZL::completion.zsh
+zinit snippet OMZL::directories.zsh
+zinit snippet OMZL::async_prompt.zsh
+zinit snippet OMZL::git.zsh
+zinit snippet OMZL::theme-and-appearance.zsh
+
+# OMZ theme (robbyrussell - colored prompt with git branch)
+zinit snippet OMZT::robbyrussell
+
+# OMZ plugins (git aliases, sudo double-ESC)
+zinit snippet OMZP::git
+zinit snippet OMZP::sudo
+
+# Core plugins loaded in Turbo mode (after prompt, for speed)
+zinit wait lucid light-mode for \
+  atinit"zicompinit; zicdreplay" \
+    zdharma-continuum/fast-syntax-highlighting \
+  atload"_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
+  blockf atpull'zinit creinstall -q .' \
+    zsh-users/zsh-completions
 
 autoload -U compinit && compinit
-
-# Load Oh-My-Zsh
-if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
-  source "$ZSH/oh-my-zsh.sh"
-else
-  echo "Warning: Oh-My-Zsh not found at $ZSH" >&2
-fi
 
 # ========================
 # LOAD MODULAR CONFIG

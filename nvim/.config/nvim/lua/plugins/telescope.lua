@@ -82,110 +82,20 @@ M.mapping = function()
   -- vim.keymap.set('n', "<leader>'", '<cmd>Telescope resume<CR>', { noremap = true, silent = true })
 end
 
-return {
-  'nvim-telescope/' .. 'telescope.nvim',
-  event = 'VeryLazy',
-  dependencies = {
-    { 'nvim-telescope/' .. 'telescope-file-browser.nvim' },
-    { 'nvim-telescope/' .. 'telescope-fzf-native.nvim', build = 'make' },
-    { 'nvim-telescope/' .. 'telescope-project.nvim' },
-  },
-  config = function()
-    local actions = require 'telescope.actions'
-    local fb_actions = require('telescope').extensions.file_browser.actions
-    local previewers = require 'telescope.previewers'
-
-    -- Setup Telescope
-    require('telescope').setup {
-      defaults = {
-        vimgrep_arguments = {
-          'rg',
-          '-FHLSn.',
-          '--color=never',
-          '--column',
-          '--no-heading',
-          '--sort-files',
-          '--trim',
-          '--no-ignore',
-          '--ignore-file',
-          os.getenv 'HOME' .. '/.config/rg/.rgignore',
-        },
-        file_ignore_patterns = {
-          -- '.git/',
-        },
-        preview = {
-          mime_hook = previews.mime_hook,
-        },
-        path_display = {
-          filename_first = {
-            reverse_directories = false,
-          },
-        },
-        mappings = {
-          i = {
-            ['<esc>'] = actions.close,
-          },
-        },
-      },
-      pickers = {
-        buffers = {
-          show_all_buffers = true,
-          sort_mru = true,
-          mappings = {
-            i = {
-              ['<c-d>'] = 'delete_buffer',
-            },
-            n = {
-              ['<c-d>'] = 'delete_buffer',
-            },
-          },
-        },
-        find_files = {
-          find_command = {
-            'fd',
-            '-FHIL',
-            '--type=f',
-            '--color=never',
-            '--strip-cwd-prefix',
-            '--no-ignore',
-            '--ignore-file',
-            os.getenv 'HOME' .. '/.config/fd/.fdignore',
-          },
-        },
-      },
-      extensions = {
-        project = {
-          hidden_files = true,
-        },
-        fzf = {
-          fuzzy = true, -- false will only do exact matching
-          override_generic_sorter = true, -- override the generic sorter
-          override_file_sorter = true, -- override the file sorter
-          case_mode = 'smart_case', -- or "ignore_case" or "respect_case"
-        },
-        file_browser = {
-          mappings = {
-            ['i'] = {
-              ['<C-e>'] = fb_actions.create,
-              ['<C-r>'] = fb_actions.rename,
-              ['<C-p>'] = fb_actions.move,
-              ['<C-y>'] = fb_actions.copy,
-              ['<C-d>'] = fb_actions.remove,
-            },
-          },
-          hidden = true,
-          respect_gitignore = false,
-          dir_icon = '',
-          grouped = true,
-          select_buffer = true,
-          display_stat = false,
-        },
-      },
-    }
-    require('telescope').load_extension 'fzf'
-    require('telescope').load_extension 'file_browser'
-    require('telescope').load_extension 'project'
-
-    M.mapping()
-  end,
-}
+-- Telescope commented out - fully replaced by snacks.nvim picker
+-- Re-enable if something breaks in your workflow
+--
+-- return {
+--   'nvim-telescope/' .. 'telescope.nvim',
+--   event = 'VeryLazy',
+--   dependencies = {
+--     { 'nvim-telescope/' .. 'telescope-file-browser.nvim' },
+--     { 'nvim-telescope/' .. 'telescope-fzf-native.nvim', build = 'make' },
+--     { 'nvim-telescope/' .. 'telescope-project.nvim' },
+--   },
+--   config = function()
+--     ...
+--     M.mapping()
+--   end,
+-- }
+return {}

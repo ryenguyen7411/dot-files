@@ -8,6 +8,7 @@ PACKAGES := shell nvim kitty tmux git starship bat
 
 .PHONY: all install install-adopt uninstall update lint help
 .PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat install-ssh install-ubuntu-server
+.PHONY: install-zinit backup-omz install-difftastic
 .PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat uninstall-ssh
 .PHONY: backup check dry-run
 
@@ -203,6 +204,48 @@ install-tools:
 	@echo "✓ tms installed to ~/.local/bin/tms"
 
 #------------------------------------------------------------------------------
+# Shell Plugin Manager (Zinit)
+#------------------------------------------------------------------------------
+
+ZINIT_HOME := $(HOME)/.local/share/zinit/zinit.git
+
+install-zinit:
+	@echo "Installing Zinit plugin manager..."
+	@if [ -d "$(ZINIT_HOME)" ]; then \
+		echo "✓ Zinit already installed at $(ZINIT_HOME)"; \
+	else \
+		mkdir -p "$$(dirname $(ZINIT_HOME))"; \
+		git clone https://github.com/zdharma-continuum/zinit.git "$(ZINIT_HOME)"; \
+		echo "✓ Zinit installed"; \
+	fi
+
+backup-omz:
+	@echo "Backing up Oh-My-Zsh..."
+	@if [ -d "$(HOME)/.oh-my-zsh" ]; then \
+		mv "$(HOME)/.oh-my-zsh" "$(HOME)/.oh-my-zsh.bak"; \
+		echo "✓ Oh-My-Zsh backed up to ~/.oh-my-zsh.bak"; \
+		echo "  To restore: mv ~/.oh-my-zsh.bak ~/.oh-my-zsh"; \
+	else \
+		echo "⚠ Oh-My-Zsh not found at ~/.oh-my-zsh, nothing to backup"; \
+	fi
+
+#------------------------------------------------------------------------------
+# Git Tools
+#------------------------------------------------------------------------------
+
+install-difftastic:
+	@echo "Installing difftastic (structural diff)..."
+	@if command -v brew >/dev/null 2>&1; then \
+		brew install difftastic; \
+	elif command -v cargo >/dev/null 2>&1; then \
+		cargo install difftastic; \
+	else \
+		echo "✗ Neither brew nor cargo found. Install manually: https://difftastic.wilfred.me.uk/"; \
+		exit 1; \
+	fi
+	@echo "✓ difftastic installed (use: git difft)"
+
+#------------------------------------------------------------------------------
 # Uninstallation
 #------------------------------------------------------------------------------
 
@@ -306,6 +349,11 @@ help:
 	@echo "Uninstallation:"
 	@echo "  uninstall        Uninstall all packages"
 	@echo "  restow           Uninstall and reinstall (refresh symlinks)"
+	@echo ""
+	@echo "Migration:"
+	@echo "  install-zinit    Install Zinit plugin manager for Zsh"
+	@echo "  backup-omz       Backup Oh-My-Zsh to ~/.oh-my-zsh.bak"
+	@echo "  install-difftastic Install difftastic (structural diff tool)"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  update           Update Neovim plugins"

@@ -1,6 +1,5 @@
 return {
   { 'nvim-lua/' .. 'plenary.nvim', priority = 1000, lazy = false },
-  { 'nvim-lua/' .. 'popup.nvim', priority = 1000, lazy = false },
 
   -- TO BE UPDATED
   {
@@ -16,7 +15,7 @@ return {
     'folke/' .. 'todo-comments.nvim',
     event = 'BufRead',
     keys = {
-      { '<space>a', '<cmd>TodoTelescope<CR>', desc = 'TodoTelescope' },
+      { '<space>a', '<cmd>lua Snacks.picker.todo_comments()<CR>', desc = 'Todo Comments' },
     },
     opts = {
       keywords = {
@@ -92,17 +91,11 @@ return {
         override = {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,
-          ['cmp.entry.get_documentation'] = true,
         },
       },
     },
     dependencies = {
-      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
       'MunifTanjim/nui.nvim',
-      -- OPTIONAL:
-      --   `nvim-notify` is only needed, if you want to use the notification view.
-      --   If not available, we use `mini` as the fallback
-      'rcarriga/nvim-notify',
     },
   },
   {
@@ -113,8 +106,5 @@ return {
   },
   {
     'tpope/vim-abolish',
-  },
-  {
-    'djoshea/vim-autoread',
   },
 }

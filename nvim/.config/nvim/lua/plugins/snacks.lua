@@ -262,7 +262,7 @@ return {
     { "<leader>'", '<cmd>lua Snacks.picker.actions.focus_list(Snacks.picker.resume())<CR>', desc = 'Resume' },
 
     { '<leader>i', '<cmd>lua Snacks.picker.files({ cwd = "~/notes" })<CR>', desc = 'Find Notes' },
-    -- { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
+    { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
 
     -- stylua: ignore start
     -- Top Pickers & Explorer
