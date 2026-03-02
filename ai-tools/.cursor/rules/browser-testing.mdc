@@ -1,0 +1,107 @@
+---
+description: Use Chrome DevTools MCP to test URLs in the user's Arc browser session. Applies whenever browser testing, URL verification, or web page inspection is needed.
+alwaysApply: true
+---
+
+# Browser Testing via Chrome DevTools MCP + Arc
+
+The user's primary browser is **Arc** (Chromium-based), running with remote debugging on port 9222. The Chrome DevTools MCP server connects to Arc via WebSocket.
+
+## When to use
+
+- Opening or navigating to any URL (localhost, staging, production)
+- Taking screenshots of pages or elements
+- Inspecting console logs, network requests, or performance
+- Verifying UI changes after code edits
+- Any task that would otherwise require the user to manually open a browser
+
+## How to use
+
+Use the `user-Chrome DevTools` MCP server tools. Key tools:
+
+| Tool | Purpose |
+|------|---------|
+| `new_page` | Open a URL in a new Arc tab |
+| `navigate_page` | Navigate the selected tab to a URL |
+| `take_screenshot` | Capture the current page |
+| `list_pages` | See all open tabs |
+| `select_page` | Switch to a specific tab |
+| `list_console_messages` | Read console output |
+| `list_network_requests` | Inspect network activity |
+| `evaluate_script` | Run JS in the page context |
+
+## Workflow
+
+1. Use `list_pages` to check if the target URL is already open
+2. If yes, use `select_page` + `navigate_page` (with `type: "reload"` if same URL)
+3. If no, use `new_page` to open it
+4. Use `take_screenshot` to verify the page loaded correctly
+5. Report what you see to the user
+
+## Connection issues — Auto-update browser ID
+
+The WebSocket browser ID in `mcp.json` changes every time Arc restarts. When the MCP returns a connection error, **automatically fix it** without asking the user:
+
+1. Run this command to get the current browser ID:
+   ```
+   curl -s http://127.0.0.1:9222/json/version | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['webSocketDebuggerUrl'])"
+   ```
+2. If the command succeeds, extract the new `ws://...` URL and update the `--wsEndpoint` value in `~/.cursor/mcp.json` using the StrReplace tool (replace the old `ws://127.0.0.1:9222/devtools/browser/...` with the new one).
+3. After updating `mcp.json`, tell the user: "I've updated the browser ID in mcp.json. Please toggle the Chrome DevTools MCP server off and on in Cursor settings to reconnect."
+4. If port 9222 is unreachable (curl fails), tell the user to relaunch Arc with debugging enabled. They can either:
+   - Run: `/Applications/Arc.app/Contents/MacOS/Arc --remote-debugging-port=9222`
+   - Or click the Arc icon in the Dock if they have set up the launch agent (see "Launching Arc with debugging from Dock" below)
+
+## Critical: MCP Failure Handling
+
+If Chrome DevTools MCP fails to connect or returns errors (STATUS.md shows error, tools not found, connection refused, etc.):
+
+1. **Ask the user to fix it** -- notify the user that Chrome DevTools MCP is down and needs attention
+2. **Do NOT use workarounds** -- never fall back to `curl`, `WebFetch`, `browser-use` subagent, or any alternative
+3. **Poll and wait** -- retry up to **10 times**, sleeping **60 seconds** between each attempt:
+   - Each retry: check STATUS.md and attempt `list_pages` to confirm recovery
+   - If MCP recovers during polling, resume the task from where it left off
+4. **If all 10 retries fail** -- summarize what was accomplished so far, what remains, and return to the user
+5. Never guess or fabricate browser results -- only report what MCP actually returns
+
+## Critical: Preventing OOM Crashes
+
+The MCP server runs on a **16GB RAM machine** with a 8GB Node.js heap limit. Large payloads from `evaluate_script` or `take_snapshot` will crash it. Follow these rules strictly:
+
+1. **Never serialize the full DOM** -- avoid scripts like `document.body.innerHTML`, `document.documentElement.outerHTML`, or `document.querySelector('*')` on heavy pages
+2. **Scope evaluate_script narrowly** -- always target specific selectors, limit results, and return only the data you need:
+   - Bad: `document.querySelectorAll('*').length`
+   - Good: `document.querySelector('#main-content h1')?.textContent`
+3. **Prefer `take_screenshot` over `take_snapshot`** -- screenshots are images (small); snapshots serialize the full accessibility tree (huge on complex pages)
+4. **Use `take_snapshot` only on simple pages** -- never on dashboards, admin panels, SPAs with large component trees, or pages with many DOM nodes
+5. **Paginate network requests** -- when calling `list_network_requests`, filter by type or URL pattern if available; don't dump all requests from a long session
+6. **If the MCP crashes with OOM** -- tell the user what happened, reduce payload size in the next attempt, and do NOT retry the same large request
+
+## Launching Arc with debugging from Dock
+
+By default, clicking the Arc icon in the Dock launches Arc **without** `--remote-debugging-port=9222`. To make the Dock icon always launch Arc with debugging enabled, the user should create a wrapper via a macOS Launch Agent or edit the app's `Info.plist` (not recommended). The simplest approach is a shell alias or a custom Automator app.
+
+**Recommended: Automator wrapper app**
+
+1. Open Automator > New Document > Application
+2. Add "Run Shell Script" action with:
+   ```
+   /Applications/Arc.app/Contents/MacOS/Arc --remote-debugging-port=9222
+   ```
+3. Save as "Arc Debug.app" to `/Applications`
+4. Drag "Arc Debug.app" to the Dock and use it instead of the stock Arc icon
+
+**Alternative: command-line alias**
+
+Add to `~/.zshrc`:
+```
+alias arc='/Applications/Arc.app/Contents/MacOS/Arc --remote-debugging-port=9222'
+```
+
+Then launch Arc from terminal with `arc`.
+
+## Important
+
+- Always prefer the user's existing Arc session -- never launch a separate Chrome instance
+- The Arc session has the user's real cookies/credentials, so authenticated pages work without extra login
+- Do NOT use `curl`, `open`, or the `browser-use` subagent for URL testing when Chrome DevTools MCP is available

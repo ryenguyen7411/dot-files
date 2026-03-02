@@ -16,6 +16,7 @@ alias n='sudo n'
 
 alias :q='exit'
 alias zm='exit'
+alias arc='/Applications/Arc.app/Contents/MacOS/Arc --remote-debugging-port=9222'
 
 # Modern CLI replacements
 if command_exists eza; then

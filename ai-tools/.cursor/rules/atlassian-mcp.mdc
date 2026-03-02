@@ -1,0 +1,94 @@
+---
+description: Use Atlassian MCP to interact with Jira issues and Confluence pages. Applies when user references Jira tickets, Confluence pages, or Atlassian workflows.
+alwaysApply: true
+---
+
+# Atlassian MCP (Jira + Confluence)
+
+The `user-Atlassian` MCP server provides authenticated access to Jira and Confluence via the user's Atlassian Cloud account.
+
+## When to use
+
+- User references a Jira issue key (e.g., `FINOPS-1234`, `PROJ-567`)
+- User shares an `atlassian.net/browse/` or `atlassian.net/wiki/` URL
+- Fetching issue details, searching tickets, creating/updating issues
+- Reading or creating Confluence pages
+- Transitioning issue statuses or adding comments
+
+## cloudId Discovery
+
+Almost every tool requires a `cloudId` parameter. To get it:
+
+1. Call `getAccessibleAtlassianResources` (no arguments) to list available sites
+2. Cache the `cloudId` for the session -- don't call this repeatedly
+3. If the user's Atlassian URL is known (e.g., `mycompany.atlassian.net`), pass the site URL directly as `cloudId`
+
+## Key Jira Tools
+
+| Tool | Purpose | Required params |
+|------|---------|-----------------|
+| `getJiraIssue` | Fetch issue details | `cloudId`, `issueIdOrKey` |
+| `searchJiraIssuesUsingJql` | Search with JQL | `cloudId`, `jql` |
+| `createJiraIssue` | Create a new issue | `cloudId`, `projectKey`, `issueTypeName`, `summary` |
+| `editJiraIssue` | Update issue fields | `cloudId`, `issueIdOrKey`, `fields` |
+| `transitionJiraIssue` | Change issue status | `cloudId`, `issueIdOrKey`, `transition` |
+| `addCommentToJiraIssue` | Add a comment | `cloudId`, `issueIdOrKey`, `commentBody` |
+| `getTransitionsForJiraIssue` | List available transitions | `cloudId`, `issueIdOrKey` |
+| `addWorklogToJiraIssue` | Log time | `cloudId`, `issueIdOrKey` |
+| `lookupJiraAccountId` | Find user account ID | `cloudId` |
+
+## Key Confluence Tools
+
+| Tool | Purpose | Required params |
+|------|---------|-----------------|
+| `getConfluencePage` | Read a page | `cloudId`, `pageId` |
+| `createConfluencePage` | Create a page | `cloudId` |
+| `updateConfluencePage` | Update a page | `cloudId` |
+| `searchConfluenceUsingCql` | Search with CQL | `cloudId` |
+| `getConfluenceSpaces` | List spaces | `cloudId` |
+| `getPagesInConfluenceSpace` | List pages in a space | `cloudId` |
+
+## Workflows
+
+### Fetching a Jira issue from a URL or key
+
+1. If needed, call `getAccessibleAtlassianResources` to get `cloudId`
+2. Extract the issue key (e.g., `FINOPS-1234`) from the URL or user message
+3. Call `getJiraIssue` with `cloudId` and `issueIdOrKey`
+4. Use `fields` param to request only what you need (e.g., `["summary", "description", "status", "assignee"]`) to reduce payload size
+
+### Transitioning an issue
+
+1. Call `getTransitionsForJiraIssue` to discover available transition IDs
+2. Call `transitionJiraIssue` with the chosen `transition.id`
+3. Never guess transition IDs -- always look them up first
+
+### Searching issues
+
+- Use JQL for targeted searches: `project = FINOPS AND status = "In Progress" AND assignee = currentUser()`
+- Set `maxResults` appropriately (default is 10, max is 100)
+- Use `fields` to limit returned data
+
+### Reading Confluence pages
+
+- Use `contentFormat: "markdown"` for readable output (default is ADF which is verbose)
+- Extract `pageId` from Confluence URLs: `https://site.atlassian.net/wiki/spaces/SPACE/pages/123456789/Title` -> `pageId: "123456789"`
+
+## Critical: MCP Failure Handling
+
+If Atlassian MCP fails to connect or returns errors (STATUS.md shows error, tools not found, connection refused, etc.):
+
+1. **Ask the user to fix it** -- notify the user that Atlassian MCP is down and needs attention
+2. **Do NOT use workarounds** -- never fall back to `curl`, `WebFetch`, `browser-use` subagent, or any alternative
+3. **Poll and wait** -- retry up to **10 times**, sleeping **60 seconds** between each attempt:
+   - Each retry: check STATUS.md and attempt `list_pages` to confirm recovery
+   - If MCP recovers during polling, resume the task from where it left off
+4. **If all 10 retries fail** -- summarize what was accomplished so far, what remains, and return to the user
+5. Never guess or fabricate browser results -- only report what MCP actually returns
+
+## Important
+
+- Always use `fields` param when fetching issues to avoid pulling unnecessary data
+- For `getConfluencePage`, prefer `contentFormat: "markdown"` over ADF
+- Comment bodies use Markdown format
+- Never create or transition issues without explicit user confirmation
