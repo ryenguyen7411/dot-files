@@ -1,5 +1,5 @@
 ---
-description: Use Chrome DevTools MCP to test URLs in the user's Arc browser session. Applies whenever browser testing, URL verification, or web page inspection is needed.
+description: 
 alwaysApply: true
 ---
 
@@ -20,7 +20,7 @@ The user's primary browser is **Arc** (Chromium-based), running with remote debu
 Use the `user-Chrome DevTools` MCP server tools. Key tools:
 
 | Tool | Purpose |
-|------|---------|
+|---|---|
 | `new_page` | Open a URL in a new Arc tab |
 | `navigate_page` | Navigate the selected tab to a URL |
 | `take_screenshot` | Capture the current page |
@@ -58,10 +58,10 @@ If Chrome DevTools MCP fails to connect or returns errors (STATUS.md shows error
 
 1. **Ask the user to fix it** -- notify the user that Chrome DevTools MCP is down and needs attention
 2. **Do NOT use workarounds** -- never fall back to `curl`, `WebFetch`, `browser-use` subagent, or any alternative
-3. **Poll and wait** -- retry up to **10 times**, sleeping **60 seconds** between each attempt:
+3. **Poll and wait** -- retry up to **30 times**, sleeping **15 seconds** between each attempt:
    - Each retry: check STATUS.md and attempt `list_pages` to confirm recovery
    - If MCP recovers during polling, resume the task from where it left off
-4. **If all 10 retries fail** -- summarize what was accomplished so far, what remains, and return to the user
+4. **If all 30 retries fail** -- summarize what was accomplished so far, what remains, and return to the user
 5. Never guess or fabricate browser results -- only report what MCP actually returns
 
 ## Critical: Preventing OOM Crashes

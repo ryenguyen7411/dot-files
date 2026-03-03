@@ -15,8 +15,8 @@
         "NODE_OPTIONS": "--max-old-space-size=8192"
       },
       "args": [
-        "chrome-devtools-mcp@latest",
-        "--wsEndpoint=ws://127.0.0.1:9222/devtools/browser/88750c2e-b5ab-4aa9-b019-9fae3babb5e2"
+        "-y",
+        "chrome-devtools-mcp@latest"
       ]
     },
     "reddit": {

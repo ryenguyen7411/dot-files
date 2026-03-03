@@ -63,3 +63,6 @@ charting_library/
 ai-tools/.codex/tmp/
 /claude/*
 !/claude/settings.json
+
+# Python
+.venv
