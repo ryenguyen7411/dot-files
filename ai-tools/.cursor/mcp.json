@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "Context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {}
+    },
+    "Atlassian": {
+      "command": "npx mcp-remote https://mcp.atlassian.com/v1/sse",
+      "env": {},
+      "args": []
+    },
+    "Chrome DevTools": {
+      "command": "npx",
+      "env": {
+        "NODE_OPTIONS": "--max-old-space-size=8192"
+      },
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "reddit": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/adhikasp/mcp-reddit.git",
+        "mcp-reddit"
+      ],
+      "env": {}
+    },
+    "Figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "headers": {}
+    }
+  }
+}

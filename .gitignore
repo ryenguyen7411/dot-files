@@ -57,10 +57,24 @@ ai-tools/.claude/todos/
 ai-tools/.codex/sessions/
 ai-tools/.codex/log/
 ai-tools/.codex/skills/
+ai-tools/.codex/tmp/
 ai-tools/.codex/auth.json
 ai-tools/.codex/history.jsonl
 ai-tools/.codex/internal_storage.json
 ai-tools/.codex/version.json
+ai-tools/.codex/.personality_migration
+ai-tools/.cursor/ai-tracking/
+ai-tools/.cursor/chats/
+ai-tools/.cursor/extensions/
+ai-tools/.cursor/plans/
+ai-tools/.cursor/projects/
+ai-tools/.cursor/workers/
+ai-tools/.cursor/argv.json
+ai-tools/.cursor/blocklist
+ai-tools/.cursor/cli-config.json
+ai-tools/.cursor/ide_state.json
+ai-tools/.cursor/prompt_history.json
+ai-tools/.cursor/unified_repo_list.json
 
 # -----------------------------------------------------------------------------
 # Git

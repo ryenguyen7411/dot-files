@@ -51,9 +51,6 @@ M.setup_colorscheme = function()
 
     'NormalFloat',
     'FloatBorder',
-    'TelescopeNormal',
-    'TelescopeBorder',
-    'TelescopeMultiSelection',
   }
 
   for _, part in pairs(transparents) do

@@ -7,8 +7,9 @@ STOW_ADOPT := -v --target=$(HOME) --adopt
 PACKAGES := shell nvim kitty tmux git starship bat
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat install-ssh install-ubuntu-server
+.PHONY: install-zinit backup-omz install-difftastic
+.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat uninstall-ssh
 .PHONY: backup check dry-run
 
 # Default target
@@ -61,14 +62,21 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools install-bat
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools install-bat install-ssh
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
 	@echo "Next steps:"
-	@echo "  1. Copy local config: cp ~/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh"
+	@echo "  1. Copy local config:"
+	@echo "     cp ~/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh"
+	@echo "     cp ~/.gitconfig-local.example ~/.gitconfig-local"
 	@echo "  2. Set MACHINE_NAME in ~/.config/zsh/local.zsh"
-	@echo "  3. Reload shell: source ~/.zshrc"
+	@echo "  3. Update gitconfig with your name and email, also add any other git config settings for this machine"
+	@echo "  4. Reload shell: source ~/.zshrc"
+
+install-ubuntu-server:
+	@echo "Installing dotfiles for Ubuntu server (shell + nvim only)..."
+	@./tools/install-ubuntu-server.sh
 
 # Install with force: removes existing files and creates symlinks
 # Use this for first-time setup when you have existing configs
@@ -90,6 +98,7 @@ install-force: check backup
 	@rm -rf $(HOME)/.claude
 	@rm -rf $(HOME)/.codex
 	@rm -rf $(HOME)/.config/opencode
+	@rm -rf $(HOME)/.cursor
 	@# Starship
 	@rm -f $(HOME)/.config/starship.toml
 	@# Bat
@@ -169,6 +178,25 @@ install-ai:
 	@mkdir -p $(HOME)/.config
 	$(STOW) $(STOW_FLAGS) ai-tools
 
+install-ssh:
+	@echo "Installing SSH config with multiplexing..."
+	@if [ ! -f "$(CURDIR)/ssh/.ssh/config.local" ]; then \
+		echo "✗ Error: ssh/.ssh/config.local not found"; \
+		echo ""; \
+		echo "  Create it from the template:"; \
+		echo "    cp ssh/.ssh/config.example ssh/.ssh/config.local"; \
+		echo "    # Edit config.local with your server details"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@mkdir -p $(HOME)/.ssh/sockets
+	@chmod 700 $(HOME)/.ssh
+	@chmod 700 $(HOME)/.ssh/sockets
+	@rm -f $(HOME)/.ssh/config
+	@ln -sf $(CURDIR)/ssh/.ssh/config.local $(HOME)/.ssh/config
+	@chmod 600 $(HOME)/.ssh/config
+	@echo "✓ SSH config installed with multiplexing enabled"
+
 install-tools:
 	@echo "Installing standalone tools..."
 	@mkdir -p $(HOME)/.local/bin
@@ -176,10 +204,52 @@ install-tools:
 	@echo "✓ tms installed to ~/.local/bin/tms"
 
 #------------------------------------------------------------------------------
+# Shell Plugin Manager (Zinit)
+#------------------------------------------------------------------------------
+
+ZINIT_HOME := $(HOME)/.local/share/zinit/zinit.git
+
+install-zinit:
+	@echo "Installing Zinit plugin manager..."
+	@if [ -d "$(ZINIT_HOME)" ]; then \
+		echo "✓ Zinit already installed at $(ZINIT_HOME)"; \
+	else \
+		mkdir -p "$$(dirname $(ZINIT_HOME))"; \
+		git clone https://github.com/zdharma-continuum/zinit.git "$(ZINIT_HOME)"; \
+		echo "✓ Zinit installed"; \
+	fi
+
+backup-omz:
+	@echo "Backing up Oh-My-Zsh..."
+	@if [ -d "$(HOME)/.oh-my-zsh" ]; then \
+		mv "$(HOME)/.oh-my-zsh" "$(HOME)/.oh-my-zsh.bak"; \
+		echo "✓ Oh-My-Zsh backed up to ~/.oh-my-zsh.bak"; \
+		echo "  To restore: mv ~/.oh-my-zsh.bak ~/.oh-my-zsh"; \
+	else \
+		echo "⚠ Oh-My-Zsh not found at ~/.oh-my-zsh, nothing to backup"; \
+	fi
+
+#------------------------------------------------------------------------------
+# Git Tools
+#------------------------------------------------------------------------------
+
+install-difftastic:
+	@echo "Installing difftastic (structural diff)..."
+	@if command -v brew >/dev/null 2>&1; then \
+		brew install difftastic; \
+	elif command -v cargo >/dev/null 2>&1; then \
+		cargo install difftastic; \
+	else \
+		echo "✗ Neither brew nor cargo found. Install manually: https://difftastic.wilfred.me.uk/"; \
+		exit 1; \
+	fi
+	@echo "✓ difftastic installed (use: git difft)"
+
+#------------------------------------------------------------------------------
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai uninstall-bat
+uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai uninstall-bat uninstall-ssh
 	@rm -f $(HOME)/.local/bin/tms
 	@echo "✓ All packages uninstalled"
 
@@ -207,6 +277,9 @@ uninstall-bat:
 
 uninstall-ai:
 	$(STOW) $(STOW_FLAGS) -D ai-tools || true
+
+uninstall-ssh:
+	@rm -f $(HOME)/.ssh/config
 
 #------------------------------------------------------------------------------
 # Restow (refresh symlinks)
@@ -269,11 +342,18 @@ help:
 	@echo "  install-starship Install starship config only"
 	@echo "  install-bat      Install bat config and themes"
 	@echo "  install-ai       Install AI tools config only"
+	@echo "  install-ssh      Install SSH config with multiplexing"
 	@echo "  install-tools    Install standalone tools (tms)"
+	@echo "  install-ubuntu-server Install minimal shell+nvim for Ubuntu server"
 	@echo ""
 	@echo "Uninstallation:"
 	@echo "  uninstall        Uninstall all packages"
 	@echo "  restow           Uninstall and reinstall (refresh symlinks)"
+	@echo ""
+	@echo "Migration:"
+	@echo "  install-zinit    Install Zinit plugin manager for Zsh"
+	@echo "  backup-omz       Backup Oh-My-Zsh to ~/.oh-my-zsh.bak"
+	@echo "  install-difftastic Install difftastic (structural diff tool)"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  update           Update Neovim plugins"

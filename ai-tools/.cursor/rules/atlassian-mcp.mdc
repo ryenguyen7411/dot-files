@@ -1,0 +1,31 @@
+---
+description: Atlassian MCP for Jira and Confluence. Applies when user references Jira tickets, Confluence pages, or Atlassian workflows.
+alwaysApply: true
+---
+
+# Atlassian MCP (Jira + Confluence)
+
+Use the `Atlassian` MCP server for Jira and Confluence access.
+
+## cloudId Discovery
+
+Almost every tool requires `cloudId`. Call `getAccessibleAtlassianResources` once to get it, then cache for the session.
+
+## Workflows
+
+**Fetching an issue**: extract the issue key from URL or message, call `getJiraIssue` with `cloudId` and `issueIdOrKey`. Use `fields` param to request only what you need.
+
+**Transitioning**: always call `getTransitionsForJiraIssue` first to discover available transition IDs. Never guess transition IDs.
+
+**Searching**: use JQL with `searchJiraIssuesUsingJql`. Set `maxResults` appropriately. Use `fields` to limit returned data.
+
+**Confluence pages**: use `contentFormat: "markdown"` (default ADF is verbose). Extract `pageId` from URLs: `.../pages/123456789/Title` -> `pageId: "123456789"`.
+
+## Error Handling
+
+Follow the `autonomous-execution` rule. When Atlassian MCP fails: state the problem, poll 30x at 10s intervals, resume or summarize. Never guess or fabricate Atlassian results.
+
+## Important
+
+- Always use `fields` param to avoid pulling unnecessary data
+- Never create or transition issues without explicit user confirmation

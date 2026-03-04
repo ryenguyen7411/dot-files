@@ -1,0 +1,18 @@
+# Ignore everything in .cursor
+*
+
+# User-level cursor rules
+!rules/
+!rules/**
+# Plugin cache (rules, skills, agents)
+!plugins/
+!plugins/**
+# Built-in Cursor skills
+!skills-cursor/
+!skills-cursor/**
+# User's personal skills
+!skills/
+!skills/**
+# User's personal slash commands
+!commands/
+!commands/**

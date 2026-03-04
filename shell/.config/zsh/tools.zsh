@@ -5,14 +5,17 @@
 # Install via: brew bundle (see Brewfile)
 # =============================================================================
 
+# Ensure command_exists is available (in case this file is sourced standalone)
+if ! typeset -f command_exists > /dev/null; then
+  command_exists() { command -v "$1" >/dev/null 2>&1; }
+fi
+
 # ---------------------------
 # zoxide (smarter cd)
 # ---------------------------
 # Learns your most-used directories and lets you jump to them with `z`
 if command_exists zoxide; then
   eval "$(zoxide init zsh)"
-  alias cd='z'
-  alias cdi='zi'  # interactive selection
 fi
 
 # # ---------------------------

@@ -43,6 +43,10 @@ vim.opt.undofile = true -- Enable persistent undo
 vim.opt.updatetime = 750 -- Faster CursorHold events
 vim.opt.whichwrap:append '<>' -- Allow left/right keys to wrap lines
 
+vim.filetype.add {
+  extension = { mdc = 'markdown' },
+}
+
 -- make all keymaps silent by default
 local keymap_set = vim.keymap.set
 ---@diagnostic disable-next-line: duplicate-set-field

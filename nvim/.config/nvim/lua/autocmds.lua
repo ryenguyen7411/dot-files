@@ -105,3 +105,13 @@ end
 set_filetypes {
   ['Fastfile'] = 'ruby',
 }
+
+-- Auto-reload buffers when files change on disk (replaces vim-autoread plugin)
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {
+  pattern = '*',
+  callback = function()
+    if vim.fn.getcmdwintype() == '' then
+      vim.cmd 'checktime'
+    end
+  end,
+})
