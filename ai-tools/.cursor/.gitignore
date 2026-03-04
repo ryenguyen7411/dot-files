@@ -1,43 +1,18 @@
 # Ignore everything in .cursor
 *
-# # Un-ignore projects so we can descend to allowlisted subdirs
-# !projects/
-# projects/*
-# !projects/*/
-# projects/*/*
-# # MCP tool descriptors, resources, prompts
-# !projects/*/mcps/
-# !projects/*/mcps/**
-# # Agent transcripts for citation
-# !projects/*/agent-transcripts/
-# !projects/*/agent-transcripts/**
-# # Terminal output files
-# !projects/*/terminals/
-# !projects/*/terminals/**
-# # Conversation notes (shared scratchpad)
-# !projects/*/agent-notes/
-# !projects/*/agent-notes/**
-# # Large tool output files
-# !projects/*/agent-tools/
-# !projects/*/agent-tools/**
-# # Plugin cache (rules, skills, agents)
-# !plugins/
-# !plugins/**
-# # Built-in Cursor skills
-# !skills-cursor/
-# !skills-cursor/**
-# # User's personal skills
-# !skills/
-# !skills/**
-# # User's personal slash commands
-# !commands/
-# !commands/**
-# # User's plan files
-# !plans/
-# !plans/**
-# # Subagent state/transcripts
-# !subagents/
-# !subagents/**
-# # User-level cursor rules
-# !rules/
-# !rules/**
+
+# User-level cursor rules
+!rules/
+!rules/**
+# Plugin cache (rules, skills, agents)
+!plugins/
+!plugins/**
+# Built-in Cursor skills
+!skills-cursor/
+!skills-cursor/**
+# User's personal skills
+!skills/
+!skills/**
+# User's personal slash commands
+!commands/
+!commands/**

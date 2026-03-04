@@ -52,17 +52,9 @@ The WebSocket browser ID in `mcp.json` changes every time Arc restarts. When the
    - Run: `/Applications/Arc.app/Contents/MacOS/Arc --remote-debugging-port=9222`
    - Or click the Arc icon in the Dock if they have set up the launch agent (see "Launching Arc with debugging from Dock" below)
 
-## Critical: MCP Failure Handling
+## Error Handling
 
-If Chrome DevTools MCP fails to connect or returns errors (STATUS.md shows error, tools not found, connection refused, etc.):
-
-1. **Ask the user to fix it** -- notify the user that Chrome DevTools MCP is down and needs attention
-2. **Do NOT use workarounds** -- never fall back to `curl`, `WebFetch`, `browser-use` subagent, or any alternative
-3. **Poll and wait** -- retry up to **30 times**, sleeping **15 seconds** between each attempt:
-   - Each retry: check STATUS.md and attempt `list_pages` to confirm recovery
-   - If MCP recovers during polling, resume the task from where it left off
-4. **If all 30 retries fail** -- summarize what was accomplished so far, what remains, and return to the user
-5. Never guess or fabricate browser results -- only report what MCP actually returns
+Follow the `autonomous-execution` rule for error handling and polling. When Chrome DevTools MCP fails: state the problem, poll 30x at 10s intervals, resume or summarize. Never guess or fabricate browser results.
 
 ## Critical: Preventing OOM Crashes
 
