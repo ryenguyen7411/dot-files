@@ -23,22 +23,27 @@ Do NOT fall back to alternative tools when the designated one fails (e.g., no `c
 
 The user can inject instructions mid-run by writing to this file from another terminal (e.g., `echo "use port 3001" >> ~/.cursor/.cursor-signal`).
 
-BEFORE processing each user message and BEFORE each tool call batch, check the signal file:
+BEFORE processing each user message and BEFORE each tool call, check the signal file:
 - Empty or missing: continue working
+  - For not distracting human, if the signal file is empty then don't emit anything on screen.
 - Has content: pause (keep all state), read it, truncate file to empty, re-evaluate approach
   - Instructions clear: adjust and resume
   - Instructions ambiguous: state what is unclear, then poll the signal file every 10s up to 30 attempts for clarification
 
-Signal file checks are independent of error polling -- they serve different purposes.
+IMPORTANT: signal instruction are the most important. Evaluate and execute it IMMEDIATELY before any other tasks.
+
+Signal file checks are VERY IMPORTANT and independent of error polling -- they serve different purposes.
 
 ## C) Post-completion Verification
 
-After completing any task, verify the result before reporting done:
+After completing any task, verify the result before reporting done. NEVER hand an untested fix back to the user.
 
 1. If the project has install linting (`eslint`, `oxlint`), formatter (`prettier`, `oxfmt`), type-checker (`tsc`, `tsgo`), all errors related to lint, format or type-check MUST be fixed before further verification.
 1. **Web UI**: use Chrome DevTools MCP (`take_screenshot`, `evaluate_script`, `list_console_messages`)
 2. **API/CLI**: use `curl` or run the command
 3. **Test suite**: run the relevant tests
 4. **No testable surface**: skip but state why
+5. **Test edge cases** too (e.g. error paths, missing args) when relevant
 
 If verification fails, fix and re-verify. Report results with evidence (screenshot, output, test results).
+Don't forget to check Signal file too.
