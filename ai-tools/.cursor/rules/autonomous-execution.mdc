@@ -1,5 +1,5 @@
 ---
-description: Universal autonomous execution protocol -- error polling, mid-run signal file, and post-completion verification. Applies to every task.
+description: 
 alwaysApply: true
 ---
 
@@ -23,7 +23,7 @@ Do NOT fall back to alternative tools when the designated one fails (e.g., no `c
 
 The user can inject instructions mid-run by writing to this file from another terminal (e.g., `echo "use port 3001" >> ~/.cursor/.cursor-signal`).
 
-**Every ~60 seconds** (between logical steps), read the file:
+BEFORE processing each user message and BEFORE each tool call batch, check the signal file:
 - Empty or missing: continue working
 - Has content: pause (keep all state), read it, truncate file to empty, re-evaluate approach
   - Instructions clear: adjust and resume
@@ -35,6 +35,7 @@ Signal file checks are independent of error polling -- they serve different purp
 
 After completing any task, verify the result before reporting done:
 
+1. If the project has install linting (`eslint`, `oxlint`), formatter (`prettier`, `oxfmt`), type-checker (`tsc`, `tsgo`), all errors related to lint, format or type-check MUST be fixed before further verification.
 1. **Web UI**: use Chrome DevTools MCP (`take_screenshot`, `evaluate_script`, `list_console_messages`)
 2. **API/CLI**: use `curl` or run the command
 3. **Test suite**: run the relevant tests
