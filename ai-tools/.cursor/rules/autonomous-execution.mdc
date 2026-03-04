@@ -11,61 +11,33 @@ Never stop mid-task unless physically impossible to proceed. Work continuously u
 
 When any operation fails and requires human intervention (MCP down, server not running, permission denied, external service unreachable, etc.):
 
-1. **State the problem clearly** -- what broke, what the user needs to do to fix it
-2. **Poll**: retry every **10 seconds**, up to **30 attempts** (5 minutes total)
+1. State the problem clearly -- what broke, what the user needs to do
+2. Poll: retry every **10 seconds**, up to **30 attempts** (5 min total)
 3. Each poll: re-attempt the exact failed operation
-4. **If it succeeds** during polling: resume from where you left off -- do NOT restart the task
-5. **If all 30 polls fail**: produce a summary with:
-   - What was completed
-   - What remains
-   - The unresolved blocker
-   - Then stop
+4. If it succeeds: resume from where you left off -- do NOT restart
+5. If all 30 polls fail: summarize what was completed, what remains, and the blocker -- then stop
 
-Do NOT use workarounds or alternatives when the designated tool fails (e.g., do not fall back to `curl` when Chrome DevTools MCP is expected, do not fall back to `WebFetch` when Atlassian MCP is expected). Wait for the correct tool to recover.
+Do NOT fall back to alternative tools when the designated one fails (e.g., no `curl` when Chrome DevTools MCP is expected, no `WebFetch` when Atlassian MCP is expected). Wait for recovery.
 
 ## B) Mid-run Signal File (`~/.cursor/.cursor-signal`)
 
-The user can inject instructions into a running agent turn by writing to `~/.cursor/.cursor-signal` from another terminal.
+The user can inject instructions mid-run by writing to this file from another terminal (e.g., `echo "use port 3001" >> ~/.cursor/.cursor-signal`).
 
-### Agent behavior
+**Every ~60 seconds** (between logical steps), read the file:
+- Empty or missing: continue working
+- Has content: pause (keep all state), read it, truncate file to empty, re-evaluate approach
+  - Instructions clear: adjust and resume
+  - Instructions ambiguous: state what is unclear, then poll the signal file every 10s up to 30 attempts for clarification
 
-1. **Every ~60 seconds** (between logical steps, not a literal timer), read `~/.cursor/.cursor-signal`
-2. If the file is **empty or missing**: continue working, no action needed
-3. If the file has **content**:
-   a. Pause current work -- keep all progress and state intact
-   b. Read the full content of the file
-   c. **Truncate** the file to empty (write empty string to it) so the same instructions are not re-read
-   d. Re-evaluate the current approach in light of the new instructions
-   e. If the instructions are **clear**: adjust plan and resume execution
-   f. If the instructions are **ambiguous**: state what is unclear in the output, then poll the signal file every **10 seconds** up to **30 attempts** waiting for clarification
-   g. Continue from where you left off with the adjusted approach
-
-### User workflow (from a separate terminal)
-
-```bash
-echo "use port 3001 instead of 3000" >> ~/.cursor/.cursor-signal
-
-cat >> ~/.cursor/.cursor-signal << 'EOF'
-Skip the unit tests for now.
-Focus on the API endpoint first.
-EOF
-```
-
-### Rules
-
-- The user may append multiple instructions between checks -- read the entire file content before truncating
-- Truncate (not delete) the file after reading so it remains available for future writes
-- Signal file checks are independent of error polling -- they serve different purposes
+Signal file checks are independent of error polling -- they serve different purposes.
 
 ## C) Post-completion Verification
 
-After completing any task (new feature, bug fix, config change, refactor), verify the result before reporting done.
+After completing any task, verify the result before reporting done:
 
-1. **Identify the testable surface**: URL, API endpoint, CLI command, file output, test suite
-2. **Web UI available**: use Chrome DevTools MCP -- `take_screenshot`, `evaluate_script`, `list_console_messages` -- to verify the page renders correctly and there are no console errors
-3. **API/CLI available**: use `curl` or run the command to verify the expected output
-4. **Test suite available**: run the relevant tests
-5. **No testable surface** (pure docs, config-only changes): skip verification but state explicitly why
-6. **Report results** with evidence: screenshot, command output, test results, or a clear explanation of what was verified and how
+1. **Web UI**: use Chrome DevTools MCP (`take_screenshot`, `evaluate_script`, `list_console_messages`)
+2. **API/CLI**: use `curl` or run the command
+3. **Test suite**: run the relevant tests
+4. **No testable surface**: skip but state why
 
-If verification reveals a problem, fix it and re-verify. Do not report the task as complete until verification passes.
+If verification fails, fix and re-verify. Report results with evidence (screenshot, output, test results).

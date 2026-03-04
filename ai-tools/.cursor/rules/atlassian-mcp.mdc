@@ -1,86 +1,31 @@
 ---
-description: Use Atlassian MCP to interact with Jira issues and Confluence pages. Applies when user references Jira tickets, Confluence pages, or Atlassian workflows.
+description: Atlassian MCP for Jira and Confluence. Applies when user references Jira tickets, Confluence pages, or Atlassian workflows.
 alwaysApply: true
 ---
 
 # Atlassian MCP (Jira + Confluence)
 
-The `user-Atlassian` MCP server provides authenticated access to Jira and Confluence via the user's Atlassian Cloud account.
-
-## When to use
-
-- User references a Jira issue key (e.g., `FINOPS-1234`, `PROJ-567`)
-- User shares an `atlassian.net/browse/` or `atlassian.net/wiki/` URL
-- Fetching issue details, searching tickets, creating/updating issues
-- Reading or creating Confluence pages
-- Transitioning issue statuses or adding comments
+Use the `Atlassian` MCP server for Jira and Confluence access.
 
 ## cloudId Discovery
 
-Almost every tool requires a `cloudId` parameter. To get it:
-
-1. Call `getAccessibleAtlassianResources` (no arguments) to list available sites
-2. Cache the `cloudId` for the session -- don't call this repeatedly
-3. If the user's Atlassian URL is known (e.g., `mycompany.atlassian.net`), pass the site URL directly as `cloudId`
-
-## Key Jira Tools
-
-| Tool | Purpose | Required params |
-|------|---------|-----------------|
-| `getJiraIssue` | Fetch issue details | `cloudId`, `issueIdOrKey` |
-| `searchJiraIssuesUsingJql` | Search with JQL | `cloudId`, `jql` |
-| `createJiraIssue` | Create a new issue | `cloudId`, `projectKey`, `issueTypeName`, `summary` |
-| `editJiraIssue` | Update issue fields | `cloudId`, `issueIdOrKey`, `fields` |
-| `transitionJiraIssue` | Change issue status | `cloudId`, `issueIdOrKey`, `transition` |
-| `addCommentToJiraIssue` | Add a comment | `cloudId`, `issueIdOrKey`, `commentBody` |
-| `getTransitionsForJiraIssue` | List available transitions | `cloudId`, `issueIdOrKey` |
-| `addWorklogToJiraIssue` | Log time | `cloudId`, `issueIdOrKey` |
-| `lookupJiraAccountId` | Find user account ID | `cloudId` |
-
-## Key Confluence Tools
-
-| Tool | Purpose | Required params |
-|------|---------|-----------------|
-| `getConfluencePage` | Read a page | `cloudId`, `pageId` |
-| `createConfluencePage` | Create a page | `cloudId` |
-| `updateConfluencePage` | Update a page | `cloudId` |
-| `searchConfluenceUsingCql` | Search with CQL | `cloudId` |
-| `getConfluenceSpaces` | List spaces | `cloudId` |
-| `getPagesInConfluenceSpace` | List pages in a space | `cloudId` |
+Almost every tool requires `cloudId`. Call `getAccessibleAtlassianResources` once to get it, then cache for the session.
 
 ## Workflows
 
-### Fetching a Jira issue from a URL or key
+**Fetching an issue**: extract the issue key from URL or message, call `getJiraIssue` with `cloudId` and `issueIdOrKey`. Use `fields` param to request only what you need.
 
-1. If needed, call `getAccessibleAtlassianResources` to get `cloudId`
-2. Extract the issue key (e.g., `FINOPS-1234`) from the URL or user message
-3. Call `getJiraIssue` with `cloudId` and `issueIdOrKey`
-4. Use `fields` param to request only what you need (e.g., `["summary", "description", "status", "assignee"]`) to reduce payload size
+**Transitioning**: always call `getTransitionsForJiraIssue` first to discover available transition IDs. Never guess transition IDs.
 
-### Transitioning an issue
+**Searching**: use JQL with `searchJiraIssuesUsingJql`. Set `maxResults` appropriately. Use `fields` to limit returned data.
 
-1. Call `getTransitionsForJiraIssue` to discover available transition IDs
-2. Call `transitionJiraIssue` with the chosen `transition.id`
-3. Never guess transition IDs -- always look them up first
-
-### Searching issues
-
-- Use JQL for targeted searches: `project = FINOPS AND status = "In Progress" AND assignee = currentUser()`
-- Set `maxResults` appropriately (default is 10, max is 100)
-- Use `fields` to limit returned data
-
-### Reading Confluence pages
-
-- Use `contentFormat: "markdown"` for readable output (default is ADF which is verbose)
-- Extract `pageId` from Confluence URLs: `https://site.atlassian.net/wiki/spaces/SPACE/pages/123456789/Title` -> `pageId: "123456789"`
+**Confluence pages**: use `contentFormat: "markdown"` (default ADF is verbose). Extract `pageId` from URLs: `.../pages/123456789/Title` -> `pageId: "123456789"`.
 
 ## Error Handling
 
-Follow the `autonomous-execution` rule for error handling and polling. When Atlassian MCP fails: state the problem, poll 30x at 10s intervals, resume or summarize. Never guess or fabricate Atlassian results.
+Follow the `autonomous-execution` rule. When Atlassian MCP fails: state the problem, poll 30x at 10s intervals, resume or summarize. Never guess or fabricate Atlassian results.
 
 ## Important
 
-- Always use `fields` param when fetching issues to avoid pulling unnecessary data
-- For `getConfluencePage`, prefer `contentFormat: "markdown"` over ADF
-- Comment bodies use Markdown format
+- Always use `fields` param to avoid pulling unnecessary data
 - Never create or transition issues without explicit user confirmation
