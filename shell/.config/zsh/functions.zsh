@@ -23,8 +23,12 @@ git-cherry() {
 }
 
 # Open merge/pull request creation page for current branch
+# Usage: gmr [source_branch] [target_branch]
+#   gmr              → current branch → repo default target
+#   gmr main         → current branch → main
+#   gmr main staging → main → staging
 gmr() {
-  local remote_url branch base_url mr_url
+  local remote_url base_url mr_url source_branch target_branch
 
   remote_url=$(git remote get-url origin 2>/dev/null)
   if [[ -z "$remote_url" ]]; then
@@ -32,14 +36,27 @@ gmr() {
     return 1
   fi
 
-  branch=$(git branch --show-current)
-  if [[ -z "$branch" ]]; then
+  case $# in
+    0)
+      source_branch=$(git branch --show-current)
+      target_branch=""
+      ;;
+    1)
+      source_branch=$(git branch --show-current)
+      target_branch="$1"
+      ;;
+    *)
+      source_branch="$1"
+      target_branch="$2"
+      ;;
+  esac
+
+  if [[ -z "$source_branch" ]]; then
     echo "Error: Not on a branch (detached HEAD?)" >&2
     return 1
   fi
 
   # Convert SSH to HTTPS format
-  # git@host:path.git -> https://host/path
   if [[ "$remote_url" =~ ^git@ ]]; then
     base_url=$(echo "$remote_url" | sed -E 's|^git@([^:]+):(.+)$|https://\1/\2|')
   else
@@ -47,20 +64,24 @@ gmr() {
   fi
   base_url="${base_url%.git}"
 
-  # URL-encode the branch name
-  local encoded_branch=$(printf '%s' "$branch" | sed 's|/|%2F|g')
+  local encoded_source=$(printf '%s' "$source_branch" | sed 's|/|%2F|g')
+  local encoded_target=$(printf '%s' "$target_branch" | sed 's|/|%2F|g')
 
-  # Construct MR/PR URL based on host
   case "$base_url" in
     *github.com*)
-      mr_url="${base_url}/compare/${encoded_branch}?expand=1"
+      if [[ -n "$target_branch" ]]; then
+        mr_url="${base_url}/compare/${encoded_target}...${encoded_source}?expand=1"
+      else
+        mr_url="${base_url}/compare/${encoded_source}?expand=1"
+      fi
       ;;
     *bitbucket*)
-      mr_url="${base_url}/pull-requests/new?source=${encoded_branch}"
+      mr_url="${base_url}/pull-requests/new?source=${encoded_source}"
+      [[ -n "$target_branch" ]] && mr_url+="&dest=${encoded_target}"
       ;;
     *)
-      # GitLab (default for any other host)
-      mr_url="${base_url}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encoded_branch}"
+      mr_url="${base_url}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encoded_source}"
+      [[ -n "$target_branch" ]] && mr_url+="&merge_request%5Btarget_branch%5D=${encoded_target}"
       ;;
   esac
 
