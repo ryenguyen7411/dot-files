@@ -5,18 +5,18 @@
       "headers": {}
     },
     "Atlassian": {
-      "command": "npx mcp-remote https://mcp.atlassian.com/v1/sse",
-      "env": {},
-      "args": []
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v1/mcp"
     },
-    "Chrome DevTools": {
+    "Chrome": {
       "command": "npx",
       "env": {
         "NODE_OPTIONS": "--max-old-space-size=8192"
       },
       "args": [
         "-y",
-        "chrome-devtools-mcp@latest"
+        "chrome-devtools-mcp@latest",
+        "--autoConnect"
       ]
     },
     "reddit": {
@@ -29,8 +29,8 @@
       "env": {}
     },
     "Figma": {
-      "url": "https://mcp.figma.com/mcp",
-      "headers": {}
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }

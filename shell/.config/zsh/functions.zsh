@@ -246,6 +246,155 @@ kubectl() {
   command kubectl "$@"
 }
 
+# Mount a Kubernetes pod's filesystem locally via sshfs
+# Usage: kmount <pod_name> [local_path] [-n namespace] [-c container]
+kmount() {
+  local pod="" mount_path="" namespace="staging" container=""
+
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -n|--namespace) namespace="$2"; shift 2 ;;
+      -c|--container) container="$2"; shift 2 ;;
+      *)
+        if [[ -z "$pod" ]]; then
+          pod="$1"
+        elif [[ -z "$mount_path" ]]; then
+          mount_path="$1"
+        fi
+        shift ;;
+    esac
+  done
+
+  if [[ -z "$pod" ]]; then
+    echo "Usage: kmount <pod_name> [local_path] [-n namespace] [-c container]"
+    echo "  pod_name   : full or partial pod name (will grep for match)"
+    echo "  local_path : mount point (default: ~/mnt/<pod_short_name>)"
+    echo "  -n         : namespace (default: staging)"
+    echo "  -c         : container name (for multi-container pods)"
+    return 1
+  fi
+
+  # Resolve partial pod name
+  local full_pod
+  full_pod=$(command kubectl get po -n "$namespace" --no-headers -o custom-columns=":metadata.name" | grep "$pod" | head -1)
+  if [[ -z "$full_pod" ]]; then
+    echo "Error: No pod matching '$pod' in namespace '$namespace'" >&2
+    return 1
+  fi
+
+  local short_name="${full_pod%%-[a-f0-9]*-[a-z0-9]*}"
+  [[ -z "$short_name" ]] && short_name="$full_pod"
+  mount_path="${mount_path:-$HOME/mnt/$short_name}"
+  mkdir -p "$mount_path"
+
+  # Build kubectl exec prefix
+  local kexec="kubectl exec -i -n $namespace $full_pod"
+  [[ -n "$container" ]] && kexec+=" -c $container"
+
+  # Check if sftp-server exists in the pod
+  if ! eval "command $kexec -- test -x /usr/lib/openssh/sftp-server" 2>/dev/null; then
+    echo "Installing openssh-sftp-server in pod..."
+    eval "command $kexec -- bash -c 'apt-get update -qq && apt-get install -y -qq openssh-sftp-server'" 2>&1 | tail -3
+    if ! eval "command $kexec -- test -x /usr/lib/openssh/sftp-server" 2>/dev/null; then
+      echo "Error: Failed to install sftp-server in the pod" >&2
+      return 1
+    fi
+  fi
+
+  # Start sshd inside the pod if not already running
+  if ! eval "command $kexec -- pgrep -x sshd" >/dev/null 2>&1; then
+    echo "Starting sshd in pod..."
+    eval "command $kexec -- bash -c '
+      ssh-keygen -A 2>/dev/null
+      mkdir -p /run/sshd
+      grep -q \"^PermitRootLogin yes\" /etc/ssh/sshd_config 2>/dev/null || echo \"PermitRootLogin yes\" >> /etc/ssh/sshd_config
+      grep -q \"^PermitEmptyPasswords yes\" /etc/ssh/sshd_config 2>/dev/null || echo \"PermitEmptyPasswords yes\" >> /etc/ssh/sshd_config
+      passwd -d root 2>/dev/null
+      /usr/sbin/sshd -p 2222 -o ListenAddress=127.0.0.1
+    '" 2>/dev/null
+  fi
+
+  # Pick an available local port for the forward
+  local pf_port=2222
+  while lsof -i :"$pf_port" >/dev/null 2>&1; do
+    ((pf_port++))
+  done
+
+  # Start port-forward in background
+  command kubectl port-forward -n "$namespace" "$full_pod" "$pf_port":2222 >/dev/null 2>&1 &
+  local pf_pid=$!
+  sleep 2
+
+  if ! kill -0 "$pf_pid" 2>/dev/null; then
+    echo "Error: port-forward failed to start" >&2
+    return 1
+  fi
+
+  # Unmount stale mount if exists
+  fusermount3 -uz "$mount_path" 2>/dev/null || fusermount -uz "$mount_path" 2>/dev/null
+
+  # Mount via sshfs
+  sshfs "root@127.0.0.1:/" "$mount_path" \
+    -p "$pf_port" \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -o reconnect \
+    -o cache=yes \
+    -o password_stdin <<< ""
+
+  if mountpoint -q "$mount_path" 2>/dev/null || mount | grep -q "$mount_path"; then
+    echo "Mounted $full_pod:/ -> $mount_path"
+    echo "  namespace: $namespace"
+    echo "  port-forward PID: $pf_pid (local:$pf_port -> pod:2222)"
+    echo "  Unmount with: kunmount $mount_path"
+  else
+    kill "$pf_pid" 2>/dev/null
+    echo "Error: sshfs mount failed" >&2
+    return 1
+  fi
+}
+
+# Unmount a kmount'ed pod filesystem
+# Usage: kunmount [local_path]
+kunmount() {
+  local mount_path="${1:-}"
+
+  if [[ -z "$mount_path" ]]; then
+    # List active kmount mounts under ~/mnt
+    local mounts
+    mounts=$(mount | grep "fuse.sshfs" | grep "$HOME/mnt" | awk '{print $3}')
+    if [[ -z "$mounts" ]]; then
+      echo "No active kmount mounts found"
+      return 0
+    fi
+    echo "Active kmount mounts:"
+    echo "$mounts" | while read -r m; do echo "  $m"; done
+    echo ""
+    echo "Usage: kunmount <mount_path>"
+    return 1
+  fi
+
+  # Kill the port-forward associated with this mount
+  local pf_info
+  pf_info=$(mount | grep "fuse.sshfs" | grep "$mount_path")
+  if [[ -n "$pf_info" ]]; then
+    local port
+    port=$(echo "$pf_info" | grep -oE '127\.0\.0\.1:[0-9]+' | head -1 | cut -d: -f2)
+    if [[ -n "$port" ]]; then
+      pkill -f "kubectl port-forward.*${port}:2222" 2>/dev/null
+    fi
+  fi
+
+  # Unmount
+  if fusermount3 -u "$mount_path" 2>/dev/null || fusermount -u "$mount_path" 2>/dev/null; then
+    echo "Unmounted $mount_path"
+  else
+    fusermount3 -uz "$mount_path" 2>/dev/null || fusermount -uz "$mount_path" 2>/dev/null
+    echo "Force-unmounted $mount_path"
+  fi
+}
+
 # Helper to stop the k3s tunnel
 k3s-tunnel-stop() {
   pkill -f "ssh.*-L.*6443:127.0.0.1:6443.*rye-opc" && echo "k3s tunnel stopped" || echo "No tunnel running"

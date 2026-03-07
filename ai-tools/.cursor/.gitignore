@@ -1,9 +1,6 @@
 # Ignore everything in .cursor
 *
 
-# User-level cursor rules
-!rules/
-!rules/**
 # Plugin cache (rules, skills, agents)
 !plugins/
 !plugins/**
@@ -16,3 +13,6 @@
 # User's personal slash commands
 !commands/
 !commands/**
+# User-level cursor rules
+!rules/
+!rules/**
