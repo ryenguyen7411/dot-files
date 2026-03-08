@@ -7,7 +7,16 @@ alwaysApply: true
 
 Never stop mid-task unless physically impossible to proceed. Work continuously until the task is complete or all recovery options are exhausted.
 
-## A) Error Handling -- Poll and Recover
+## A) IMPORTANT - DO NOT SKIP - Mid-run Signal File (`~/.cursor/.cursor-signal`)
+
+Anytime, even when you are in processing loop, the user can inject instructions by writing to this file from another terminal (e.g., `echo "use port 3001" >> ~/.cursor/.cursor-signal`).
+First action of every move should always be checking the signal file.
+- If it's empty or missing: continue working
+- If it has content: read it, truncate file to empty, re-evaluate approach
+  - Instructions clear: adjust and resume
+  - Instructions ambiguous: state what is unclear, then poll the signal file every 10s up to 30 attempts for clarification
+
+## B) Error Handling -- Poll and Recover
 
 When any operation fails and requires human intervention (MCP down, server not running, permission denied, external service unreachable, etc.):
 
@@ -18,21 +27,6 @@ When any operation fails and requires human intervention (MCP down, server not r
 5. If all 30 polls fail: summarize what was completed, what remains, and the blocker -- then stop
 
 Do NOT fall back to alternative tools when the designated one fails (e.g., no `curl` when Chrome DevTools MCP is expected, no `WebFetch` when Atlassian MCP is expected). Wait for recovery.
-
-## B) Mid-run Signal File (`~/.cursor/.cursor-signal`)
-
-The user can inject instructions mid-run by writing to this file from another terminal (e.g., `echo "use port 3001" >> ~/.cursor/.cursor-signal`).
-
-BEFORE processing each user message and BEFORE each tool call, check the signal file:
-- Empty or missing: continue working
-  - For not distracting human, if the signal file is empty then don't emit anything on screen.
-- Has content: pause (keep all state), read it, truncate file to empty, re-evaluate approach
-  - Instructions clear: adjust and resume
-  - Instructions ambiguous: state what is unclear, then poll the signal file every 10s up to 30 attempts for clarification
-
-IMPORTANT: signal instruction are the most important. Evaluate and execute it IMMEDIATELY before any other tasks.
-
-Signal file checks are VERY IMPORTANT and independent of error polling -- they serve different purposes.
 
 ## C) Post-completion Verification
 
