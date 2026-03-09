@@ -3,41 +3,211 @@ description:
 alwaysApply: true
 ---
 
+---
+
 # Autonomous Execution Protocol
 
 Never stop mid-task unless physically impossible to proceed. Work continuously until the task is complete or all recovery options are exhausted.
 
-## A) IMPORTANT - DO NOT SKIP - Mid-run Signal File (`~/.cursor/.cursor-signal`)
+---
 
-Anytime, even when you are in processing loop, the user can inject instructions by writing to this file from another terminal (e.g., `echo "use port 3001" >> ~/.cursor/.cursor-signal`).
-First action of every move should always be checking the signal file.
-- If it's empty or missing: continue working
-- If it has content: read it, truncate file to empty, re-evaluate approach
-  - Instructions clear: adjust and resume
-  - Instructions ambiguous: state what is unclear, then poll the signal file every 10s up to 30 attempts for clarification
+# A) CRITICAL CONTROL CHANNEL — Signal File (`~/.cursor/.cursor-signal`)
 
-## B) Error Handling -- Poll and Recover
+The Signal File is the highest priority control mechanism for the system.
+It allows the user to interrupt or modify execution at any time.
+
+The user may write instructions from another terminal:
+
+```
+echo "STOP" > ~/.cursor/.cursor-signal
+echo "use port 3001" > ~/.cursor/.cursor-signal
+```
+
+## Mandatory Execution Gate
+
+Before EVERY step, including:
+
+* tool calls
+* shell commands
+* file edits
+* code execution
+* plan updates
+
+You MUST check the signal file.
+
+### Procedure
+
+1. Read `~/.cursor/.cursor-signal`
+2. If the file does not exist or is empty
+   → continue execution
+3. If the file contains instructions
+
+   * immediately pause execution
+   * read the instruction
+   * truncate the file to empty
+   * re-evaluate the current plan
+   * apply the instruction if clear
+   * resume execution
+
+Signal instructions override the current task.
+
+---
+
+## Interrupt Commands
+
+The signal file may contain simple commands.
+
+### STOP
+
+```
+STOP
+```
+
+Immediately halt execution and report the current status.
+
+### PAUSE
+
+```
+PAUSE
+```
+
+Pause the current task and poll the signal file every 10 seconds until new instructions appear.
+
+### RESUME
+
+```
+RESUME
+```
+
+Continue execution after a pause.
+
+### Instruction
+
+Any other text should be treated as new instructions that modify the current approach.
+
+Example:
+
+```
+use port 3001
+switch to docker
+skip this step
+```
+
+If instructions are ambiguous:
+
+1. State what is unclear
+2. Poll the signal file every 10 seconds
+3. Retry up to 30 times
+
+---
+
+## Long Task Rule
+
+If any action may run longer than 10 seconds:
+
+* break it into smaller steps when possible
+* check the signal file between steps
+
+This prevents long blind execution.
+
+---
+
+# B) Error Handling — Poll and Recover
 
 When any operation fails and requires human intervention (MCP down, server not running, permission denied, external service unreachable, etc.):
 
-1. State the problem clearly -- what broke, what the user needs to do
-2. Poll: retry every **10 seconds**, up to **30 attempts** (5 min total)
-3. Each poll: re-attempt the exact failed operation
-4. If it succeeds: resume from where you left off -- do NOT restart
-5. If all 30 polls fail: summarize what was completed, what remains, and the blocker -- then stop
+1. State the problem clearly — what broke and what the user needs to fix
+2. Poll: retry every 10 seconds, up to 30 attempts (5 minutes total)
+3. Each poll:
+- Read `~/.cursor/.cursor-signal`
+- check signal file and re-attempt the exact failed operation
+4. If it succeeds: resume from where execution stopped — do NOT restart
+5. If all 30 attempts fail:
 
-Do NOT fall back to alternative tools when the designated one fails (e.g., no `curl` when Chrome DevTools MCP is expected, no `WebFetch` when Atlassian MCP is expected). Wait for recovery.
+   * summarize what was completed
+   * summarize what remains
+   * describe the blocker
+   * stop execution
 
-## C) Post-completion Verification
+Do NOT fall back to alternative tools when a designated tool fails.
 
-After completing any task, verify the result before reporting done. NEVER hand an untested fix back to the user.
+Example:
 
-1. If the project has install linting (`eslint`, `oxlint`), formatter (`prettier`, `oxfmt`), type-checker (`tsc`, `tsgo`), all errors related to lint, format or type-check MUST be fixed before further verification.
-1. **Web UI**: use Chrome DevTools MCP (`take_screenshot`, `evaluate_script`, `list_console_messages`)
-2. **API/CLI**: use `curl` or run the command
-3. **Test suite**: run the relevant tests
-4. **No testable surface**: skip but state why
-5. **Test edge cases** too (e.g. error paths, missing args) when relevant
+* Do NOT use `curl` if Chrome DevTools MCP was required
+* Do NOT use `WebFetch` if Atlassian MCP was required
 
-If verification fails, fix and re-verify. Report results with evidence (screenshot, output, test results).
-Don't forget to check Signal file too.
+Wait for recovery instead.
+
+---
+
+# C) Post-Completion Verification
+
+After completing any task, verify the result before reporting completion.
+
+Never return an untested fix.
+
+## Check Signal File
+
+Check Signal File (`~/.cursor/.cursor-signal`) first.
+
+## Required Checks
+
+If the project includes:
+
+* linter (`eslint`, `oxlint`)
+* formatter (`prettier`, `oxfmt`)
+* type checker (`tsc`, `tsgo`)
+
+All related issues MUST be fixed before verification.
+
+## Verification Methods
+
+### Web UI
+
+Use Chrome DevTools MCP:
+
+* `take_screenshot`
+* `evaluate_script`
+* `list_console_messages`
+
+### API / CLI
+
+Use:
+
+```
+curl
+```
+
+or run the relevant command.
+
+### Test Suite
+
+Run the relevant automated tests.
+
+### No Testable Surface
+
+If verification is impossible, state clearly why.
+
+### Edge Cases
+
+Test relevant failure scenarios such as:
+
+* invalid inputs
+* missing parameters
+* error responses
+
+If verification fails:
+
+1. Fix the issue
+2. Re-verify
+3. Repeat until passing
+
+Always report evidence when possible:
+
+* screenshots
+* command output
+* test results
+
+---
+
+Signal File is the primary control channel of the execution system and must be respected at all times.
