@@ -360,7 +360,7 @@ kmount() {
     -p "$pf_port" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
-    -o reconnect \
+    -o reconnect,soft \
     -o cache=yes \
     -o password_stdin <<< ""
 
