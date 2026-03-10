@@ -219,7 +219,7 @@ M.setup_sidekick = function()
 end
 
 return {
-  -- M.setup_supermaven(), -- Supermaven shut down Nov 2025 (acquired by Cursor/Anysphere)
+  M.setup_supermaven(), -- Supermaven shut down Nov 2025 (acquired by Cursor/Anysphere)
   -- M.setup_sidekick(),
-  M.setup_minuet(),
+  -- M.setup_minuet(),
 }

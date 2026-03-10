@@ -1,91 +1,124 @@
 ---
-description: 
+description:
 alwaysApply: true
----
-
 ---
 
 # Autonomous Execution Protocol
 
-Never stop mid-task unless physically impossible to proceed. Work continuously until the task is complete or all recovery options are exhausted.
+The agent must **continue working until the task is complete** unless execution becomes impossible.
+
+Execution may stop only when:
+
+- the task is fully completed
+- a `STOP` signal is received
+- recovery attempts fail
 
 ---
 
-# A) CRITICAL CONTROL CHANNEL — Signal File (`~/.cursor/.cursor-signal`)
+# Control Channel — Signal File
 
-The Signal File is the highest priority control mechanism for the system.
-It allows the user to interrupt or modify execution at any time.
+Primary control mechanism:
 
-The user may write instructions from another terminal:
+```
+~/.cursor/.cursor-signal
+```
+
+The user may send instructions from another terminal:
 
 ```
 echo "STOP" > ~/.cursor/.cursor-signal
 echo "use port 3001" > ~/.cursor/.cursor-signal
 ```
 
-## Mandatory Execution Gate
-
-Before EVERY step, including:
-
-* tool calls
-* shell commands
-* file edits
-* code execution
-* plan updates
-
-You MUST check the signal file.
-
-### Procedure
-
-1. Read `~/.cursor/.cursor-signal`
-2. If the file does not exist or is empty
-   → continue execution
-3. If the file contains instructions
-
-   * immediately pause execution
-   * read the instruction
-   * truncate the file to empty
-   * re-evaluate the current plan
-   * apply the instruction if clear
-   * resume execution
-
-Signal instructions override the current task.
+Signal instructions **override the current task**.
 
 ---
 
-## Interrupt Commands
+# Execution Model — Checkpoint Loop
 
-The signal file may contain simple commands.
+All work must run inside the following loop:
 
-### STOP
+```
+LOOP:
+
+1. Check Signal File
+2. Handle Signal (if any)
+3. Execute Next Step
+4. Verify Step Result
+5. Update Plan
+6. Repeat until task complete
+```
+
+The loop continues until:
+
+- task completed
+- STOP signal received
+- unrecoverable failure
+
+---
+
+# 1. Check Signal File
+
+Read:
+
+```
+~/.cursor/.cursor-signal
+```
+
+If the file **does not exist or is empty**:
+
+→ continue execution.
+
+If the file **contains text**:
+
+1. read the instruction
+2. truncate the file to empty
+3. apply the instruction
+4. resume the loop
+
+---
+
+# 2. Supported Signal Commands
+
+## STOP
 
 ```
 STOP
 ```
 
-Immediately halt execution and report the current status.
+Immediately halt execution and report:
 
-### PAUSE
+- completed work
+- remaining work
+- current status
+
+---
+
+## PAUSE
 
 ```
 PAUSE
 ```
 
-Pause the current task and poll the signal file every 10 seconds until new instructions appear.
+Pause execution and poll the signal file every **10 seconds** until new instructions appear.
 
-### RESUME
+---
+
+## RESUME
 
 ```
 RESUME
 ```
 
-Continue execution after a pause.
+Continue execution after pause.
 
-### Instruction
+---
 
-Any other text should be treated as new instructions that modify the current approach.
+## Instruction Override
 
-Example:
+Any other text should be treated as **new instructions** that modify the current plan.
+
+Examples:
 
 ```
 use port 3001
@@ -93,121 +126,163 @@ switch to docker
 skip this step
 ```
 
-If instructions are ambiguous:
+If instructions are **ambiguous**:
 
-1. State what is unclear
-2. Poll the signal file every 10 seconds
-3. Retry up to 30 times
-
----
-
-## Long Task Rule
-
-If any action may run longer than 10 seconds:
-
-* break it into smaller steps when possible
-* check the signal file between steps
-
-This prevents long blind execution.
+1. explain what is unclear
+2. poll the signal file every **10 seconds**
+3. retry up to **30 times**
 
 ---
 
-# B) Error Handling — Poll and Recover
+# 3. Execute Next Step
 
-When any operation fails and requires human intervention (MCP down, server not running, permission denied, external service unreachable, etc.):
+Execute **one logical step at a time**, for example:
 
-1. State the problem clearly — what broke and what the user needs to fix
-2. Poll: retry every 10 seconds, up to 30 attempts (5 minutes total)
-3. Each poll:
-- Read `~/.cursor/.cursor-signal`
-- check signal file and re-attempt the exact failed operation
-4. If it succeeds: resume from where execution stopped — do NOT restart
-5. If all 30 attempts fail:
+- run a command
+- edit a file
+- call a tool
+- run tests
+- query an API
 
-   * summarize what was completed
-   * summarize what remains
-   * describe the blocker
-   * stop execution
+If a step may take **longer than 10 seconds**, break it into smaller steps when possible.
 
-Do NOT fall back to alternative tools when a designated tool fails.
-
-Example:
-
-* Do NOT use `curl` if Chrome DevTools MCP was required
-* Do NOT use `WebFetch` if Atlassian MCP was required
-
-Wait for recovery instead.
+This keeps execution interruptible.
 
 ---
 
-# C) Post-Completion Verification
+# 4. Verify Step Result
 
-After completing any task, verify the result before reporting completion.
+After each step, verify the result.
 
-Never return an untested fix.
+Possible verification methods:
 
-## Check Signal File
-
-Check Signal File (`~/.cursor/.cursor-signal`) first.
-
-## Required Checks
-
-If the project includes:
-
-* linter (`eslint`, `oxlint`)
-* formatter (`prettier`, `oxfmt`)
-* type checker (`tsc`, `tsgo`)
-
-All related issues MUST be fixed before verification.
-
-## Verification Methods
-
-### Web UI
-
-Use Chrome DevTools MCP:
-
-* `take_screenshot`
-* `evaluate_script`
-* `list_console_messages`
-
-### API / CLI
-
-Use:
+### CLI / API
 
 ```
 curl
 ```
 
-or run the relevant command.
+or run relevant commands.
 
-### Test Suite
+### Web UI
 
-Run the relevant automated tests.
+Use Chrome DevTools MCP:
 
-### No Testable Surface
+- `take_screenshot`
+- `evaluate_script`
+- `list_console_messages`
 
-If verification is impossible, state clearly why.
+### Tests
 
-### Edge Cases
-
-Test relevant failure scenarios such as:
-
-* invalid inputs
-* missing parameters
-* error responses
+Run automated test suites if available.
 
 If verification fails:
 
-1. Fix the issue
-2. Re-verify
-3. Repeat until passing
+```
+fix → retry → verify again
+```
 
-Always report evidence when possible:
-
-* screenshots
-* command output
-* test results
+Repeat until the step succeeds.
 
 ---
 
-Signal File is the primary control channel of the execution system and must be respected at all times.
+# 5. Error Recovery
+
+If an operation fails due to external dependencies:
+
+Examples:
+
+- server not running
+- MCP unavailable
+- port conflict
+- permission denied
+
+Recovery procedure:
+
+```
+retry every 10 seconds
+max 30 attempts (5 minutes)
+```
+
+Each retry cycle must:
+
+1. return to **Step 1 (signal check)**
+2. retry the same operation
+
+If recovery succeeds:
+
+→ continue execution.
+
+If all attempts fail:
+
+report:
+
+- completed work
+- remaining work
+- blocking issue
+
+Then stop execution.
+
+---
+
+# Tool Integrity Rule
+
+When a **specific tool is required**, do not replace it with alternatives.
+
+Examples:
+
+❌ Do NOT replace Chrome DevTools MCP with `curl`  
+❌ Do NOT replace Atlassian MCP with `WebFetch`
+
+Wait for the required tool to recover.
+
+---
+
+# Completion Verification
+
+Before reporting task completion:
+
+Run project checks if available:
+
+```
+eslint / oxlint
+prettier / oxfmt
+tsc / tsgo
+tests
+```
+
+All issues must be fixed before completion.
+
+Never return an **untested fix**.
+
+---
+
+# Final User Verification Window
+
+After reporting completion:
+
+Poll the signal file:
+
+```
+every 10 seconds
+up to 6 attempts
+```
+
+If the user needs more time they may write:
+
+```
+Wait 5 minutes
+```
+
+---
+
+# Core Principle
+
+The **Signal File is the highest priority control channel**.
+
+Execution must remain:
+
+- interruptible
+- recoverable
+- verifiable
+- deterministic
