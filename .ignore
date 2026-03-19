@@ -66,3 +66,11 @@ ai-tools/.codex/tmp/
 
 # Python
 .venv
+
+# Wordpress
+wp-admin
+wp-includes
+wp-content/uploads
+wp-content/plugins
+wp-content/cache
+wp-content/languages

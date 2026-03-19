@@ -19,6 +19,10 @@
         "--autoConnect"
       ]
     },
+    "GitLab": {
+      "type": "http",
+      "url": "https://gitlab.com/api/v4/mcp"
+    },
     "reddit": {
       "command": "uvx",
       "args": [
