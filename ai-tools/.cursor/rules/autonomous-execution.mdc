@@ -1,288 +1,42 @@
 ---
-description:
+description: >-
+  Control channel via ~/.cursor/.cursor-signal — STOP, PAUSE, RESUME, and ad-hoc instructions. Highest priority; read and
+  truncate when non-empty.
 alwaysApply: true
 ---
 
-# Autonomous Execution Protocol
+# Signal file
 
-The agent must **continue working until the task is complete** unless execution becomes impossible.
+Path: `~/.cursor/.cursor-signal`
 
-Execution may stop only when:
+## Each turn
 
-- the task is fully completed
-- a `STOP` signal is received
-- recovery attempts fail
+1. If the file is **missing or empty** → continue.
+2. If it has **text** → read it, **truncate to empty**, then apply it (it overrides the current plan).
 
----
+Examples:
 
-# Control Channel — Signal File
-
-Primary control mechanism:
-
-```
-~/.cursor/.cursor-signal
-```
-
-The user may send instructions from another terminal:
-
-```
+```bash
 echo "STOP" > ~/.cursor/.cursor-signal
 echo "use port 3001" > ~/.cursor/.cursor-signal
 ```
 
-Signal instructions **override the current task**.
+## Commands
 
----
+- **STOP** — Stop and report done work, remaining work, status.
+- **PAUSE** — Pause; poll the signal file every **10s** until new text appears.
+- **RESUME** — Continue after pause.
+- **Anything else** — Treat as new instructions for the plan. If ambiguous, say what is unclear and poll every **10s** (up to **30** times) for clarification.
 
-# Execution Model — Checkpoint Loop
+## Principle
 
-All work must run inside the following loop:
+The signal file outranks other instructions for that message.
 
-```
-LOOP:
+## Polling as the last task
 
-1. Check Signal File
-2. Handle Signal (if any)
-3. Execute Next Step
-4. Verify Step Result
-5. Update Plan
-6. Repeat until task complete
-```
+Always do **signal polling** as the closing step for a session or task:
 
-The loop continues until:
-
-- task completed
-- STOP signal received
-- unrecoverable failure
-
----
-
-# 1. Check Signal File
-
-Read:
-
-```
-~/.cursor/.cursor-signal
-```
-
-If the file **does not exist or is empty**:
-
-→ continue execution.
-
-If the file **contains text**:
-
-1. read the instruction
-2. truncate the file to empty
-3. apply the instruction
-4. resume the loop
-
----
-
-# 2. Supported Signal Commands
-
-## STOP
-
-```
-STOP
-```
-
-Immediately halt execution and report:
-
-- completed work
-- remaining work
-- current status
-
----
-
-## PAUSE
-
-```
-PAUSE
-```
-
-Pause execution and poll the signal file every **10 seconds** until new instructions appear.
-
----
-
-## RESUME
-
-```
-RESUME
-```
-
-Continue execution after pause.
-
----
-
-## Instruction Override
-
-Any other text should be treated as **new instructions** that modify the current plan.
-
-Examples:
-
-```
-use port 3001
-switch to docker
-skip this step
-```
-
-If instructions are **ambiguous**:
-
-1. explain what is unclear
-2. poll the signal file every **10 seconds**
-3. retry up to **30 times**
-
----
-
-# 3. Execute Next Step
-
-Execute **one logical step at a time**, for example:
-
-- run a command
-- edit a file
-- call a tool
-- run tests
-- query an API
-
-If a step may take **longer than 10 seconds**, break it into smaller steps when possible.
-
-This keeps execution interruptible.
-
----
-
-# 4. Verify Step Result
-
-After each step, verify the result.
-
-Possible verification methods:
-
-### CLI / API
-
-```
-curl
-```
-
-or run relevant commands.
-
-### Web UI
-
-Use Chrome DevTools MCP:
-
-- `take_screenshot`
-- `evaluate_script`
-- `list_console_messages`
-
-### Tests
-
-Run automated test suites if available.
-
-If verification fails:
-
-```
-fix → retry → verify again
-```
-
-Repeat until the step succeeds.
-
----
-
-# 5. Error Recovery
-
-If an operation fails due to external dependencies:
-
-Examples:
-
-- server not running
-- MCP unavailable
-- port conflict
-- permission denied
-
-Recovery procedure:
-
-```
-retry every 10 seconds
-max 30 attempts (5 minutes)
-```
-
-Each retry cycle must:
-
-1. return to **Step 1 (signal check)**
-2. retry the same operation
-
-If recovery succeeds:
-
-→ continue execution.
-
-If all attempts fail:
-
-report:
-
-- completed work
-- remaining work
-- blocking issue
-
-Then stop execution.
-
----
-
-# Tool Integrity Rule
-
-When a **specific tool is required**, do not replace it with alternatives.
-
-Examples:
-
-❌ Do NOT replace Chrome DevTools MCP with `curl`  
-❌ Do NOT replace Atlassian MCP with `WebFetch`
-
-Wait for the required tool to recover.
-
----
-
-# Completion Verification
-
-Before reporting task completion:
-
-Run project checks if available:
-
-```
-eslint / oxlint
-prettier / oxfmt
-tsc / tsgo
-tests
-```
-
-All issues must be fixed before completion.
-
-Never return an **untested fix**.
-
----
-
-# Final User Verification Window
-
-After reporting completion:
-
-Poll the signal file:
-
-```
-every 10 seconds
-up to 6 attempts
-```
-
-If the user needs more time they may write:
-
-```
-Wait 5 minutes
-```
-
----
-
-# Core Principle
-
-The **Signal File is the highest priority control channel**.
-
-Execution must remain:
-
-- interruptible
-- recoverable
-- verifiable
-- deterministic
+1. Do **substantive work first** (answer, edits, commands).
+2. **Last:** poll `~/.cursor/.cursor-signal` on a **10s** interval (typically up to **30** reads per round, or until the file is non-empty once per check).
+3. If the file is **non-empty**: read it, **truncate** it, **carry out** the instruction, then **start another polling round** (same cadence). Repeat until a full round finds **no** new instruction, or the user says **STOP**.
+4. Do **not** skip polling because the reply already “feels done” — when polling was requested, it is part of the task.

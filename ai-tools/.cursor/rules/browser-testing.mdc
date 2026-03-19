@@ -1,6 +1,10 @@
 ---
-description: Chrome DevTools MCP usage via autoConnect (Chrome M144+).
-alwaysApply: true
+description: >-
+  Chrome DevTools MCP (autoConnect) for browser verification, UI debugging, screenshots, console/network checks,
+  E2E-related work. Use when the user asks to test in browser, verify a page, reproduce a frontend bug, or mentions
+  Playwright/Cypress/puppeteer alongside Chrome.
+globs: "**/*.tsx,**/*.jsx,**/*.vue,**/*.html,**/e2e/**,**/cypress/**,**/*playwright*"
+alwaysApply: false
 ---
 
 # Browser Testing via Chrome DevTools MCP
@@ -37,7 +41,7 @@ On connection error:
 
 ## Error Handling
 
-Follow the `autonomous-execution` rule. When Chrome DevTools MCP fails: state the problem, poll 30x at 10s intervals, resume or summarize. Never guess or fabricate browser results.
+When Chrome DevTools MCP fails: state the problem, retry or wait for the tool; do not substitute `curl`/`open` for real browser verification. Never guess or fabricate browser results.
 
 ## Preventing OOM Crashes
 

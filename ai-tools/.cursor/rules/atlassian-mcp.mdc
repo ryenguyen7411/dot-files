@@ -1,6 +1,9 @@
 ---
-description: Atlassian MCP for Jira and Confluence. Applies when user references Jira tickets, Confluence pages, or Atlassian workflows.
-alwaysApply: true
+description: >-
+  Atlassian MCP for Jira and Confluence Cloud. Use for issue keys (e.g. PROJ-123), atlassian.net/browse links, JQL,
+  transitions, epics/sprints, and Confluence wiki pages. Do not fabricate ticket data; use fields param; confirm before
+  create/transition.
+alwaysApply: false
 ---
 
 # Atlassian MCP (Jira + Confluence)
@@ -23,7 +26,7 @@ Almost every tool requires `cloudId`. Call `getAccessibleAtlassianResources` onc
 
 ## Error Handling
 
-Follow the `autonomous-execution` rule. When Atlassian MCP fails: state the problem, poll 30x at 10s intervals, resume or summarize. Never guess or fabricate Atlassian results.
+When Atlassian MCP fails: state the problem and retry or wait for the tool. Never guess or fabricate Jira/Confluence results.
 
 ## Important
 
