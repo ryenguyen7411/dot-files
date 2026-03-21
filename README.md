@@ -37,7 +37,6 @@ Personal configuration files for my development environment (mostly macOS), mana
 | **Tmux** | Custom theming via [oh-my-tmux](https://github.com/gpakosz/.tmux) + `tms` session manager |
 | **Kitty** | GPU-accelerated terminal with Hack Nerd Font |
 | **Git** | Sensible defaults and useful aliases |
-| **AI Tools** | Configs for Claude, Codex, and OpenCode |
 | **Bat** | Syntax highlighting for `cat` with custom themes |
 
 ## 🚀 Quick Start
@@ -89,14 +88,13 @@ make install-tmux      # Tmux
 make install-git       # Git config
 make install-starship  # Starship prompt
 make install-bat       # Bat themes
-make install-ai        # AI tools (Claude, Codex, OpenCode)
 make install-tools     # Standalone tools (tms)
 ```
 
 ### Machine-Specific Setup
 
 ```bash
-# Set your machine name in ~/.env.local
+# Set your machine name in ~/.config/zsh/local.zsh (used for tmux-sessions, etc.)
 export MACHINE_NAME=work  # or 'home', 'default'
 
 # Copy and customize local config
@@ -128,10 +126,6 @@ dot-files/
 │   ├── home/
 │   ├── work/
 │   └── default/
-└── ai-tools/           # AI assistant configs
-    ├── .claude/
-    ├── .codex/
-    └── .config/opencode/
 ```
 
 ### Stow Packages
@@ -147,7 +141,6 @@ Each directory is a "stow package" that mirrors your home directory:
 | `git` | `~/.gitconfig` |
 | `starship` | `~/.config/starship.toml` |
 | `bat` | `~/.config/bat/*` |
-| `ai-tools` | `~/.claude/`, `~/.codex/`, `~/.config/opencode/` |
 
 ## ⌨️ Key Bindings
 

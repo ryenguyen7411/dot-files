@@ -7,9 +7,9 @@ STOW_ADOPT := -v --target=$(HOME) --adopt
 PACKAGES := shell nvim kitty tmux git starship bat
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-ai install-tools install-starship install-bat install-ssh install-ubuntu-server
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-tools install-starship install-bat install-ssh install-ubuntu-server
 .PHONY: install-zinit backup-omz install-difftastic
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-ai uninstall-starship uninstall-bat uninstall-ssh
+.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh
 .PHONY: backup check dry-run
 
 # Default target
@@ -62,7 +62,7 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-ai install-tools install-bat install-ssh
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-bat install-ssh
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -94,11 +94,6 @@ install-force: check backup
 	@rm -f $(HOME)/.tmux.conf.local
 	@# Git
 	@rm -f $(HOME)/.gitconfig
-	@# AI tools
-	@rm -rf $(HOME)/.claude
-	@rm -rf $(HOME)/.codex
-	@rm -rf $(HOME)/.config/opencode
-	@rm -rf $(HOME)/.cursor
 	@# Starship
 	@rm -f $(HOME)/.config/starship.toml
 	@# Bat
@@ -111,7 +106,6 @@ install-force: check backup
 	$(STOW) $(STOW_FLAGS) git
 	$(STOW) $(STOW_FLAGS) starship
 	$(STOW) $(STOW_FLAGS) bat
-	$(STOW) $(STOW_FLAGS) ai-tools
 	@if command -v bat >/dev/null 2>&1; then bat cache --build; fi
 	@mkdir -p $(HOME)/.local/bin
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
@@ -172,11 +166,6 @@ install-bat:
 	else \
 		echo "⚠ bat not found, skipping cache build (run 'bat cache --build' after installing bat)"; \
 	fi
-
-install-ai:
-	@echo "Installing AI tools config..."
-	@mkdir -p $(HOME)/.config
-	$(STOW) $(STOW_FLAGS) ai-tools
 
 install-ssh:
 	@echo "Installing SSH config with multiplexing..."
@@ -249,7 +238,7 @@ install-difftastic:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-ai uninstall-bat uninstall-ssh
+uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh
 	@rm -f $(HOME)/.local/bin/tms
 	@echo "✓ All packages uninstalled"
 
@@ -274,9 +263,6 @@ uninstall-starship:
 
 uninstall-bat:
 	$(STOW) $(STOW_FLAGS) -D bat || true
-
-uninstall-ai:
-	$(STOW) $(STOW_FLAGS) -D ai-tools || true
 
 uninstall-ssh:
 	@rm -f $(HOME)/.ssh/config
@@ -341,7 +327,6 @@ help:
 	@echo "  install-git      Install git config only"
 	@echo "  install-starship Install starship config only"
 	@echo "  install-bat      Install bat config and themes"
-	@echo "  install-ai       Install AI tools config only"
 	@echo "  install-ssh      Install SSH config with multiplexing"
 	@echo "  install-tools    Install standalone tools (tms)"
 	@echo "  install-ubuntu-server Install minimal shell+nvim for Ubuntu server"

@@ -14,7 +14,7 @@ Commands:
 - **Prerequisites check**: `make check` - verifies stow and other tools are installed
 - **Preview**: `make dry-run` - preview what stow would do
 - **Install all**: `make install` - creates symbolic links via GNU Stow
-- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-ai`, `make install-tools`
+- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-tools`
 
 This creates symbolic links for:
 - Shell config (`~/.zshrc`, `~/.config/zsh/`)
@@ -24,7 +24,8 @@ This creates symbolic links for:
 - Git config (`~/.gitconfig`)
 - Starship prompt (`~/.config/starship.toml`)
 - Bat config (`~/.config/bat/`)
-- AI tools (`~/.claude`, `~/.codex`, `~/.config/opencode`, `~/.cursor`)
+
+Project-specific documentation and tooling config belong in **each application repository**, not in this dotfiles repo.
 
 ## Architecture
 
