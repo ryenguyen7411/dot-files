@@ -14,7 +14,7 @@ Commands:
 - **Prerequisites check**: `make check` - verifies stow and other tools are installed
 - **Preview**: `make dry-run` - preview what stow would do
 - **Install all**: `make install` - creates symbolic links via GNU Stow
-- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-ai`, `make install-tools`
+- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-tools`
 
 This creates symbolic links for:
 - Shell config (`~/.zshrc`, `~/.config/zsh/`)
@@ -24,17 +24,8 @@ This creates symbolic links for:
 - Git config (`~/.gitconfig`)
 - Starship prompt (`~/.config/starship.toml`)
 - Bat config (`~/.config/bat/`)
-- AI tools (`~/.claude`, `~/.codex`, `~/.config/opencode`, `~/.cursor`)
 
-## Cursor (user-level)
-
-Stowed from `ai-tools/.cursor/` to `~/.cursor/`.
-
-- **Rules** (`ai-tools/.cursor/rules/*.mdc`): `autonomous-execution` (**signal file only**, always on) and `quality-checks` (format / types / lint before completing code work, always on). `browser-testing` and `atlassian-mcp` are **on-demand** (`alwaysApply: false`) — loaded via **globs** or **description** so everyday chats stay lean.
-- **Skills**: `skills/` (repeatable workflows), `skills-cursor/` (meta: create-rule, create-skill, etc.).
-- **MCP**: `mcp.json` — no secrets in repo; use Cursor/Atlassian auth where applicable.
-
-Stack- and repo-specific conventions should live in **that project’s** `.cursor/rules/` and `AGENTS.md`, not in dotfiles.
+Project-specific documentation and tooling config belong in **each application repository**, not in this dotfiles repo.
 
 ## Architecture
 
