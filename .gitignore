@@ -40,6 +40,7 @@ tmux-sessions/*/.lastused.conf
 
 .env.local
 *.local
+!tmux/.tmux.conf.local
 
 # -----------------------------------------------------------------------------
 # OS Generated
