@@ -353,8 +353,21 @@ EOF
 main_tui() {
   check_config
 
+  # fzf execute-silent: dismiss via kill-pane -t $TMS_TMUX_PANE (display-popup -C from run-shell is unreliable).
+  export TMS_TMUX_PANE="${TMUX_PANE:-}"
+  export TMS_TMUX_CLIENT="$(tmux display-message -p '#{client_name}' 2>/dev/null)" || true
+
+  # Marker + pane PID so root C-b/C-n can forward to fzf even when pane_current_command is bash/zsh.
+  export TMS_UI_MARKER="/tmp/tmux-tms-ui-${TMUX_PANE#%}.marker"
+  local _tms_pane_pid
+  _tms_pane_pid="$(tmux display-message -p '#{pane_pid}' 2>/dev/null)" || true
+  if [[ -n "$_tms_pane_pid" ]]; then
+    printf '%s\n' "$_tms_pane_pid" >"$TMS_UI_MARKER" 2>/dev/null || true
+    trap 'rm -f "$TMS_UI_MARKER"' EXIT INT TERM HUP
+  fi
+
   local help_short=$'? help\n '
-  local help_full=$'j/k/C-j/C-k nav | enter open\nC-d close | C-a add | C-e edit | C-x rm | q quit\n '
+  local help_full=$'j/k/C-j/C-k nav | enter open\nC-v/C-p/q dismiss | C-b Claude | C-n test (o)\nC-d close | C-a add | C-e edit | C-x rm\n '
   local toggle_file="/tmp/tms_help_$$"
 
   local result
@@ -367,7 +380,9 @@ main_tui() {
     --reverse \
     --color="$FZF_COLORS" \
     --bind="j:down,k:up,J:down,K:up,ctrl-j:down,ctrl-k:up" \
-    --bind="ctrl-p:abort,q:abort" \
+    --bind="ctrl-p:abort,ctrl-v:abort,q:abort" \
+    --bind="ctrl-b:execute-silent(zsh \"$HOME/.config/zsh/tmux-switch-from-tms-popup.zsh\" claude)" \
+    --bind="ctrl-n:execute-silent(zsh \"$HOME/.config/zsh/tmux-switch-from-tms-popup.zsh\" o)" \
     --bind="ctrl-d:execute-silent(tms stop \$(echo {} | sed 's/^[● ]*//' | awk '{print \$1}'))+reload(tms --get-list)" \
     --bind="ctrl-x:execute(tms remove --yes \$(echo {} | sed 's/^[● ]*//' | awk '{print \$1}'))+reload(tms --get-list)" \
     --bind="ctrl-a:execute(tms add)+reload(tms --get-list)" \

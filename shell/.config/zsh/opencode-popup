@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Claude in a tmux popup (run via: tmux run-shell -b "zsh …/claude-popup").
+# Opencode in a tmux popup (run via: tmux run-shell -b "zsh …/opencode-popup").
 
 source_shell_environment() {
   local zprofile="${HOME}/.zprofile"
@@ -14,18 +14,16 @@ typeset workdir
 workdir=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null) || workdir=
 [[ -n "$workdir" && -d "$workdir" ]] || workdir="${HOME:-~}"
 
-session="claude_${workdir:t}"
+session="opencode_${workdir:t}"
 session="${session//[^A-Za-z0-9_-]/_}"
 
-# Second C-y while the popup is focused: session name is already claude_* — do not nest another popup.
+# Same nesting guard as claude-popup (C-o from inside / while session exists).
 typeset current_session
 current_session=$(tmux display-message -p '#{session_name}' 2>/dev/null) || current_session=
-[[ "$current_session" == claude_* ]] && exit 0
+[[ "$current_session" == opencode_* ]] && exit 0
 
-# Second C-y from the main pane while the Claude session still exists: inner sh would run
-# `attach-session` inside a new display-popup → stacked popups. Reuse the open session instead.
 if tmux has-session -t "$session" 2>/dev/null; then
-  tmux display-message "Claude already open for ${workdir:t} — use the existing popup"
+  tmux display-message "Opencode already open for ${workdir:t} — use the existing popup"
   exit 0
 fi
 
@@ -41,10 +39,10 @@ if (( $#claude_env )); then
   for e in "${claude_env[@]}"; do
     inner+=" ${(q)e}"
   done
-  inner+=" claude 2>/dev/null || tmux attach-session -t ${(q)session}"
+  inner+=" opencode 2>/dev/null || tmux attach-session -t ${(q)session}"
 else
-  inner="tmux new-session -s ${(q)session} claude 2>/dev/null || tmux attach-session -t ${(q)session}"
+  inner="tmux new-session -s ${(q)session} opencode 2>/dev/null || tmux attach-session -t ${(q)session}"
 fi
 
-tmux display-popup -E -T "Claude" -w 30% -h 100% -xR -d "$workdir" /bin/sh -c "$inner" \
-  || tmux display-message 'claude-popup: display-popup failed (see tmux logs)'
+tmux display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "$workdir" /bin/sh -c "$inner" \
+  || tmux display-message 'opencode-popup: display-popup failed (see tmux logs)'

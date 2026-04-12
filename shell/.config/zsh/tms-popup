@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+# Tmux Session Manager in a popup (run via run-shell — do not wrap in another display-popup).
+# Dismiss / C-b / C-n: see tools/tms fzf --bind and ~/.config/zsh/tmux-bind-c-v.zsh (C-v from tmux).
+tmux display-popup -E -T "Tmux Session Manager" -h 100% -w 30% \
+  -x "#{client_width}-#{popup_width}" -y 0 "$HOME/.local/bin/tms" || true
+exit 0

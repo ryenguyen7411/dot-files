@@ -492,16 +492,26 @@ tmux_conf_uninstall_plugins_on_reload=true
 
 # -- tms (Tmux Session Manager) ------------------------------------------------
 
-# Toggle tms project picker with ctrl-p (no prefix needed)
-# Press ctrl-p to open, esc or ctrl-p again to close
-bind-key -n C-p display-popup -E -T "Tmux Session Manager" -h 100% -w 30% -x "#{client_width}-#{popup_width}" -y 0 "~/.local/bin/tms"
+# Popup tools: ~/.config/zsh/{tms,claude,opencode}-popup each run one display-popup.
+# Use run-shell here — wrapping those scripts in display-popup would nest popups.
+
+# Popup scripts call `tmux display-popup` again — use run-shell -b so the server
+# does not block waiting for run-shell while the child talks to tmux (deadlock).
+
+# Tmux Session Manager (Ctrl-v); Ctrl-b = Claude (claude-popup-dispatch); Ctrl-n = test (o)
+bind-key -n C-p run-shell -b "zsh \"$HOME/.config/zsh/tms-popup\""
+
+# Ctrl-y: same toggle/switch behaviour as C-b (claude-popup-dispatch)
+bind-key -n C-y run-shell -b "zsh \"$HOME/.config/zsh/claude-popup-dispatch.zsh\""
+bind-key -n C-o run-shell -b "zsh \"$HOME/.config/zsh/opencode-popup\""
 
 # Quick save current layout with <prefix> S
 bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"
 
-# Toggle Claudecode with ctrl-o
-bind-key -n C-o display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-  "zsh \"$HOME/.config/zsh/claude-popup\""
+# C-v: open TMS, or send C-v to fzf inside TMS (dismiss), or from other popups close then open TMS
+bind-key -n C-v run-shell -b "zsh \"$HOME/.config/zsh/tmux-bind-c-v.zsh\""
+bind-key -n C-b run-shell -b "zsh \"$HOME/.config/zsh/claude-popup-dispatch.zsh\""
+bind-key -n C-n run-shell -b "zsh \"$HOME/.config/zsh/test-popup-dispatch.zsh\" o"
 
 # # Toggle Codex with <prefix> C
 # bind-key C run-shell '

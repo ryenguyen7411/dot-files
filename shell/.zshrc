@@ -110,3 +110,6 @@ zsh_debug "ZSH configuration loaded successfully"
 
 # Added by Antigravity
 export PATH="/Users/ryeng/.antigravity/antigravity/bin:$PATH"
+
+# bun completions
+[ -s "/Users/ryeng/.bun/_bun" ] && source "/Users/ryeng/.bun/_bun"
