@@ -19,7 +19,7 @@ M.setup_minuet = function()
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('minuet').setup {
-        provider = 'codestral',
+        provider = 'openai_compatible',
         virtualtext = {
           auto_trigger_ft = { '*' },
           keymap = {
@@ -35,6 +35,17 @@ M.setup_minuet = function()
           },
         },
         provider_options = {
+          openai_compatible = {
+            model = vim.env.AI_MODEL or 'coding-plan',
+            end_point = (vim.env.AI_BASE_URL or 'https://9router.ryeai.app/v1') .. '/chat/completions',
+            api_key = 'AI_AUTH_TOKEN',
+            name = 'RyeAI',
+            stream = true,
+            optional = {
+              max_tokens = 256,
+              top_p = 0.9,
+            },
+          },
           codestral = {
             model = 'codestral-latest',
             end_point = 'https://codestral.mistral.ai/v1/fim/completions',
