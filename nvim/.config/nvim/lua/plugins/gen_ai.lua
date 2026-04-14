@@ -36,58 +36,11 @@ M.setup_minuet = function()
         },
         provider_options = {
           openai_compatible = {
-            model = vim.env.AI_MODEL or 'coding-plan',
-            end_point = (vim.env.AI_BASE_URL or 'https://9router.ryeai.app/v1') .. '/chat/completions',
+            model = 'code-completetion-plan',
+            end_point = 'https://9router.ryeai.app/v1/chat/completions',
             api_key = 'AI_AUTH_TOKEN',
             name = 'RyeAI',
             stream = true,
-            optional = {
-              max_tokens = 256,
-              top_p = 0.9,
-            },
-          },
-          codestral = {
-            model = 'codestral-latest',
-            end_point = 'https://codestral.mistral.ai/v1/fim/completions',
-            api_key = 'CODESTRAL_API_KEY',
-            stream = true,
-            template = {
-              prompt = 'See [Prompt Section for default value]',
-              suffix = 'See [Prompt Section for default value]',
-            },
-            optional = {
-              max_tokens = 256,
-              stop = { '\n\n' },
-            },
-          },
-          gemini = {
-            model = 'gemini-2.5-flash',
-            -- system = 'see [Prompt] section for the default value',
-            -- few_shots = 'see [Prompt] section for the default value',
-            -- chat_input = 'See [Prompt Section for default value]',
-            -- stream = true,
-            -- api_key = 'GEMINI_API_KEY',
-            -- end_point = 'https://generativelanguage.googleapis.com/v1beta/models',
-            optional = {
-              generationConfig = {
-                maxOutputTokens = 256,
-                -- When using `gemini-2.5-flash`, it is recommended to entirely
-                -- disable thinking for faster completion retrieval.
-                thinkingConfig = {
-                  thinkingBudget = 0,
-                },
-              },
-              safetySettings = {
-                {
-                  -- HARM_CATEGORY_HATE_SPEECH,
-                  -- HARM_CATEGORY_HARASSMENT
-                  -- HARM_CATEGORY_SEXUALLY_EXPLICIT
-                  category = 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                  -- BLOCK_NONE
-                  threshold = 'BLOCK_ONLY_HIGH',
-                },
-              },
-            },
           },
         },
       }
