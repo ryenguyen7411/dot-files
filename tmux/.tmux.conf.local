@@ -499,9 +499,13 @@ bind-key -n C-p display-popup -E -T "Tmux Session Manager" -h 100% -w 30% -x "#{
 # Quick save current layout with <prefix> S
 bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"
 
-# Toggle Claudecode with ctrl-o
-bind-key -n C-o display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-  "zsh \"$HOME/.config/zsh/claude-popup\""
+# Toggle Opencode with ctrl-o
+bind-key -n C-o display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+"zsh \"$HOME/.config/zsh/opencode-popup\""
+
+# Toggle Claude with ctrl-y
+bind-key -n C-y display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
+"zsh \"$HOME/.config/zsh/claude-popup\""
 
 # # Toggle Codex with <prefix> C
 # bind-key C run-shell '

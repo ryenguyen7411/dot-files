@@ -48,7 +48,7 @@ M.setup_treesitter = function()
   vim.keymap.set(
     'n',
     '<space><space>',
-    ':if exists("g:syntax_on")<Bar>syntax off<Bar>else<Bar>syntax on<Bar>endif<CR>|:TSToggle highlight<CR>|:TSToggle rainbow<CR>',
+    ':if exists("g:syntax_on")<Bar>syntax off<Bar>else<Bar>syntax on<Bar>endif<CR>|:TSToggle highlight<CR>|<cmd>lua require(\'rainbow-delimiters\').toggle(0)<CR>',
     { silent = true }
   )
 end
