@@ -22,7 +22,7 @@ M.setup_formatter = function()
     },
     formatters = {
       oxfmt = {
-        command = 'oxfmt',
+        command = require('conform.util').from_node_modules 'oxfmt',
         args = { '--stdin-filepath', '$FILENAME' },
         stdin = true,
       },
