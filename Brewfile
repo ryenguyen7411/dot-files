@@ -36,6 +36,7 @@ brew "btop"                # Beautiful system monitor
 
 # Git Enhancements
 brew "gh"                  # GitHub CLI
+brew "glab"                # GitLab CLI
 brew "delta"               # Better git diff
 brew "lazygit"             # Git TUI
 

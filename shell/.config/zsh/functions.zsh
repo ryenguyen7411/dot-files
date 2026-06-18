@@ -22,71 +22,131 @@ git-cherry() {
   git cherry -v $1 | tail -n 50 | awk '/^\+/ {print "\033[31m" $0 "\033[39m"} /^\-/ {print "\033[32m" $0 "\033[39m"}'
 }
 
-# Open merge/pull request creation page for current branch
-# Usage: gmr [source_branch] [target_branch]
-#   gmr              → current branch → repo default target
-#   gmr main         → current branch → main
-#   gmr main staging → main → staging
-gmr() {
-  local remote_url base_url mr_url source_branch target_branch
+# Detect git hosting provider from origin remote
+git_provider() {
+  local remote
+  remote=$(git remote get-url origin 2>/dev/null) || return 1
 
-  remote_url=$(git remote get-url origin 2>/dev/null)
-  if [[ -z "$remote_url" ]]; then
-    echo "Error: Not a git repository or no origin remote" >&2
+  if [[ "$remote" == *github.com* ]]; then
+    echo github
+  elif [[ "$remote" == *gitlab* ]]; then
+    echo gitlab
+  elif [[ "$remote" == *git.begroup* ]]; then
+    echo gitlab
+  else
+    echo unknown
+  fi
+}
+
+# Push current branch and create PR/MR via official CLI (opens browser)
+# Usage: gmr [target_branch]
+#   gmr           → current branch → master
+#   gmr develop   → current branch → develop
+gmr() {
+  local target="${1:-master}"
+  local branch provider
+
+  branch=$(git branch --show-current)
+  if [[ -z "$branch" ]]; then
+    echo "Error: Not on a branch (detached HEAD?)" >&2
     return 1
   fi
 
-  case $# in
-    0)
-      source_branch=$(git branch --show-current)
-      target_branch=""
+  git push -u origin "$branch" || return 1
+
+  provider=$(git_provider) || true
+  case "$provider" in
+    github)
+      command_exists gh || { echo "Error: gh not found (brew install gh)" >&2; return 1; }
+      gh pr create \
+        --base "$target" \
+        --head "$branch" \
+        --fill \
+        --web
       ;;
-    1)
-      source_branch=$(git branch --show-current)
-      target_branch="$1"
+    gitlab)
+      command_exists glab || { echo "Error: glab not found (brew install glab)" >&2; return 1; }
+      glab mr create \
+        --source-branch "$branch" \
+        --target-branch "$target" \
+        --fill \
+        --web
       ;;
     *)
-      source_branch="$1"
-      target_branch="$2"
+      echo "Unsupported git provider" >&2
+      return 1
       ;;
   esac
+}
 
+# Backport merged PR/MR to release branch and open release PR/MR in browser
+# Usage: gls [release_branch]
+#   gls                  → backport to release
+#   gls release/2026.06  → backport to release/2026.06
+gls() {
+  local release_branch="${1:-release}"
+  local source_branch backport_branch provider sha
+
+  source_branch=$(git branch --show-current)
   if [[ -z "$source_branch" ]]; then
     echo "Error: Not on a branch (detached HEAD?)" >&2
     return 1
   fi
 
-  # Convert SSH to HTTPS format
-  if [[ "$remote_url" =~ ^git@ ]]; then
-    base_url=$(echo "$remote_url" | sed -E 's|^git@([^:]+):(.+)$|https://\1/\2|')
-  else
-    base_url="$remote_url"
-  fi
-  base_url="${base_url%.git}"
-
-  local encoded_source=$(printf '%s' "$source_branch" | sed 's|/|%2F|g')
-  local encoded_target=$(printf '%s' "$target_branch" | sed 's|/|%2F|g')
-
-  case "$base_url" in
-    *github.com*)
-      if [[ -n "$target_branch" ]]; then
-        mr_url="${base_url}/compare/${encoded_target}...${encoded_source}?expand=1"
-      else
-        mr_url="${base_url}/compare/${encoded_source}?expand=1"
-      fi
+  provider=$(git_provider) || true
+  case "$provider" in
+    github)
+      command_exists gh || { echo "Error: gh not found (brew install gh)" >&2; return 1; }
+      sha=$(gh pr view "$source_branch" --json mergeCommit -q '.mergeCommit.oid' 2>/dev/null)
       ;;
-    *bitbucket*)
-      mr_url="${base_url}/pull-requests/new?source=${encoded_source}"
-      [[ -n "$target_branch" ]] && mr_url+="&dest=${encoded_target}"
+    gitlab)
+      command_exists glab || { echo "Error: glab not found (brew install glab)" >&2; return 1; }
+      command_exists jq || { echo "Error: jq not found (brew install jq)" >&2; return 1; }
+      sha=$(glab mr view "$source_branch" -F json 2>/dev/null | jq -r '.merge_commit_sha // empty')
       ;;
     *)
-      mr_url="${base_url}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encoded_source}"
-      [[ -n "$target_branch" ]] && mr_url+="&merge_request%5Btarget_branch%5D=${encoded_target}"
+      echo "Unsupported git provider" >&2
+      return 1
       ;;
   esac
 
-  echo "Opening: $mr_url"
-  open "$mr_url"
+  if [[ -z "$sha" || "$sha" == "null" ]]; then
+    echo "Error: No merged PR/MR found for branch '$source_branch'" >&2
+    return 1
+  fi
+
+  git fetch origin || return 1
+
+  backport_branch="backport/${source_branch##*/}"
+  echo "Creating $backport_branch from origin/$release_branch, cherry-picking $sha"
+
+  git switch -c "$backport_branch" "origin/$release_branch" || return 1
+
+  git cherry-pick "$sha" || {
+    echo "Cherry-pick conflict — resolve and run: git cherry-pick --continue" >&2
+    return 1
+  }
+
+  git push -u origin "$backport_branch" || return 1
+
+  case "$provider" in
+    github)
+      gh pr create \
+        --base "$release_branch" \
+        --head "$backport_branch" \
+        --title "[Release] ${source_branch}" \
+        --body "Backport from ${source_branch}" \
+        --web
+      ;;
+    gitlab)
+      glab mr create \
+        --source-branch "$backport_branch" \
+        --target-branch "$release_branch" \
+        --title "[Release] ${source_branch}" \
+        --description "Backport from ${source_branch}" \
+        --web
+      ;;
+  esac
 }
 
 # ---------------------------
