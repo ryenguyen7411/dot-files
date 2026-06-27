@@ -38,11 +38,78 @@ git_provider() {
   fi
 }
 
+# Open merge/pull request creation page for current branch
+# Usage: gmr [source_branch] [target_branch]
+#   gmr              → current branch → repo default target
+#   gmr main         → current branch → main
+#   gmr main staging → main → staging
+gmr() {
+  local remote_url base_url mr_url source_branch target_branch
+
+  remote_url=$(git remote get-url origin 2>/dev/null)
+  if [[ -z "$remote_url" ]]; then
+    echo "Error: Not a git repository or no origin remote" >&2
+    return 1
+  fi
+
+  case $# in
+    0)
+      source_branch=$(git branch --show-current)
+      target_branch=""
+      ;;
+    1)
+      source_branch=$(git branch --show-current)
+      target_branch="$1"
+      ;;
+    *)
+      source_branch="$1"
+      target_branch="$2"
+      ;;
+  esac
+
+  if [[ -z "$source_branch" ]]; then
+    echo "Error: Not on a branch (detached HEAD?)" >&2
+    return 1
+  fi
+
+  # Convert SSH to HTTPS format
+  if [[ "$remote_url" =~ ^git@ ]]; then
+    base_url=$(echo "$remote_url" | sed -E 's|^git@([^:]+):(.+)$|https://\1/\2|')
+  else
+    base_url="$remote_url"
+  fi
+  base_url="${base_url%.git}"
+
+  local encoded_source=$(printf '%s' "$source_branch" | sed 's|/|%2F|g')
+  local encoded_target=$(printf '%s' "$target_branch" | sed 's|/|%2F|g')
+
+  case "$base_url" in
+    *github.com*)
+      if [[ -n "$target_branch" ]]; then
+        mr_url="${base_url}/compare/${encoded_target}...${encoded_source}?expand=1"
+      else
+        mr_url="${base_url}/compare/${encoded_source}?expand=1"
+      fi
+      ;;
+    *bitbucket*)
+      mr_url="${base_url}/pull-requests/new?source=${encoded_source}"
+      [[ -n "$target_branch" ]] && mr_url+="&dest=${encoded_target}"
+      ;;
+    *)
+      mr_url="${base_url}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encoded_source}"
+      [[ -n "$target_branch" ]] && mr_url+="&merge_request%5Btarget_branch%5D=${encoded_target}"
+      ;;
+  esac
+
+  echo "Opening: $mr_url"
+  open "$mr_url"
+}
+
 # Push current branch and create PR/MR via official CLI (opens browser)
 # Usage: gmr [target_branch]
 #   gmr           → current branch → master
 #   gmr develop   → current branch → develop
-gmr() {
+gmrnew() {
   local target="${1:-master}"
   local branch provider
 
