@@ -300,6 +300,39 @@ extract() {
 }
 
 # ---------------------------
+# Docker Utilities
+# ---------------------------
+
+# Build, stop/remove, and run a frontend Docker container
+# Usage: dockerexec <app_name> <port> [frontend_environment] [app_version]
+# Example: dockerexec finportal-frontend 3530 stage 1.99.9
+dockerexec() {
+  local app_name="$1"
+  local port="$2"
+  local env="${3:-stage}"
+  local version="${4:-1.0.0}"
+
+  if [[ -z "$app_name" || -z "$port" ]]; then
+    echo "Usage: dockerexec <app_name> <port> [frontend_environment] [app_version]" >&2
+    echo "  frontend_environment : default is 'stage'" >&2
+    echo "  app_version          : default is '1.0.0'" >&2
+    return 1
+  fi
+
+  echo "Building Docker image '$app_name' (FRONTEND_ENVIRONMENT=$env, APP_VERSION=$version)..."
+  docker build \
+    --build-arg FRONTEND_ENVIRONMENT="$env" \
+    --build-arg APP_VERSION="$version" \
+    -t "$app_name" . || return 1
+
+  echo "Removing existing container '$app_name' (if any)..."
+  docker rm -f "$app_name" >/dev/null 2>&1
+
+  echo "Running container '$app_name' on port $port:80..."
+  docker run --name "$app_name" -p "${port}:80" "$app_name"
+}
+
+# ---------------------------
 # Cloud & Infrastructure
 # ---------------------------
 
