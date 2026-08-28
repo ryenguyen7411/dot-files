@@ -304,32 +304,73 @@ extract() {
 # ---------------------------
 
 # Build, stop/remove, and run a frontend Docker container
-# Usage: dockerexec <app_name> <port> [frontend_environment] [app_version]
+# Usage: dockerexec <app_name> <port> [frontend_environment] [app_version] [custom_args...]
 # Example: dockerexec finportal-frontend 3530 stage 1.99.9
+# Example: dockerexec pad-admin 3560:8080 stage 1.0.0
+# Example: dockerexec pad-admin 3560:8080 stage 1.0.0 IS_BIZOPS=true
+# Example: dockerexec pad-admin 3560:8080 IS_BIZOPS=true --no-cache
 dockerexec() {
   local app_name="$1"
   local port="$2"
-  local env="${3:-stage}"
-  local version="${4:-1.0.0}"
 
   if [[ -z "$app_name" || -z "$port" ]]; then
-    echo "Usage: dockerexec <app_name> <port> [frontend_environment] [app_version]" >&2
+    echo "Usage: dockerexec <app_name> <port> [frontend_environment] [app_version] [custom_args...]" >&2
+    echo "  port                 : host port (e.g. 3530 -> 3530:80) or host:container mapping (e.g. 3560:8080)" >&2
     echo "  frontend_environment : default is 'stage'" >&2
     echo "  app_version          : default is '1.0.0'" >&2
+    echo "  custom_args          : extra build args (e.g. IS_BIZOPS=true, --build-arg FOO=bar, --no-cache)" >&2
     return 1
   fi
 
-  echo "Building Docker image '$app_name' (FRONTEND_ENVIRONMENT=$env, APP_VERSION=$version)..."
+  local env="stage"
+  local version="1.0.0"
+  local port_mapping="$port"
+  if [[ "$port" != *:* ]]; then
+    port_mapping="${port}:80"
+  fi
+
+  shift 2
+
+  if [[ -n "$1" && "$1" != -* && "$1" != *=* ]]; then
+    env="$1"
+    shift
+    if [[ -n "$1" && "$1" != -* && "$1" != *=* ]]; then
+      version="$1"
+      shift
+    fi
+  fi
+
+  local extra_args=()
+  local prev_was_build_arg=false
+
+  while [[ $# -gt 0 ]]; do
+    local arg="$1"
+    if [[ "$prev_was_build_arg" == true ]]; then
+      extra_args+=("$arg")
+      prev_was_build_arg=false
+    elif [[ "$arg" == "--build-arg" ]]; then
+      extra_args+=("$arg")
+      prev_was_build_arg=true
+    elif [[ "$arg" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+      extra_args+=(--build-arg "$arg")
+    else
+      extra_args+=("$arg")
+    fi
+    shift
+  done
+
+  echo "Building Docker image '$app_name' (FRONTEND_ENVIRONMENT=$env, APP_VERSION=$version${extra_args:+ with extra args: ${extra_args[*]}})..."
   docker build \
     --build-arg FRONTEND_ENVIRONMENT="$env" \
     --build-arg APP_VERSION="$version" \
+    "${extra_args[@]}" \
     -t "$app_name" . || return 1
 
   echo "Removing existing container '$app_name' (if any)..."
   docker rm -f "$app_name" >/dev/null 2>&1
 
-  echo "Running container '$app_name' on port $port:80..."
-  docker run --name "$app_name" -p "${port}:80" "$app_name"
+  echo "Running container '$app_name' on port $port_mapping..."
+  docker run --name "$app_name" -p "$port_mapping" "$app_name"
 }
 
 # ---------------------------
