@@ -34,3 +34,11 @@ export MACHINE_NAME="default"
 # export HTTPS_PROXY="http://proxy.company.com:8080"
 # export NO_PROXY="localhost,127.0.0.1,.company.com"
 
+# Multi-monitor cursor jump overrides (jump-display)
+# Run 'jump-display list' to view detected monitors and coordinates.
+# If not set, jump-display automatically detects screen centers dynamically.
+# export DISPLAY_1_COORDS="960,540"
+# export DISPLAY_2_COORDS="2880,540"
+# export DISPLAY_3_COORDS="4800,540"
+
+

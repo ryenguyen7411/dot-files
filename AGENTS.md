@@ -82,9 +82,14 @@ Project-specific documentation and tooling config belong in **each application r
 - `shottr-optimize`: Optimizes screenshot/clipboard image or image file with ImageOptim and copies optimized image back to clipboard (installed to `~/.local/bin/shottr-optimize`)
 - `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
 - `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)
+- `jump-display`: Teleports mouse cursor across connected monitors dynamically or via env overrides (installed to `~/.local/bin/jump-display`)
 
 ### macOS Quick Actions & Services
 Stored in `services/Library/Services/` and installed to `~/Library/Services/` via `make install` or `make install-services`:
 - `Shottr Optimize Image.workflow`: Optimizes image in clipboard and copies optimized image back to clipboard (global service/hotkey).
 - `Shottr Upload Image.workflow`: Optimizes image in clipboard and uploads to File.kiwi (global service/hotkey).
 - `Shottr Upload File.workflow`: Finder context menu Quick Action to upload selected files/folders to File.kiwi.
+- `Jump to Display 1.workflow`: Teleports cursor to monitor 1 (global service/hotkey).
+- `Jump to Display 2.workflow`: Teleports cursor to monitor 2 (global service/hotkey).
+- `Jump to Display 3.workflow`: Teleports cursor to monitor 3 (global service/hotkey).
+- `Jump to Next Display.workflow`: Cycles cursor to the next monitor relative to current position (global service/hotkey).
