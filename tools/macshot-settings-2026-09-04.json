@@ -1,0 +1,59 @@
+{
+  "appVersion" : "4.2.1",
+  "exportedAt" : "2026-09-03T19:32:15Z",
+  "schemaVersion" : 1,
+  "settings" : {
+    "cloud.llm" : {
+      "__macshotData__" : "YnBsaXN0MDDUAQIDBAULDA1VdmFsdWVaZXhwaXJhdGlvbldmZXRjaGVkWXNlc3Npb25JRNMGBwgJCgtaZmVhdHVyZUtleVZjYW5Vc2VZY2FjaGVUaWxsWWNsb3VkLmxsbQgzQcY3KWGG1TAzQcY1LyGG1TlfECRGNUM3NTM0My05RUUwLTQwRDEtQTczNy0zMjBBN0Q0MDAyOTYIERciKjQ7Rk1XYWJrdAAAAAAAAAEBAAAAAAAAAA4AAAAAAAAAAAAAAAAAAACb"
+    },
+    "downscaleRetina" : false,
+    "enabledActions" : [
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013
+    ],
+    "enabledTools" : [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      15,
+      16,
+      17,
+      18
+    ],
+    "filenameTemplate" : "Screenshot {date} at {time}",
+    "hotkeyFullScreenKeyCode" : 20,
+    "hotkeyFullScreenModifiers" : 768,
+    "hotkeyHistoryKeyCode" : 23,
+    "hotkeyHistoryModifiers" : 768,
+    "hotkeyKeyCode" : 21,
+    "hotkeyModifiers" : 768,
+    "imageFormat" : "jpeg",
+    "lastUsedTool" : 9,
+    "launchAtLogin" : true,
+    "ocrAction" : 0,
+    "thumbnailCorner" : "bottomLeft",
+    "uploadProvider" : "imgbb"
+  },
+  "type" : "macshot-settings"
+}

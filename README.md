@@ -38,6 +38,7 @@ Personal configuration files for my development environment (mostly macOS), mana
 | **Kitty** | GPU-accelerated terminal with Hack Nerd Font |
 | **Git** | Sensible defaults and useful aliases |
 | **Bat** | Syntax highlighting for `cat` with custom themes |
+| **Raycast** | Custom Script Commands for multi-monitor jump and image optimization |
 
 ## 🚀 Quick Start
 
@@ -88,7 +89,8 @@ make install-tmux      # Tmux
 make install-git       # Git config
 make install-starship  # Starship prompt
 make install-bat       # Bat themes
-make install-tools     # Standalone tools (tms)
+make install-raycast   # Raycast script commands
+make install-tools     # Standalone tools (tms, jump-display, etc.)
 ```
 
 ### Machine-Specific Setup
@@ -120,8 +122,12 @@ dot-files/
 │   └── .config/starship.toml
 ├── bat/                # Bat syntax highlighter
 │   └── .config/bat/
+├── raycast/            # Raycast Script Commands
+│   └── .config/raycast/scripts/
 ├── tools/              # Standalone tools
-│   └── tms             # Tmux session manager
+│   ├── tms             # Tmux session manager
+│   ├── jump-display.swift # Multi-monitor cursor teleport utility
+│   └── imgcopy.swift   # Clipboard image utility
 ├── tmux-sessions/      # Machine-specific tmux layouts
 │   ├── home/
 │   ├── work/
@@ -141,6 +147,7 @@ Each directory is a "stow package" that mirrors your home directory:
 | `git` | `~/.gitconfig` |
 | `starship` | `~/.config/starship.toml` |
 | `bat` | `~/.config/bat/*` |
+| `raycast` | `~/.config/raycast/scripts/*` |
 
 ## ⌨️ Key Bindings
 
@@ -175,6 +182,25 @@ tms stop NAME    # Close project window
 tms add          # Add new project
 tms list         # List all projects
 ```
+
+### jump-display - Instant Multi-Monitor Cursor Teleport
+
+A fast native Swift binary for moving mouse cursor across connected displays:
+
+```bash
+jump-display next      # Jump to next monitor relative to current cursor
+jump-display 1         # Jump to display 1 (leftmost)
+jump-display 2         # Jump to display 2
+jump-display list      # List connected monitors and positions
+```
+
+### Raycast Script Commands
+
+Integrates `jump-display` and Shottr utilities into Raycast with 0ms delay:
+
+1. In Raycast, go to **Settings (`Cmd + ,`) -> Extensions**.
+2. Click **Add Extension (`+`) -> Add Script Directory** and select `~/.config/raycast/scripts`.
+3. Assign hotkeys to commands (e.g. `Jump to Next Display`).
 
 ## 🔄 Updating
 

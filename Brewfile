@@ -48,6 +48,7 @@ brew "docker-compose"
 # Fonts (Nerd Fonts for terminal icons)
 cask "font-hack-nerd-font"
 
-# Terminal Emulators
+# Terminal Emulators & Utilities
 cask "kitty"
+cask "raycast"
 # cask "alacritty"         # Alternative
