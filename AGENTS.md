@@ -79,3 +79,12 @@ Project-specific documentation and tooling config belong in **each application r
 ## Utilities
 - `check_secure_input`: Python script to identify processes using macOS Secure Input
 - `tms`: Tmux session manager for project-based workflows (installed to `~/.local/bin/tms`)
+- `shottr-optimize`: Optimizes screenshot/clipboard image or image file with ImageOptim and copies optimized image back to clipboard (installed to `~/.local/bin/shottr-optimize`)
+- `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
+- `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)
+
+### macOS Quick Actions & Services
+Stored in `services/Library/Services/` and installed to `~/Library/Services/` via `make install` or `make install-services`:
+- `Shottr Optimize Image.workflow`: Optimizes image in clipboard and copies optimized image back to clipboard (global service/hotkey).
+- `Shottr Upload Image.workflow`: Optimizes image in clipboard and uploads to File.kiwi (global service/hotkey).
+- `Shottr Upload File.workflow`: Finder context menu Quick Action to upload selected files/folders to File.kiwi.

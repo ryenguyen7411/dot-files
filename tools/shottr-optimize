@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+#
+# shottr-optimize - Optimize screenshot or image with ImageOptim and copy optimized image back to clipboard
+# - Supports image in clipboard (no args) or file path
+# - Automatically copies the optimized image back to clipboard (ready for Cmd+V)
+# - Displays notification with file size savings percentage
+# Theme: Tokyo Night
+#
+
+set -eo pipefail
+
+# ANSI colors (Tokyo Night)
+C_RESET='\033[0m'
+C_BOLD='\033[1m'
+C_CYAN='\033[38;2;125;207;255m'
+C_GREEN='\033[38;2;158;206;106m'
+C_YELLOW='\033[38;2;224;175;104m'
+C_COMMENT='\033[38;2;86;95;137m'
+
+TARGET="${1:-}"
+IS_TEMP=false
+TEMP_FILE=""
+
+cleanup() {
+  if [[ "$IS_TEMP" == true && -n "$TEMP_FILE" && -f "$TEMP_FILE" ]]; then
+    rm -f "$TEMP_FILE"
+  fi
+}
+trap cleanup EXIT INT TERM
+
+# 1. If target not provided, try reading image from clipboard
+if [[ -z "$TARGET" ]]; then
+  if command -v pngpaste >/dev/null 2>&1; then
+    TEMP_FILE=$(mktemp "/tmp/shottr_opt.XXXXXX.png")
+    if pngpaste "$TEMP_FILE" 2>/dev/null; then
+      TARGET="$TEMP_FILE"
+      IS_TEMP=true
+      echo -e "${C_COMMENT}📋 Captured image from clipboard${C_RESET}"
+    else
+      rm -f "$TEMP_FILE"
+      TEMP_FILE=""
+    fi
+  fi
+fi
+
+# 2. If still no target, search for the most recent screenshot on disk
+if [[ -z "$TARGET" ]]; then
+  for dir in "$HOME/Desktop" "$HOME/Pictures/Screenshots" "$HOME/Downloads"; do
+    if [[ -d "$dir" ]]; then
+      LATEST=$(find "$dir" -maxdepth 1 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) -type f -exec stat -f "%m %N" {} + 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)
+      if [[ -n "$LATEST" ]]; then
+        TARGET="$LATEST"
+        echo -e "${C_COMMENT}📸 Using latest screenshot: $(basename "$LATEST")${C_RESET}"
+        break
+      fi
+    fi
+  done
+fi
+
+if [[ -z "$TARGET" || ! -f "$TARGET" ]]; then
+  echo -e "${C_YELLOW}Error: No image found in clipboard or screenshot folder.${C_RESET}" >&2
+  echo "Usage: shottr-optimize [image_path]" >&2
+  exit 1
+fi
+
+INITIAL_SIZE=$(stat -f "%z" "$TARGET" 2>/dev/null || echo 0)
+FILENAME="$(basename "$TARGET")"
+
+echo -e "${C_COMMENT}🖼️  Optimizing with ImageOptim: ${FILENAME} ...${C_RESET}"
+
+# Run ImageOptim
+if command -v imageoptim >/dev/null 2>&1; then
+  imageoptim --no-stats "$TARGET" >/dev/null 2>&1 || true
+elif [[ -d "/Applications/ImageOptim.app" ]]; then
+  /Applications/ImageOptim.app/Contents/MacOS/ImageOptim "$TARGET" >/dev/null 2>&1 || true
+fi
+
+FINAL_SIZE=$(stat -f "%z" "$TARGET" 2>/dev/null || echo "$INITIAL_SIZE")
+
+SAVED_PCT="0%"
+if [[ "$INITIAL_SIZE" -gt 0 && "$FINAL_SIZE" -lt "$INITIAL_SIZE" ]]; then
+  SAVED_BYTES=$(( INITIAL_SIZE - FINAL_SIZE ))
+  SAVED_PCT=$(awk -v init="$INITIAL_SIZE" -v final="$FINAL_SIZE" 'BEGIN { printf "%.1f%%", ((init - final) / init) * 100 }')
+fi
+
+# Copy optimized image back to clipboard
+if command -v imgcopy >/dev/null 2>&1; then
+  imgcopy "$TARGET"
+elif [[ -x "$HOME/.local/bin/imgcopy" ]]; then
+  "$HOME/.local/bin/imgcopy" "$TARGET"
+else
+  # Fallback to Swift inline
+  swift -e '
+    import AppKit
+    if let image = NSImage(contentsOfFile: CommandLine.arguments[1]) {
+      let pb = NSPasteboard.general
+      pb.clearContents()
+      pb.writeObjects([image])
+    }
+  ' "$TARGET" 2>/dev/null || true
+fi
+
+# Trigger notification
+osascript -e "display notification \"Reduced size by $SAVED_PCT • Ready to paste (Cmd+V)\" with title \"ImageOptim\" subtitle \"✓ Optimized image copied to clipboard\" sound name \"Glass\"" >/dev/null 2>&1 || true
+
+echo -e "${C_GREEN}${C_BOLD}✓ Optimized image copied to clipboard!${C_RESET} ${C_COMMENT}(Savings: ${SAVED_PCT})${C_RESET}"
