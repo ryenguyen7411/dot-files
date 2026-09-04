@@ -36,4 +36,6 @@ kitty\.conf
 
 # Misc
 check_secure_input
+\.DS_Store
+
 

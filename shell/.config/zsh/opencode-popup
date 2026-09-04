@@ -1,0 +1,27 @@
+#!/usr/bin/env zsh
+#
+# Toggle an OpenCode session after loading the shared Zsh environment.
+
+source_shell_environment() {
+  local zprofile="${HOME}/.zprofile"
+  local zshrc="${HOME}/.zshrc"
+
+  if [[ -f "$zprofile" ]]; then
+    source "$zprofile"
+  fi
+
+  if [[ -f "$zshrc" ]]; then
+    source "$zshrc"
+  fi
+}
+
+source_shell_environment
+
+session="opencode_${PWD:t}"
+session="${session//[^A-Za-z0-9_-]/_}"
+
+if tmux list-clients -t "$session" 2>/dev/null | grep -q .; then
+  tmux detach-client -s "$session"
+else
+  tmux new-session -s "$session" opencode 2>/dev/null || tmux attach-session -t "$session"
+fi

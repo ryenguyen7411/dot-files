@@ -36,6 +36,7 @@ brew "btop"                # Beautiful system monitor
 
 # Git Enhancements
 brew "gh"                  # GitHub CLI
+brew "glab"                # GitLab CLI
 brew "delta"               # Better git diff
 brew "lazygit"             # Git TUI
 
@@ -47,6 +48,7 @@ brew "docker-compose"
 # Fonts (Nerd Fonts for terminal icons)
 cask "font-hack-nerd-font"
 
-# Terminal Emulators
+# Terminal Emulators & Utilities
 cask "kitty"
+cask "raycast"
 # cask "alacritty"         # Alternative

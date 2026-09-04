@@ -4,12 +4,12 @@
 STOW := stow
 STOW_FLAGS := -v --target=$(HOME)
 STOW_ADOPT := -v --target=$(HOME) --adopt
-PACKAGES := shell nvim kitty tmux git starship bat
+PACKAGES := shell nvim kitty tmux git starship bat raycast
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-tools install-starship install-bat install-ssh install-ubuntu-server
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-tools install-raycast install-starship install-bat install-ssh install-ubuntu-server
 .PHONY: install-zinit backup-omz install-difftastic
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh
+.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
 .PHONY: backup check dry-run
 
 # Default target
@@ -46,6 +46,9 @@ dry-run:
 	@echo ""
 	@echo "Starship package:"
 	@$(STOW) --simulate $(STOW_FLAGS) starship 2>&1 || true
+	@echo ""
+	@echo "Raycast package:"
+	@$(STOW) --simulate $(STOW_FLAGS) raycast 2>&1 || true
 
 backup:
 	@echo "Backing up existing configs..."
@@ -62,7 +65,7 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-bat install-ssh
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-raycast install-bat install-ssh
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -98,6 +101,8 @@ install-force: check backup
 	@rm -f $(HOME)/.config/starship.toml
 	@# Bat
 	@rm -rf $(HOME)/.config/bat
+	@# Raycast
+	@rm -rf $(HOME)/.config/raycast/scripts
 	@# Now stow everything
 	$(STOW) $(STOW_FLAGS) shell
 	$(STOW) $(STOW_FLAGS) nvim
@@ -106,9 +111,18 @@ install-force: check backup
 	$(STOW) $(STOW_FLAGS) git
 	$(STOW) $(STOW_FLAGS) starship
 	$(STOW) $(STOW_FLAGS) bat
+	$(STOW) $(STOW_FLAGS) raycast
 	@if command -v bat >/dev/null 2>&1; then bat cache --build; fi
 	@mkdir -p $(HOME)/.local/bin
+	@if command -v swiftc >/dev/null 2>&1; then \
+		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
+		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
+	fi
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
+	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
+	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
+	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
+	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo "✓ Backup available at ~/.dotfiles-backup/"
@@ -189,8 +203,23 @@ install-ssh:
 install-tools:
 	@echo "Installing standalone tools..."
 	@mkdir -p $(HOME)/.local/bin
+	@if command -v swiftc >/dev/null 2>&1; then \
+		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
+		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
+	fi
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
-	@echo "✓ tms installed to ~/.local/bin/tms"
+	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
+	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
+	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
+	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
+	@echo "✓ Standalone tools installed to ~/.local/bin"
+
+install-raycast:
+	@echo "Installing Raycast script commands..."
+	@mkdir -p $(HOME)/.config/raycast
+	@chmod +x $(CURDIR)/raycast/.config/raycast/scripts/*.sh 2>/dev/null || true
+	$(STOW) $(STOW_FLAGS) raycast
+	@echo "✓ Raycast scripts installed to ~/.config/raycast/scripts"
 
 #------------------------------------------------------------------------------
 # Shell Plugin Manager (Zinit)
@@ -238,9 +267,14 @@ install-difftastic:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh
-	@rm -f $(HOME)/.local/bin/tms
+uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
+	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display
 	@echo "✓ All packages uninstalled"
+
+uninstall-raycast:
+	@echo "Uninstalling Raycast scripts..."
+	$(STOW) $(STOW_FLAGS) -D raycast || true
+	@echo "✓ Raycast scripts uninstalled"
 
 uninstall-shell:
 	$(STOW) $(STOW_FLAGS) -D shell || true
@@ -327,6 +361,7 @@ help:
 	@echo "  install-git      Install git config only"
 	@echo "  install-starship Install starship config only"
 	@echo "  install-bat      Install bat config and themes"
+	@echo "  install-raycast  Install Raycast script commands"
 	@echo "  install-ssh      Install SSH config with multiplexing"
 	@echo "  install-tools    Install standalone tools (tms)"
 	@echo "  install-ubuntu-server Install minimal shell+nvim for Ubuntu server"

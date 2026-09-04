@@ -1,0 +1,318 @@
+#!/usr/bin/env bash
+#
+# shottr-upload - Upload screenshots, images, files, or directories to file.kiwi
+# - Automatically optimizes images with ImageOptim before upload
+# - Automatically archives directories into .zip before upload
+# - Supports uploading from clipboard or file path(s)
+# - Automatically copies link to clipboard and triggers system notification
+# Theme: Tokyo Night
+#
+
+set -eo pipefail
+
+# ANSI color codes (Tokyo Night)
+C_RESET='\033[0m'
+C_BOLD='\033[1m'
+C_CYAN='\033[38;2;125;207;255m'
+C_GREEN='\033[38;2;158;206;106m'
+C_YELLOW='\033[38;2;224;175;104m'
+C_RED='\033[38;2;247;118;142m'
+C_BLUE='\033[38;2;122;162;247m'
+C_COMMENT='\033[38;2;86;95;137m'
+
+# Temporary directories and files
+TEMP_DIR=""
+TEMP_CLIP=""
+
+cleanup() {
+  if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
+    rm -rf "$TEMP_DIR"
+  fi
+  if [[ -n "$TEMP_CLIP" && -f "$TEMP_CLIP" ]]; then
+    rm -f "$TEMP_CLIP"
+  fi
+}
+trap cleanup EXIT INT TERM
+
+# Show help
+show_help() {
+  echo -e "${C_BOLD}${C_BLUE}shottr-upload${C_RESET} ${C_COMMENT}- Upload clipboard images or files to file.kiwi${C_RESET}"
+  echo ""
+  echo -e "${C_BOLD}Usage${C_RESET}"
+  echo "  shottr-upload [file/folder ...] [options]"
+  echo ""
+  echo -e "${C_BOLD}Examples${C_RESET}"
+  echo -e "  shottr-upload                             ${C_COMMENT}# Upload image from clipboard (auto-optimized)${C_RESET}"
+  echo -e "  shottr-upload screenshot.png              ${C_COMMENT}# Optimize image & upload${C_RESET}"
+  echo -e "  shottr-upload document.pdf                ${C_COMMENT}# Upload any file type${C_RESET}"
+  echo -e "  shottr-upload ./dist/                     ${C_COMMENT}# Upload directory (auto-zipped)${C_RESET}"
+  echo -e "  shottr-upload img1.png doc.pdf --title \"Files\" ${C_COMMENT}# Custom title${C_RESET}"
+  echo -e "  shottr-upload src/ dist/ --zip            ${C_COMMENT}# Bundle everything into one zip${C_RESET}"
+  echo -e "  shottr-upload --resume <webfolderId>      ${C_COMMENT}# Resume upload${C_RESET}"
+  echo ""
+  echo -e "${C_BOLD}Options${C_RESET}"
+  echo "  -t, --title <name>       Set web folder title"
+  echo "  -r, --resume <id>        Resume interrupted upload"
+  echo "  -z, --zip                Compress all targets into a single zip bundle"
+  echo "  -h, --help               Show this help message"
+}
+
+# Copy text to clipboard across platforms
+copy_to_clipboard() {
+  local text="$1"
+  if [[ "$OSTYPE" == "darwin"* ]] && command -v pbcopy >/dev/null 2>&1; then
+    printf "%s" "$text" | pbcopy
+  elif command -v wl-copy >/dev/null 2>&1; then
+    printf "%s" "$text" | wl-copy
+  elif command -v xclip >/dev/null 2>&1; then
+    printf "%s" "$text" | xclip -selection clipboard
+  fi
+}
+
+# Check if a file is an image
+is_image_file() {
+  local f="$1"
+  case "${f:l}" in
+    *.png|*.jpg|*.jpeg|*.gif|*.webp|*.bmp|*.tiff|*.tif|*.svg) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# Optimize an image file with ImageOptim if available
+optimize_image() {
+  local file="$1"
+  if command -v imageoptim >/dev/null 2>&1; then
+    echo -e "${C_COMMENT}🖼️  Optimizing with ImageOptim: $(basename "$file")...${C_RESET}"
+    imageoptim --no-stats "$file" >/dev/null 2>&1 || true
+  elif [[ -d "/Applications/ImageOptim.app" ]]; then
+    echo -e "${C_COMMENT}🖼️  Optimizing with ImageOptim.app: $(basename "$file")...${C_RESET}"
+    /Applications/ImageOptim.app/Contents/MacOS/ImageOptim "$file" >/dev/null 2>&1 || true
+  fi
+}
+
+# Send desktop notification
+send_notification() {
+  local title="$1"
+  local subtitle="$2"
+  local message="$3"
+  if [[ "$OSTYPE" == "darwin"* ]] && command -v osascript >/dev/null 2>&1; then
+    osascript -e "display notification \"$message\" with title \"$title\" subtitle \"$subtitle\"" >/dev/null 2>&1 || true
+  fi
+}
+
+main() {
+  local title=""
+  local resume_id=""
+  local bundle_zip=false
+  local targets=()
+
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)
+        show_help
+        exit 0
+        ;;
+      -t|--title)
+        if [[ -z "${2:-}" ]]; then
+          echo -e "${C_RED}Error: --title requires an argument${C_RESET}" >&2
+          exit 1
+        fi
+        title="$2"
+        shift 2
+        ;;
+      -r|--resume)
+        if [[ -z "${2:-}" ]]; then
+          echo -e "${C_RED}Error: --resume requires a webfolderId${C_RESET}" >&2
+          exit 1
+        fi
+        resume_id="$2"
+        shift 2
+        ;;
+      -z|--zip)
+        bundle_zip=true
+        shift
+        ;;
+      --)
+        shift
+        while [[ $# -gt 0 ]]; do
+          targets+=("$1")
+          shift
+        done
+        break
+        ;;
+      -*)
+        echo -e "${C_RED}Error: Unknown option '$1'${C_RESET}" >&2
+        echo "Run 'shottr-upload --help' for usage." >&2
+        exit 1
+        ;;
+      *)
+        targets+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  # Resume mode
+  if [[ -n "$resume_id" ]]; then
+    npx --yes @file-kiwi/node --resume "$resume_id"
+    exit $?
+  fi
+
+  # If no targets provided, try clipboard first, then latest screenshot
+  if [[ ${#targets[@]} -eq 0 ]]; then
+    if command -v pngpaste >/dev/null 2>&1; then
+      TEMP_CLIP=$(mktemp "/tmp/shottr_clip.XXXXXX.png")
+      if pngpaste "$TEMP_CLIP" 2>/dev/null; then
+        echo -e "${C_COMMENT}📋 Captured image from clipboard${C_RESET}"
+        targets+=("$TEMP_CLIP")
+      else
+        rm -f "$TEMP_CLIP"
+        TEMP_CLIP=""
+      fi
+    fi
+
+    if [[ ${#targets[@]} -eq 0 ]]; then
+      for dir in "$HOME/Desktop" "$HOME/Pictures/Screenshots" "$HOME/Downloads"; do
+        if [[ -d "$dir" ]]; then
+          LATEST=$(find "$dir" -maxdepth 1 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) -type f -exec stat -f "%m %N" {} + 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)
+          if [[ -n "$LATEST" ]]; then
+            echo -e "${C_COMMENT}📸 Using latest screenshot: $(basename "$LATEST")${C_RESET}"
+            targets+=("$LATEST")
+            break
+          fi
+        fi
+      done
+    fi
+  fi
+
+  if [[ ${#targets[@]} -eq 0 ]]; then
+    echo -e "${C_YELLOW}Error: No files specified and no image found in clipboard.${C_RESET}" >&2
+    echo ""
+    show_help
+    exit 1
+  fi
+
+  # Validate target paths
+  for target in "${targets[@]}"; do
+    if [[ ! -e "$target" ]]; then
+      echo -e "${C_RED}Error: Path not found: '$target'${C_RESET}" >&2
+      exit 1
+    fi
+  done
+
+  TEMP_DIR=$(mktemp -d "/tmp/shottr_upload.XXXXXX")
+  local upload_files=()
+
+  # If bundle zip requested
+  if [[ "$bundle_zip" == true ]]; then
+    if ! command -v zip >/dev/null 2>&1; then
+      echo -e "${C_RED}Error: 'zip' utility is required.${C_RESET}" >&2
+      exit 1
+    fi
+    local bundle_name="archive"
+    if [[ -n "$title" ]]; then
+      bundle_name=$(echo "$title" | tr ' /\\:*?"<>|' '_')
+    else
+      bundle_name="$(basename "${targets[0]}")"
+      bundle_name="${bundle_name%.*}"
+    fi
+    local zip_file="${TEMP_DIR}/${bundle_name}.zip"
+
+    # Optimize any image targets first
+    for target in "${targets[@]}"; do
+      if [[ -f "$target" ]] && is_image_file "$target"; then
+        optimize_image "$target"
+      fi
+    done
+
+    echo -e "${C_COMMENT}📦 Creating zip bundle: ${bundle_name}.zip ...${C_RESET}"
+    zip -q -r "$zip_file" "${targets[@]}"
+    upload_files+=("$zip_file")
+  else
+    # Process targets individually
+    for target in "${targets[@]}"; do
+      if [[ -d "$target" ]]; then
+        if ! command -v zip >/dev/null 2>&1; then
+          echo -e "${C_RED}Error: 'zip' utility is required to upload directories.${C_RESET}" >&2
+          exit 1
+        fi
+        local dir_clean="${target%/}"
+        local dir_parent
+        dir_parent="$(dirname "$dir_clean")"
+        local dir_base
+        dir_base="$(basename "$dir_clean")"
+        local zip_file="${TEMP_DIR}/${dir_base}.zip"
+
+        echo -e "${C_COMMENT}📦 Archiving directory '${dir_base}' -> '${dir_base}.zip' ...${C_RESET}"
+        (cd "$dir_parent" && zip -q -r "$zip_file" "$dir_base")
+        upload_files+=("$zip_file")
+      elif [[ -f "$target" ]]; then
+        if is_image_file "$target"; then
+          optimize_image "$target"
+        fi
+        upload_files+=("$target")
+      fi
+    done
+  fi
+
+  if [[ ${#upload_files[@]} -eq 0 ]]; then
+    echo -e "${C_RED}Error: No valid files to upload.${C_RESET}" >&2
+    exit 1
+  fi
+
+  local runner_args=()
+  if [[ -n "$title" ]]; then
+    runner_args+=(--title "$title")
+  fi
+  runner_args+=("${upload_files[@]}")
+
+  echo -e "${C_COMMENT}☁️  Uploading to file.kiwi...${C_RESET}"
+
+  # Run @file-kiwi/node and capture URL stream in background to copy URL immediately
+  node -e "
+    const { spawn, exec } = require('child_process');
+    const runnerArgs = process.argv.slice(1);
+
+    const child = spawn('npx', ['--yes', '@file-kiwi/node', ...runnerArgs], {
+      stdio: ['inherit', 'pipe', 'inherit']
+    });
+
+    let linkFound = false;
+
+    function copyToClipboard(text) {
+      const plat = process.platform;
+      const cmd = plat === 'darwin' ? 'pbcopy' : plat === 'win32' ? 'clip' : 'xclip -selection clipboard';
+      const c = exec(cmd);
+      c.stdin?.write(text);
+      c.stdin?.end();
+    }
+
+    function notify(url) {
+      if (process.platform === 'darwin') {
+        const cleanUrl = url.replace(/\"/g, '\\\"');
+        exec(\`osascript -e 'display notification \"\${cleanUrl}\" with title \"File.kiwi\" subtitle \"✓ Uploaded & Copied link to clipboard\" sound name \"Glass\"'\`);
+      }
+    }
+
+    child.stdout.on('data', (chunk) => {
+      process.stdout.write(chunk);
+      if (!linkFound) {
+        const text = chunk.toString();
+        const match = text.match(/https:\/\/file\.kiwi\/[a-zA-Z0-9_-]+#[a-zA-Z0-9_-]+/);
+        if (match) {
+          linkFound = true;
+          const url = match[0];
+          copyToClipboard(url);
+          notify(url);
+        }
+      }
+    });
+
+    child.on('close', (code) => {
+      process.exit(code || 0);
+    });
+  " "${runner_args[@]}"
+}
+
+main "$@"

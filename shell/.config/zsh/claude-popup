@@ -1,0 +1,34 @@
+#!/usr/bin/env zsh
+#
+# Toggle a Claude session after loading the shared Zsh environment.
+
+source_shell_environment() {
+  local zprofile="${HOME}/.zprofile"
+  local zshrc="${HOME}/.zshrc"
+
+  if [[ -f "$zprofile" ]]; then
+    source "$zprofile"
+  fi
+
+  if [[ -f "$zshrc" ]]; then
+    source "$zshrc"
+  fi
+}
+
+source_shell_environment
+
+session="claude_${PWD:t}"
+session="${session//[^A-Za-z0-9_-]/_}"
+
+claude_env=()
+[[ -n "${ANTHROPIC_BASE_URL:-}" ]] && claude_env+=(ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL")
+[[ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]] && claude_env+=(ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN")
+[[ -n "${ANTHROPIC_API_KEY:-}" ]] && claude_env+=(ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
+[[ -n "${ANTHROPIC_MODEL:-}" ]] && claude_env+=(ANTHROPIC_MODEL="$ANTHROPIC_MODEL")
+
+if tmux list-clients -t "$session" 2>/dev/null | grep -q .; then
+  tmux detach-client -s "$session"
+else
+  # tmux does not reliably forward arbitrary env vars into a new session, so pass them explicitly.
+  tmux new-session -s "$session" env "${claude_env[@]}" claude 2>/dev/null || tmux attach-session -t "$session"
+fi

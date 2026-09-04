@@ -75,10 +75,8 @@ add_path "$HOME/flutter/bin"
 # PNPM
 [[ -n "$PNPM_HOME" ]] && add_path "$PNPM_HOME"
 
-# Yarn
-if [[ -d "$HOME/.yarn/bin" ]]; then
-  export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-fi
+# Yarn global packages
+add_path "$HOME/.config/yarn/global/node_modules/.bin"
 
 # Bun
 [[ -n "$BUN_INSTALL" ]] && add_path "$BUN_INSTALL/bin"

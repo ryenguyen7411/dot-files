@@ -4,6 +4,9 @@ M.js_formatter = function(bufnr)
   if vim.fs.root(bufnr, { '.oxfmtrc.json' }) then
     return { 'oxfmt' }
   end
+  if vim.fs.root(bufnr, { 'biome.json', 'biome.jsonc', '.biome.json', '.biome.jsonc' }) then
+    return { 'biome' }
+  end
   return { 'prettierd', 'prettier', stop_after_first = true }
 end
 
@@ -18,11 +21,14 @@ M.setup_formatter = function()
       astro = M.js_formatter,
       css = M.js_formatter,
       html = M.js_formatter,
+      json = M.js_formatter,
+      jsonc = M.js_formatter,
+      graphql = M.js_formatter,
       lua = { 'stylua' },
     },
     formatters = {
       oxfmt = {
-        command = 'oxfmt',
+        command = require('conform.util').from_node_modules 'oxfmt',
         args = { '--stdin-filepath', '$FILENAME' },
         stdin = true,
       },

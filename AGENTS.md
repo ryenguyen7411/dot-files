@@ -14,7 +14,7 @@ Commands:
 - **Prerequisites check**: `make check` - verifies stow and other tools are installed
 - **Preview**: `make dry-run` - preview what stow would do
 - **Install all**: `make install` - creates symbolic links via GNU Stow
-- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-tools`
+- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-raycast`, `make install-tools`
 
 This creates symbolic links for:
 - Shell config (`~/.zshrc`, `~/.config/zsh/`)
@@ -24,6 +24,7 @@ This creates symbolic links for:
 - Git config (`~/.gitconfig`)
 - Starship prompt (`~/.config/starship.toml`)
 - Bat config (`~/.config/bat/`)
+- Raycast Script Commands (`~/.config/raycast/scripts/`)
 
 Project-specific documentation and tooling config belong in **each application repository**, not in this dotfiles repo.
 
@@ -79,3 +80,22 @@ Project-specific documentation and tooling config belong in **each application r
 ## Utilities
 - `check_secure_input`: Python script to identify processes using macOS Secure Input
 - `tms`: Tmux session manager for project-based workflows (installed to `~/.local/bin/tms`)
+- `shottr-optimize`: Optimizes screenshot/clipboard image or image file with ImageOptim and copies optimized image back to clipboard (installed to `~/.local/bin/shottr-optimize`)
+- `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
+- `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)
+- `jump-display`: Teleports mouse cursor across connected monitors dynamically or via env overrides (installed to `~/.local/bin/jump-display`)
+
+### Raycast Script Commands
+Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast/scripts/` via `make install` or `make install-raycast`:
+- `jump-display-next.sh`: Teleport mouse cursor to next display and automatically focus the top window.
+- `jump-display-1.sh`: Teleport mouse cursor to display 1 and focus the top window.
+- `jump-display-2.sh`: Teleport mouse cursor to display 2 and focus the top window.
+- `jump-display-3.sh`: Teleport mouse cursor to display 3 and focus the top window.
+- `shottr-optimize.sh`: Optimize clipboard image or screenshot with ImageOptim.
+- `shottr-upload.sh`: Optimize clipboard image and upload to File.kiwi.
+
+Setup in Raycast on any machine:
+1. Open Raycast Settings (`Cmd + ,`) -> **Extensions**.
+2. Click **Add Extension** / `+` -> **Add Script Directory**.
+3. Select `~/.config/raycast/scripts`.
+4. Assign global hotkeys directly in Raycast Settings (e.g. `Jump to Next Display`).
