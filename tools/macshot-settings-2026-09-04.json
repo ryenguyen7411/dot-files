@@ -1,6 +1,6 @@
 {
   "appVersion" : "4.2.1",
-  "exportedAt" : "2026-09-03T19:32:15Z",
+  "exportedAt" : "2026-09-04T07:23:03Z",
   "schemaVersion" : 1,
   "settings" : {
     "cloud.llm" : {
@@ -42,14 +42,20 @@
       18
     ],
     "filenameTemplate" : "Screenshot {date} at {time}",
+    "hotkeyDisabled_2" : true,
+    "hotkeyDisabled_6" : true,
     "hotkeyFullScreenKeyCode" : 20,
     "hotkeyFullScreenModifiers" : 768,
     "hotkeyHistoryKeyCode" : 23,
     "hotkeyHistoryModifiers" : 768,
     "hotkeyKeyCode" : 21,
     "hotkeyModifiers" : 768,
+    "hotkeyQuickCaptureKeyCode" : 20,
+    "hotkeyQuickCaptureModifiers" : 768,
+    "hotkeyRecordKeyCode" : 19,
+    "hotkeyRecordModifiers" : 768,
     "imageFormat" : "jpeg",
-    "lastUsedTool" : 9,
+    "lastUsedTool" : 2,
     "launchAtLogin" : true,
     "ocrAction" : 0,
     "thumbnailCorner" : "bottomLeft",
