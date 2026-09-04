@@ -14,4 +14,4 @@
 # @raycast.author colorye
 
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
-jump-display 2
+jump-display 2 --focus

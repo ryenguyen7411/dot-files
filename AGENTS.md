@@ -87,10 +87,10 @@ Project-specific documentation and tooling config belong in **each application r
 
 ### Raycast Script Commands
 Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast/scripts/` via `make install` or `make install-raycast`:
-- `jump-display-next.sh`: Teleport mouse cursor to next display.
-- `jump-display-1.sh`: Teleport mouse cursor to display 1.
-- `jump-display-2.sh`: Teleport mouse cursor to display 2.
-- `jump-display-3.sh`: Teleport mouse cursor to display 3.
+- `jump-display-next.sh`: Teleport mouse cursor to next display and automatically focus the top window.
+- `jump-display-1.sh`: Teleport mouse cursor to display 1 and focus the top window.
+- `jump-display-2.sh`: Teleport mouse cursor to display 2 and focus the top window.
+- `jump-display-3.sh`: Teleport mouse cursor to display 3 and focus the top window.
 - `shottr-optimize.sh`: Optimize clipboard image or screenshot with ImageOptim.
 - `shottr-upload.sh`: Optimize clipboard image and upload to File.kiwi.
 

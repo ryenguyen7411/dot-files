@@ -188,10 +188,11 @@ tms list         # List all projects
 A fast native Swift binary for moving mouse cursor across connected displays:
 
 ```bash
-jump-display next      # Jump to next monitor relative to current cursor
-jump-display 1         # Jump to display 1 (leftmost)
-jump-display 2         # Jump to display 2
-jump-display list      # List connected monitors and positions
+jump-display next            # Jump to next monitor relative to current cursor
+jump-display next --focus    # Jump to next monitor and activate window under cursor
+jump-display 1               # Jump to display 1 (leftmost)
+jump-display 2               # Jump to display 2
+jump-display list            # List connected monitors and positions
 ```
 
 ### Raycast Script Commands

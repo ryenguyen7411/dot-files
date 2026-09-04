@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import CoreGraphics
 import Foundation
 
@@ -9,7 +10,7 @@ func printUsage() {
     \u{001B}[1mjump-display\u{001B}[0m - Teleport mouse cursor across monitors instantly
 
     \u{001B}[1mUsage:\u{001B}[0m
-      jump-display <target>
+      jump-display <target> [options]
 
     \u{001B}[1mTargets:\u{001B}[0m
       1, 2, 3...     Jump to specific monitor (sorted physically left-to-right)
@@ -19,10 +20,16 @@ func printUsage() {
       list           List all detected monitors, resolutions, and current cursor location
       -h, --help     Show this help message
 
+    \u{001B}[1mOptions:\u{001B}[0m
+      --focus, -f    Automatically focus / activate the top window under the target destination
+      --click, -c    Simulate a left-click at the target destination to guarantee input focus
+      --no-focus     Do not change window focus (default)
+
     \u{001B}[1mEnvironment Overrides:\u{001B}[0m
-      Optionally set in ~/.config/zsh/local.zsh to override coordinates for specific machines:
+      Optionally set in ~/.config/zsh/local.zsh to override coordinates or default behavior:
         export DISPLAY_1_COORDS="960,540"
         export DISPLAY_2_COORDS="2880,540"
+        export JUMP_DISPLAY_AUTO_FOCUS="1"   # Always focus window under destination
     """)
 }
 
@@ -50,16 +57,100 @@ func parseCoordinates(from string: String) -> CGPoint? {
     return CGPoint(x: x, y: y)
 }
 
+func activateWindowUnder(point: CGPoint) {
+    // 1. Fast Accessibility check
+    let systemWide = AXUIElementCreateSystemWide()
+    var element: AXUIElement?
+    if AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &element) == .success,
+       let elem = element {
+        var pid: pid_t = 0
+        if AXUIElementGetPid(elem, &pid) == .success && pid > 0 {
+            if let app = NSRunningApplication(processIdentifier: pid) {
+                #if swift(>=5.9)
+                if #available(macOS 14.0, *) {
+                    app.activate()
+                } else {
+                    app.activate(options: [.activateIgnoringOtherApps])
+                }
+                #else
+                app.activate(options: [.activateIgnoringOtherApps])
+                #endif
+                return
+            }
+        }
+    }
+
+    // 2. Fallback to CGWindowList check
+    let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+    guard let windowListInfo = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
+        return
+    }
+
+    for info in windowListInfo {
+        guard let layer = info[kCGWindowLayer as String] as? Int, layer == 0,
+              let boundsDict = info[kCGWindowBounds as String] as? [String: Any],
+              let bounds = CGRect(dictionaryRepresentation: boundsDict as CFDictionary),
+              bounds.contains(point),
+              let pid = info[kCGWindowOwnerPID as String] as? pid_t else {
+            continue
+        }
+
+        if let app = NSRunningApplication(processIdentifier: pid) {
+            #if swift(>=5.9)
+            if #available(macOS 14.0, *) {
+                app.activate()
+            } else {
+                app.activate(options: [.activateIgnoringOtherApps])
+            }
+            #else
+            app.activate(options: [.activateIgnoringOtherApps])
+            #endif
+            return
+        }
+    }
+}
+
+func postSyntheticClick(at point: CGPoint) {
+    guard let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: point, mouseButton: .left),
+          let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: point, mouseButton: .left) else {
+        return
+    }
+    mouseDown.post(tap: .cghidEventTap)
+    mouseUp.post(tap: .cghidEventTap)
+}
+
 // MARK: - Main Logic
 
-let args = CommandLine.arguments
+let rawArgs = CommandLine.arguments
 
-if args.count < 2 || args.contains("-h") || args.contains("--help") {
+if rawArgs.count < 2 || rawArgs.contains("-h") || rawArgs.contains("--help") {
     printUsage()
     exit(0)
 }
 
-let targetArg = args[1].lowercased()
+var shouldFocus = ProcessInfo.processInfo.environment["JUMP_DISPLAY_AUTO_FOCUS"] == "1"
+var shouldClick = false
+var positionalArgs: [String] = []
+
+for arg in rawArgs.dropFirst() {
+    switch arg.lowercased() {
+    case "--focus", "-f":
+        shouldFocus = true
+    case "--no-focus":
+        shouldFocus = false
+    case "--click", "-c":
+        shouldClick = true
+    default:
+        positionalArgs.append(arg)
+    }
+}
+
+guard let targetRaw = positionalArgs.first else {
+    printUsage()
+    exit(0)
+}
+
+let targetArg = targetRaw.lowercased()
 
 let screens = NSScreen.screens
 guard !screens.isEmpty else {
@@ -158,4 +249,15 @@ guard let destination = targetPoint else {
 // Teleport mouse cursor
 CGWarpMouseCursorPosition(destination)
 CGAssociateMouseAndMouseCursorPosition(1)
+
+// Auto-focus application / window under cursor
+if shouldFocus {
+    activateWindowUnder(point: destination)
+}
+
+// Click if requested
+if shouldClick {
+    postSyntheticClick(at: destination)
+}
+
 exit(0)
