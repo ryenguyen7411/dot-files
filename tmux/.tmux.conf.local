@@ -411,6 +411,25 @@ setw -g monitor-activity on
 # Pane helper
 bind-key | split-window -h
 
+# Prevent accidental layout corruption
+unbind-key C-o                  # Unbind rotate-window (accidental prefix + C-o)
+unbind-key Space                # Unbind next-layout (accidental prefix + Space)
+unbind-key -n M-1               # Unbind layout even-horizontal
+unbind-key -n M-2               # Unbind layout even-vertical
+unbind-key -n M-3               # Unbind layout main-horizontal
+unbind-key -n M-4               # Unbind layout main-vertical
+unbind-key -n M-5               # Unbind layout tiled
+unbind-key -T prefix M-1
+unbind-key -T prefix M-2
+unbind-key -T prefix M-3
+unbind-key -T prefix M-4
+unbind-key -T prefix M-5
+
+# Undo accidental layout change with <prefix> u
+# (Uses tmux layout history / previous layout register)
+bind-key u select-layout -E \; display-message "Layout spaces equalized"
+bind-key U previous-layout \; display-message "Previous layout restored"
+
 bind-key -r -T prefix       H                    resize-pane -L 100
 bind-key -r -T prefix       J                    resize-pane -D 50
 bind-key -r -T prefix       K                    resize-pane -U 100

@@ -165,9 +165,14 @@ Each directory is a "stow package" that mirrors your home directory:
 
 | Key | Action |
 |-----|--------|
-| `Ctrl+a` | Prefix |
+| `` ` `` | Prefix (backtick) |
 | `prefix + \|` | Split vertical |
 | `prefix + -` | Split horizontal |
+| `Ctrl+p` | Open `tms` Project Manager popup |
+| `Ctrl+o` | Open Opencode popup |
+| `Ctrl+y` | Open Claude popup |
+| `prefix + u` | Spread & equalize layout |
+| `prefix + U` | Restore previous layout |
 
 ## 🛠 Tools
 
