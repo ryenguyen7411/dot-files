@@ -84,6 +84,8 @@ Project-specific documentation and tooling config belong in **each application r
 - `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
 - `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)
 - `jump-display`: Teleports mouse cursor across connected monitors dynamically or via env overrides (installed to `~/.local/bin/jump-display`)
+- `clean-url`: Strips tracking query parameters (UTM, fbclid, gclid, si, etc.) from URLs and clipboard (installed to `~/.local/bin/clean-url`)
+- `link-router`: Cross-browser and multi-profile smart URL router based on domain rules (installed to `~/.local/bin/link-router`)
 
 ### Raycast Script Commands
 Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast/scripts/` via `make install` or `make install-raycast`:
@@ -93,6 +95,8 @@ Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast
 - `jump-display-3.sh`: Teleport mouse cursor to display 3 and focus the top window.
 - `shottr-optimize.sh`: Optimize clipboard image or screenshot with ImageOptim.
 - `shottr-upload.sh`: Optimize clipboard image and upload to File.kiwi.
+- `clean-clipboard-url.sh`: Strip trackers from clipboard URL on-demand.
+- `smart-open-url.sh`: Open URL in clipboard with matched browser and profile.
 
 Setup in Raycast on any machine:
 1. Open Raycast Settings (`Cmd + ,`) -> **Extensions**.

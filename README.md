@@ -200,6 +200,26 @@ jump-display 2               # Jump to display 2
 jump-display list            # List connected monitors and positions
 ```
 
+### clean-url - Instant Tracker Stripper & URL Cleaner
+
+Strips tracking query parameters (`utm_*`, `fbclid`, `gclid`, `si`, etc.) from URLs and clipboard:
+
+```bash
+clean-url "https://youtu.be/xyz?si=track123&utm_source=share"
+clean-url                    # Clean current clipboard content in-place
+clean-url --watch            # Run lightweight background watcher on clipboard
+```
+
+### link-router - Cross-Browser & Multi-Profile Smart URL Router
+
+Routes URLs to specific browsers and profiles (e.g. Work vs Personal) based on customizable domain rules in `~/.config/link-router/rules.json`:
+
+```bash
+link-router "https://gitlab.company.com/project"   # Routes to Chrome Work profile
+link-router "https://youtube.com/watch?v=..."       # Routes to Arc personal browser
+link-router config                                 # View/edit rules in editor
+```
+
 ### Raycast Script Commands
 
 Integrates `jump-display` and Shottr utilities into Raycast with 0ms delay:
