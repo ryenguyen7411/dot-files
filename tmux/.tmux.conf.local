@@ -518,13 +518,21 @@ bind-key -n C-p display-popup -E -T "Tmux Session Manager" -h 100% -w 30% -x "#{
 # Quick save current layout with <prefix> S
 bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"
 
-# Toggle Opencode with ctrl-o
-bind-key -n C-o display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-"zsh \"$HOME/.config/zsh/opencode-popup\""
+# Toggle Opencode with ctrl-y / Claude with ctrl-o
+#
+# The popup runs a nested client attached to an opencode_*/claude_* session on
+# the *same* server, so these root-table bindings also fire while the popup has
+# focus. Without the guard, pressing the key inside the popup opened a second,
+# nested popup which then tore everything down. When the current session is the
+# popup's own session, just detach that client: the popup closes and the
+# session stays alive for the next toggle.
+bind-key -n C-y if-shell -F '#{m:opencode_*,#{session_name}}' \
+  detach-client \
+  'display-popup -E -T Opencode -w 30% -h 100% -xR -d "#{pane_current_path}" "zsh ~/.config/zsh/opencode-popup"'
 
-# Toggle Claude with ctrl-y
-bind-key -n C-y display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-"zsh \"$HOME/.config/zsh/claude-popup\""
+bind-key -n C-o if-shell -F '#{m:claude_*,#{session_name}}' \
+  detach-client \
+  'display-popup -E -T Claude -w 30% -h 100% -xR -d "#{pane_current_path}" "zsh ~/.config/zsh/claude-popup"'
 
 # # Toggle Codex with <prefix> C
 # bind-key C run-shell '
