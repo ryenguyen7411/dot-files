@@ -450,6 +450,21 @@ set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
 set -ga terminal-overrides ',*:clipboard:pass-through'
 
+# Forward Kitty's extended keyboard protocol so apps inside tmux (e.g. Claude
+# Code) can tell Shift+Enter apart from Enter, instead of only Alt+Enter.
+# Without this, tmux reports every Enter variant identically, no matter what
+# the app or the outer terminal supports, because Enter has no "well-known"
+# modified representation in the classic termcap/xterm sense (unlike e.g.
+# Shift+Up), so tmux drops the modifier unless told the terminal can report it.
+#
+# extended-keys-format is set to match Kitty's own wire format (CSI code;mod u)
+# instead of tmux's xterm-style default (CSI 27;mod;code~), since that's the
+# format terminals in Kitty's class send Shift+Enter as outside of tmux, and
+# what Claude Code's input parser recognizes.
+set-option -sa terminal-features ',xterm-kitty:extkeys'
+set-option -s extended-keys always
+set-option -s extended-keys-format csi-u
+
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important
 

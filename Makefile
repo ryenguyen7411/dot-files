@@ -123,6 +123,7 @@ install-force: check backup
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
 	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
 	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
+	@ln -sf $(CURDIR)/tools/anonfiles-upload $(HOME)/.local/bin/anonfiles-upload
 	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
 	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
 	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
@@ -216,6 +217,7 @@ install-tools:
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
 	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
 	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
+	@ln -sf $(CURDIR)/tools/anonfiles-upload $(HOME)/.local/bin/anonfiles-upload
 	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
 	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
 	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
@@ -276,7 +278,7 @@ install-difftastic:
 #------------------------------------------------------------------------------
 
 uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
-	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display $(HOME)/.local/bin/clean-url $(HOME)/.local/bin/link-router
+	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/anonfiles-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display $(HOME)/.local/bin/clean-url $(HOME)/.local/bin/link-router
 	@echo "✓ All packages uninstalled"
 
 uninstall-raycast:

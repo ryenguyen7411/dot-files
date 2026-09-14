@@ -21,10 +21,11 @@ session="claude_${PWD:t}"
 session="${session//[^A-Za-z0-9_-]/_}"
 
 claude_env=()
-[[ -n "${ANTHROPIC_BASE_URL:-}" ]] && claude_env+=(ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL")
-[[ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]] && claude_env+=(ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN")
-[[ -n "${ANTHROPIC_API_KEY:-}" ]] && claude_env+=(ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
-[[ -n "${ANTHROPIC_MODEL:-}" ]] && claude_env+=(ANTHROPIC_MODEL="$ANTHROPIC_MODEL")
+# [[ -n "${ANTHROPIC_BASE_URL:-}" ]] && claude_env+=(ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL")
+# [[ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]] && claude_env+=(ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN")
+# [[ -n "${ANTHROPIC_API_KEY:-}" ]] && claude_env+=(ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
+# [[ -n "${ANTHROPIC_MODEL:-}" ]] && claude_env+=(ANTHROPIC_MODEL="$ANTHROPIC_MODEL")
+[[ -n "${CLAUDE_CODE_SUBAGENT_MODEL:-}" ]] && claude_env+=(CLAUDE_CODE_SUBAGENT_MODEL="$CLAUDE_CODE_SUBAGENT_MODEL")
 
 if tmux list-clients -t "$session" 2>/dev/null | grep -q .; then
   tmux detach-client -s "$session"
