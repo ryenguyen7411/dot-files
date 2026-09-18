@@ -7,7 +7,7 @@ STOW_ADOPT := -v --target=$(HOME) --adopt
 PACKAGES := shell nvim kitty tmux git starship bat raycast
 
 .PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-tools install-raycast install-starship install-bat install-ssh install-ubuntu-server
+.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-tools install-raycast install-starship install-bat install-ssh install-ubuntu-server install-jump-desktop-service uninstall-jump-desktop-service
 .PHONY: install-zinit backup-omz install-difftastic
 .PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
 .PHONY: backup check dry-run
@@ -117,15 +117,16 @@ install-force: check backup
 	@if command -v swiftc >/dev/null 2>&1; then \
 		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
+		[ -f "$(CURDIR)/tools/jump-desktop.swift" ] && swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/clean-url.swift" ] && swiftc -O $(CURDIR)/tools/clean-url.swift -o $(CURDIR)/tools/clean-url 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/link-router.swift" ] && swiftc -O $(CURDIR)/tools/link-router.swift -o $(CURDIR)/tools/link-router 2>/dev/null || true; \
 	fi
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
 	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
 	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
-	@ln -sf $(CURDIR)/tools/anonfiles-upload $(HOME)/.local/bin/anonfiles-upload
 	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
 	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
+	@[ -f "$(CURDIR)/tools/jump-desktop" ] && ln -sf $(CURDIR)/tools/jump-desktop $(HOME)/.local/bin/jump-desktop || true
 	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
 	@[ -f "$(CURDIR)/tools/link-router" ] && ln -sf $(CURDIR)/tools/link-router $(HOME)/.local/bin/link-router || true
 	@echo ""
@@ -211,15 +212,16 @@ install-tools:
 	@if command -v swiftc >/dev/null 2>&1; then \
 		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
+		[ -f "$(CURDIR)/tools/jump-desktop.swift" ] && swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/clean-url.swift" ] && swiftc -O $(CURDIR)/tools/clean-url.swift -o $(CURDIR)/tools/clean-url 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/link-router.swift" ] && swiftc -O $(CURDIR)/tools/link-router.swift -o $(CURDIR)/tools/link-router 2>/dev/null || true; \
 	fi
 	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
 	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
 	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
-	@ln -sf $(CURDIR)/tools/anonfiles-upload $(HOME)/.local/bin/anonfiles-upload
 	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
 	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
+	@[ -f "$(CURDIR)/tools/jump-desktop" ] && ln -sf $(CURDIR)/tools/jump-desktop $(HOME)/.local/bin/jump-desktop || true
 	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
 	@[ -f "$(CURDIR)/tools/link-router" ] && ln -sf $(CURDIR)/tools/link-router $(HOME)/.local/bin/link-router || true
 	@echo "✓ Standalone tools installed to ~/.local/bin"
@@ -230,6 +232,24 @@ install-raycast:
 	@chmod +x $(CURDIR)/raycast/.config/raycast/scripts/*.sh 2>/dev/null || true
 	$(STOW) $(STOW_FLAGS) raycast
 	@echo "✓ Raycast scripts installed to ~/.config/raycast/scripts"
+
+#------------------------------------------------------------------------------
+# LaunchAgent Services
+#------------------------------------------------------------------------------
+
+install-jump-desktop-service:
+	@echo "Installing jump-desktop background service..."
+	@mkdir -p $(HOME)/Library/LaunchAgents
+	@ln -sf $(CURDIR)/launchd/com.colorye.jump-desktop.plist $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist
+	@launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true
+	@launchctl load $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist
+	@echo "✓ jump-desktop watcher service installed and loaded"
+
+uninstall-jump-desktop-service:
+	@echo "Stopping and removing jump-desktop service..."
+	@launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true
+	@rm -f $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist
+	@echo "✓ jump-desktop service uninstalled"
 
 #------------------------------------------------------------------------------
 # Shell Plugin Manager (Zinit)
@@ -278,7 +298,7 @@ install-difftastic:
 #------------------------------------------------------------------------------
 
 uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
-	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/anonfiles-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display $(HOME)/.local/bin/clean-url $(HOME)/.local/bin/link-router
+	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display $(HOME)/.local/bin/jump-desktop $(HOME)/.local/bin/clean-url $(HOME)/.local/bin/link-router
 	@echo "✓ All packages uninstalled"
 
 uninstall-raycast:

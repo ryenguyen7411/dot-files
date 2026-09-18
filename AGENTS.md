@@ -84,6 +84,7 @@ Project-specific documentation and tooling config belong in **each application r
 - `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
 - `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)
 - `jump-display`: Teleports mouse cursor across connected monitors dynamically or via env overrides (installed to `~/.local/bin/jump-display`)
+- `jump-desktop`: Switches macOS virtual desktops (Spaces) with instant window autofocus, or runs as a background watcher (installed to `~/.local/bin/jump-desktop`)
 - `clean-url`: Strips tracking query parameters (UTM, fbclid, gclid, si, etc.) from URLs and clipboard (installed to `~/.local/bin/clean-url`)
 - `link-router`: Cross-browser and multi-profile smart URL router based on domain rules (installed to `~/.local/bin/link-router`)
 

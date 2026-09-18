@@ -200,6 +200,15 @@ jump-display 2               # Jump to display 2
 jump-display list            # List connected monitors and positions
 ```
 
+### jump-desktop - Desktop / Space Switcher with Window Autofocus
+
+Autofocuses the frontmost window on the destination space whenever you switch Desktops (via keyboard `Ctrl + Left/Right`, trackpad gesture, or Raycast), or on-demand:
+
+```bash
+jump-desktop focus           # Autofocus top window on current desktop right now
+jump-desktop --watch         # Background watcher daemon (managed via LaunchAgent)
+```
+
 ### clean-url - Instant Tracker Stripper & URL Cleaner
 
 Strips tracking query parameters (`utm_*`, `fbclid`, `gclid`, `si`, etc.) from URLs and clipboard:
