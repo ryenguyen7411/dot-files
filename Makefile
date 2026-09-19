@@ -65,7 +65,7 @@ backup:
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-raycast install-bat install-ssh
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-jump-desktop-service install-raycast install-bat install-ssh
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -129,6 +129,7 @@ install-force: check backup
 	@[ -f "$(CURDIR)/tools/jump-desktop" ] && ln -sf $(CURDIR)/tools/jump-desktop $(HOME)/.local/bin/jump-desktop || true
 	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
 	@[ -f "$(CURDIR)/tools/link-router" ] && ln -sf $(CURDIR)/tools/link-router $(HOME)/.local/bin/link-router || true
+	@$(MAKE) install-jump-desktop-service
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo "✓ Backup available at ~/.dotfiles-backup/"
@@ -238,18 +239,22 @@ install-raycast:
 #------------------------------------------------------------------------------
 
 install-jump-desktop-service:
-	@echo "Installing jump-desktop background service..."
-	@mkdir -p $(HOME)/Library/LaunchAgents
-	@ln -sf $(CURDIR)/launchd/com.colorye.jump-desktop.plist $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist
-	@launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true
-	@launchctl load $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist
-	@echo "✓ jump-desktop watcher service installed and loaded"
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		echo "Installing jump-desktop background service..."; \
+		mkdir -p $(HOME)/Library/LaunchAgents; \
+		sed 's|__HOME__|$(HOME)|g; s|/Users/[^/]*/\.local|$(HOME)/.local|g' $(CURDIR)/launchd/com.colorye.jump-desktop.plist > $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
+		launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
+		launchctl load $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
+		echo "✓ jump-desktop watcher service installed and loaded"; \
+	fi
 
 uninstall-jump-desktop-service:
-	@echo "Stopping and removing jump-desktop service..."
-	@launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true
-	@rm -f $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist
-	@echo "✓ jump-desktop service uninstalled"
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		echo "Stopping and removing jump-desktop service..."; \
+		launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
+		rm -f $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
+		echo "✓ jump-desktop service uninstalled"; \
+	fi
 
 #------------------------------------------------------------------------------
 # Shell Plugin Manager (Zinit)
@@ -297,7 +302,7 @@ install-difftastic:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
+uninstall: uninstall-jump-desktop-service uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
 	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display $(HOME)/.local/bin/jump-desktop $(HOME)/.local/bin/clean-url $(HOME)/.local/bin/link-router
 	@echo "✓ All packages uninstalled"
 

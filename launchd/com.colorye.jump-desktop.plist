@@ -6,7 +6,7 @@
     <string>com.colorye.jump-desktop</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/tan.nguyen2/.local/bin/jump-desktop</string>
+        <string>__HOME__/.local/bin/jump-desktop</string>
         <string>--watch</string>
     </array>
     <key>RunAtLoad</key>

@@ -11,6 +11,9 @@ func CGSMainConnectionID() -> UInt32
 @_silgen_name("CGSGetActiveSpace")
 func CGSGetActiveSpace(_ cid: UInt32) -> UInt64
 
+@_silgen_name("CGSCopyManagedDisplaySpaces")
+func CGSCopyManagedDisplaySpaces(_ cid: UInt32) -> CFArray?
+
 // MARK: - Constants & Helpers
 
 func printUsage() {
@@ -21,11 +24,11 @@ func printUsage() {
       jump-desktop <action> [options]
 
     \u{001B}[1mActions:\u{001B}[0m
-      focus          Autofocus the center/top window on the current Desktop right now
+      focus          Autofocus the target window (under mouse > screen center > frontmost on screen)
       -h, --help     Show this help message
 
     \u{001B}[1mOptions:\u{001B}[0m
-      --watch, -w    Run background watcher (detects Space changes via WindowServer and autofocuses)
+      --watch, -w    Run background watcher (detects Space changes across all displays and autofocuses)
       --delay <ms>   Delay in ms after space switch before focusing (default: 60ms)
       --warp, -m     Move mouse cursor to center of the focused window (default: disabled)
       --no-warp      Keep mouse position unchanged (default)
@@ -37,115 +40,218 @@ func printUsage() {
     """)
 }
 
-// Convert point from Cocoa to CoreGraphics coordinates
-func getPrimaryScreenHeight(screens: [NSScreen]) -> CGFloat {
-    return screens.first(where: { $0.frame.origin == .zero })?.frame.height ?? (screens.first?.frame.height ?? 1080.0)
+let ignoredOwners: Set<String> = [
+    "Window Server",
+    "Dock",
+    "WindowManager",
+    "Control Center",
+    "Notification Center",
+    "SystemUIServer",
+    "Spotlight",
+    "Raycast",
+    "loginwindow",
+    "ScreenSaverEngine"
+]
+
+struct AppWindowTarget {
+    let pid: pid_t
+    let appName: String
+    let windowElement: AXUIElement?
+    let bounds: CGRect
 }
 
-// Find window at center of current screen (or frontmost window on that screen)
-func getCenterWindowInfo() -> (pid: pid_t, owner: String, bounds: CGRect)? {
-    let screens = NSScreen.screens
-    guard let mainScreen = NSScreen.main ?? screens.first else { return nil }
-    let primaryHeight = getPrimaryScreenHeight(screens: screens)
-    let mouseLoc = NSEvent.mouseLocation
+enum MatchReason: String {
+    case underMouse = "under mouse"
+    case centerOfScreen = "center of screen"
+    case frontmostOnScreen = "frontmost on screen"
+}
 
-    // Target screen under mouse cursor, or primary screen
-    let targetScreen = screens.first(where: { $0.frame.contains(mouseLoc) }) ?? mainScreen
-    let screenCG = CGRect(
-        x: targetScreen.frame.origin.x,
-        y: primaryHeight - (targetScreen.frame.origin.y + targetScreen.frame.height),
-        width: targetScreen.frame.width,
-        height: targetScreen.frame.height
-    )
-    let screenCenter = CGPoint(x: screenCG.midX, y: screenCG.midY)
+struct TargetResult {
+    let target: AppWindowTarget
+    let matchReason: MatchReason
+}
 
+// Get all active display bounds in CoreGraphics coordinates
+func getActiveDisplays() -> [CGRect] {
+    var count: UInt32 = 0
+    CGGetActiveDisplayList(0, nil, &count)
+    var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
+    CGGetActiveDisplayList(count, &displays, &count)
+    return displays.map { CGDisplayBounds($0) }
+}
+
+// Find display containing mouse location (or closest display if near boundary)
+func getDisplayContaining(point: CGPoint, displays: [CGRect]) -> CGRect {
+    for d in displays {
+        if d.contains(point) {
+            return d
+        }
+    }
+    if let closest = displays.min(by: { d1, d2 in
+        let dx1 = max(d1.minX - point.x, 0, point.x - d1.maxX)
+        let dy1 = max(d1.minY - point.y, 0, point.y - d1.maxY)
+        let dx2 = max(d2.minX - point.x, 0, point.x - d2.maxX)
+        let dy2 = max(d2.minY - point.y, 0, point.y - d2.maxY)
+        return (dx1 * dx1 + dy1 * dy1) < (dx2 * dx2 + dy2 * dy2)
+    }) {
+        return closest
+    }
+    return CGRect(x: 0, y: 0, width: 1920, height: 1080)
+}
+
+// Perform hit-test at given point using Accessibility API to find real interactive application window
+func getAppAndWindowAt(point: CGPoint) -> AppWindowTarget? {
+    let systemWide = AXUIElementCreateSystemWide()
+    var element: AXUIElement?
+    guard AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &element) == .success,
+          let elem = element else {
+        return nil
+    }
+
+    var pid: pid_t = 0
+    guard AXUIElementGetPid(elem, &pid) == .success, pid > 0 else {
+        return nil
+    }
+
+    guard let app = NSRunningApplication(processIdentifier: pid),
+          let name = app.localizedName,
+          !ignoredOwners.contains(name) else {
+        return nil
+    }
+
+    // Traverse ancestors to find AXWindow
+    var current: AXUIElement? = elem
+    while let cur = current {
+        var roleVal: AnyObject?
+        if AXUIElementCopyAttributeValue(cur, kAXRoleAttribute as CFString, &roleVal) == .success,
+           let role = roleVal as? String, role == (kAXWindowRole as String) {
+            var subroleVal: AnyObject?
+            AXUIElementCopyAttributeValue(cur, kAXSubroleAttribute as CFString, &subroleVal)
+            let subrole = subroleVal as? String ?? ""
+            // Filter out non-interactive / dummy / desktop windows
+            if subrole == "AXUnknown" {
+                return nil
+            }
+
+            var posVal: AnyObject?
+            var sizeVal: AnyObject?
+            AXUIElementCopyAttributeValue(cur, kAXPositionAttribute as CFString, &posVal)
+            AXUIElementCopyAttributeValue(cur, kAXSizeAttribute as CFString, &sizeVal)
+            var pos = CGPoint.zero
+            var size = CGSize.zero
+            if let pv = posVal as! AXValue? { AXValueGetValue(pv, .cgPoint, &pos) }
+            if let sv = sizeVal as! AXValue? { AXValueGetValue(sv, .cgSize, &size) }
+            let rect = CGRect(origin: pos, size: size)
+            return AppWindowTarget(pid: pid, appName: name, windowElement: cur, bounds: rect)
+        }
+        var parentVal: AnyObject?
+        if AXUIElementCopyAttributeValue(cur, kAXParentAttribute as CFString, &parentVal) == .success,
+           let parent = parentVal {
+            current = (parent as! AXUIElement)
+        } else {
+            current = nil
+        }
+    }
+    return nil
+}
+
+// Find target window hierarchy: under mouse > center of current screen with cursor > frontmost on screen
+func getTargetWindow(mouseLoc: CGPoint) -> TargetResult? {
+    let displays = getActiveDisplays()
+    let currentDisplay = getDisplayContaining(point: mouseLoc, displays: displays)
+    let screenCenter = CGPoint(x: currentDisplay.midX, y: currentDisplay.midY)
+
+    // 1. Priority 1: Window directly under mouse cursor (via real interactive Accessibility hit-test)
+    if let target = getAppAndWindowAt(point: mouseLoc) {
+        return TargetResult(target: target, matchReason: .underMouse)
+    }
+
+    // 2. Priority 2: Window covering center of current screen with cursor
+    if let target = getAppAndWindowAt(point: screenCenter) {
+        return TargetResult(target: target, matchReason: .centerOfScreen)
+    }
+
+    // 3. Priority 3: Fallback to frontmost visible window on this screen via CGWindowList + AX verification
     let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
     guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
         return nil
     }
 
-    let ignoredOwners: Set<String> = [
-        "Window Server",
-        "Dock",
-        "WindowManager",
-        "Control Center",
-        "Notification Center",
-        "SystemUIServer",
-        "Spotlight",
-        "Raycast"
-    ]
-
-    var candidates: [(pid: pid_t, owner: String, bounds: CGRect)] = []
-
     for info in list {
         guard let layer = info[kCGWindowLayer as String] as? Int, layer == 0,
               let boundsDict = info[kCGWindowBounds as String] as? [String: Any],
               let bounds = CGRect(dictionaryRepresentation: boundsDict as CFDictionary),
-              bounds.width > 120, bounds.height > 120,
-              bounds.origin.x >= 0, bounds.origin.y >= 0, // Filter out Stage Manager offscreen previews
-              bounds.origin.x < screenCG.maxX, bounds.origin.y < screenCG.maxY,
+              bounds.width >= 100, bounds.height >= 100,
               let pid = info[kCGWindowOwnerPID as String] as? pid_t,
               let owner = info[kCGWindowOwnerName as String] as? String,
               !ignoredOwners.contains(owner) else {
             continue
         }
-        candidates.append((pid, owner, bounds))
+
+        let alpha = info[kCGWindowAlpha as String] as? Double ?? 1.0
+        guard alpha > 0.05 else { continue }
+
+        let intersection = bounds.intersection(currentDisplay)
+        guard !intersection.isNull, intersection.width >= 100, intersection.height >= 100 else {
+            continue
+        }
+
+        // Verify this PID has a real AXWindow on the current display (not dummy/unknown)
+        let appElement = AXUIElementCreateApplication(pid)
+        var windowsValue: AnyObject?
+        if AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowsValue) == .success,
+           let windows = windowsValue as? [AXUIElement] {
+            for win in windows {
+                var subroleVal: AnyObject?
+                AXUIElementCopyAttributeValue(win, kAXSubroleAttribute as CFString, &subroleVal)
+                let subrole = subroleVal as? String ?? ""
+                if subrole == "AXUnknown" { continue }
+
+                var posVal: AnyObject?
+                var sizeVal: AnyObject?
+                AXUIElementCopyAttributeValue(win, kAXPositionAttribute as CFString, &posVal)
+                AXUIElementCopyAttributeValue(win, kAXSizeAttribute as CFString, &sizeVal)
+                var pos = CGPoint.zero
+                var size = CGSize.zero
+                if let pv = posVal as! AXValue? { AXValueGetValue(pv, .cgPoint, &pos) }
+                if let sv = sizeVal as! AXValue? { AXValueGetValue(sv, .cgSize, &size) }
+                let rect = CGRect(origin: pos, size: size)
+                if rect.intersects(currentDisplay) {
+                    let target = AppWindowTarget(pid: pid, appName: owner, windowElement: win, bounds: rect)
+                    return TargetResult(target: target, matchReason: .frontmostOnScreen)
+                }
+            }
+        }
     }
 
-    // 1. Prioritize topmost window covering the center of the screen
-    if let centerWindow = candidates.first(where: { $0.bounds.contains(screenCenter) }) {
-        return centerWindow
-    }
-
-    // 2. Fallback to frontmost visible window on this screen
-    return candidates.first
+    return nil
 }
 
 // Activate application and raise specific window (without changing mouse position unless warp is explicitly requested)
 @discardableResult
-func focusWindow(warp: Bool = false) -> Bool {
-    guard let target = getCenterWindowInfo() else {
+func focusWindow(target: AppWindowTarget, warp: Bool = false) -> Bool {
+    // 1. Activate application
+    guard let app = NSRunningApplication(processIdentifier: target.pid) else {
         return false
     }
 
-    // 1. Activate application
-    if let app = NSRunningApplication(processIdentifier: target.pid) {
-        #if swift(>=5.9)
-        if #available(macOS 14.0, *) {
-            _ = app.activate(options: [.activateIgnoringOtherApps])
-        } else {
-            _ = app.activate(options: [.activateIgnoringOtherApps])
-        }
-        #else
-        _ = app.activate(options: [.activateIgnoringOtherApps])
-        #endif
+    #if swift(>=5.9)
+    if #available(macOS 14.0, *) {
+        app.activate()
+    } else {
+        app.activate(options: [.activateIgnoringOtherApps])
     }
+    #else
+    app.activate(options: [.activateIgnoringOtherApps])
+    #endif
 
     // 2. Set frontmost and raise specific AXWindow element
     let appElement = AXUIElementCreateApplication(target.pid)
     _ = AXUIElementSetAttributeValue(appElement, kAXFrontmostAttribute as CFString, kCFBooleanTrue)
 
-    var windowsValue: AnyObject?
-    if AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowsValue) == .success,
-       let windows = windowsValue as? [AXUIElement] {
-        for win in windows {
-            var posVal: AnyObject?
-            var sizeVal: AnyObject?
-            if AXUIElementCopyAttributeValue(win, kAXPositionAttribute as CFString, &posVal) == .success,
-               AXUIElementCopyAttributeValue(win, kAXSizeAttribute as CFString, &sizeVal) == .success {
-                var pos = CGPoint.zero
-                var size = CGSize.zero
-                if AXValueGetValue(posVal as! AXValue, .cgPoint, &pos),
-                   AXValueGetValue(sizeVal as! AXValue, .cgSize, &size) {
-                    let rect = CGRect(origin: pos, size: size)
-                    if rect.intersects(target.bounds) {
-                        AXUIElementPerformAction(win, kAXRaiseAction as CFString)
-                        AXUIElementSetAttributeValue(win, kAXMainAttribute as CFString, kCFBooleanTrue)
-                        break
-                    }
-                }
-            }
-        }
+    if let win = target.windowElement {
+        AXUIElementPerformAction(win, kAXRaiseAction as CFString)
+        AXUIElementSetAttributeValue(win, kAXMainAttribute as CFString, kCFBooleanTrue)
     }
 
     // 3. Optional warp mouse to center of focused window (only if explicitly enabled)
@@ -158,13 +264,35 @@ func focusWindow(warp: Bool = false) -> Bool {
     return true
 }
 
-// Watcher mode using direct CGS WindowServer polling (0% CPU, ultra-reliable across all macOS versions)
+func getManagedDisplaySpaces(cid: UInt32) -> [String: UInt64] {
+    var result: [String: UInt64] = [:]
+    if let displays = CGSCopyManagedDisplaySpaces(cid) as? [[String: Any]] {
+        for d in displays {
+            guard let uuid = d["Display Identifier"] as? String,
+                  let currentSpace = d["Current Space"] as? [String: Any] else {
+                continue
+            }
+            let spaceID = (currentSpace["id64"] as? UInt64)
+                ?? (currentSpace["ManagedSpaceID"] as? UInt64)
+                ?? (currentSpace["id64"] as? Int).map { UInt64($0) }
+                ?? (currentSpace["ManagedSpaceID"] as? Int).map { UInt64($0) }
+            if let spaceID = spaceID {
+                result[uuid] = spaceID
+            }
+        }
+    }
+    return result
+}
+
+// Watcher mode using direct CGS WindowServer polling (0% CPU, ultra-reliable across all macOS versions and multi-display setups)
 func startWatcher(delayMs: UInt32, warp: Bool) {
     setlinebuf(stdout)
     let cid = CGSMainConnectionID()
-    var currentSpace = CGSGetActiveSpace(cid)
+    var currentActiveSpace = CGSGetActiveSpace(cid)
+    var currentDisplaySpaces = getManagedDisplaySpaces(cid: cid)
 
-    print("\u{001B}[32m✓ jump-desktop watcher active. Monitoring Space / Desktop changes (Initial Space ID: \(currentSpace))...\u{001B}[0m")
+    let initialDesc = currentDisplaySpaces.isEmpty ? "\(currentActiveSpace)" : currentDisplaySpaces.map { "\($0.key.prefix(8)):\($0.value)" }.joined(separator: ", ")
+    print("\u{001B}[32m✓ jump-desktop watcher active. Monitoring Space / Desktop changes across displays (Spaces: \(initialDesc))...\u{001B}[0m")
     fflush(stdout)
 
     let formatter = DateFormatter()
@@ -172,24 +300,34 @@ func startWatcher(delayMs: UInt32, warp: Bool) {
 
     while true {
         usleep(40_000) // Poll every 40ms (ultra-responsive, <0.001% CPU)
-        let newSpace = CGSGetActiveSpace(cid)
-        if newSpace != currentSpace {
-            let oldSpace = currentSpace
-            currentSpace = newSpace
+        let newDisplaySpaces = getManagedDisplaySpaces(cid: cid)
+        let newActiveSpace = CGSGetActiveSpace(cid)
+
+        let hasChange: Bool
+        if !newDisplaySpaces.isEmpty {
+            hasChange = (newDisplaySpaces != currentDisplaySpaces)
+        } else {
+            hasChange = (newActiveSpace != currentActiveSpace)
+        }
+
+        if hasChange {
+            currentDisplaySpaces = newDisplaySpaces
+            currentActiveSpace = newActiveSpace
 
             // Snappy settling delay (default 60ms)
             if delayMs > 0 {
                 usleep(delayMs * 1000)
             }
 
-            if let target = getCenterWindowInfo() {
-                focusWindow(warp: warp)
-                let timeStr = formatter.string(from: Date())
-                print("[\(timeStr)] Space changed (\(oldSpace) -> \(newSpace)) -> Focused center: \(target.owner) (PID: \(target.pid))")
+            let mouseLoc = CGEvent(source: nil)?.location ?? .zero
+            let timeStr = formatter.string(from: Date())
+
+            if let targetResult = getTargetWindow(mouseLoc: mouseLoc) {
+                focusWindow(target: targetResult.target, warp: warp)
+                print("[\(timeStr)] Space changed -> Focused \(targetResult.matchReason.rawValue): \(targetResult.target.appName) (PID: \(targetResult.target.pid))")
                 fflush(stdout)
             } else {
-                let timeStr = formatter.string(from: Date())
-                print("[\(timeStr)] Space changed (\(oldSpace) -> \(newSpace)) -> (No active application window)")
+                print("[\(timeStr)] Space changed -> (No active application window)")
                 fflush(stdout)
             }
         }
@@ -249,16 +387,17 @@ guard let action = positionalArgs.first?.lowercased() else {
 }
 
 switch action {
-    case "focus":
-        if let target = getCenterWindowInfo() {
-            focusWindow(warp: shouldWarp)
-            print("✓ Focused center window: \(target.owner) (PID: \(target.pid))")
-        } else {
-            print("No visible window found to focus.")
-        }
-    default:
-        fputs("Error: Invalid action '\(action)'. Use focus or --watch.\n", stderr)
-        exit(1)
+case "focus":
+    let mouseLoc = CGEvent(source: nil)?.location ?? .zero
+    if let targetResult = getTargetWindow(mouseLoc: mouseLoc) {
+        focusWindow(target: targetResult.target, warp: shouldWarp)
+        print("✓ Focused \(targetResult.matchReason.rawValue): \(targetResult.target.appName) (PID: \(targetResult.target.pid))")
+    } else {
+        print("No visible window found to focus.")
+    }
+default:
+    fputs("Error: Invalid action '\(action)'. Use focus or --watch.\n", stderr)
+    exit(1)
 }
 
 exit(0)
