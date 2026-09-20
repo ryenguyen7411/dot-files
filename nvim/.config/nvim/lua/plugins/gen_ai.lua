@@ -48,6 +48,19 @@ M.setup_minuet = function()
   }
 end
 
+M.setup_neocursor = function()
+  return {
+    'teocns/neocursor.nvim',
+    event = 'InsertEnter',
+    build = 'uv run --with "httpx[http2]" python -c "import httpx"',
+    opts = {
+      debounce = 250,
+      map_tab = true,
+      map_partial = '<M-Right>',
+    },
+  }
+end
+
 M.setup_sidekick = function()
   return {
     'folke/sidekick.nvim',
@@ -183,7 +196,8 @@ M.setup_sidekick = function()
 end
 
 return {
-  M.setup_supermaven(), -- Supermaven shut down Nov 2025 (acquired by Cursor/Anysphere)
+  M.setup_neocursor(),
+  -- M.setup_supermaven(), -- Sunset by Cursor; still works for some accounts — toggle if needed
   -- M.setup_sidekick(),
   -- M.setup_minuet(),
 }

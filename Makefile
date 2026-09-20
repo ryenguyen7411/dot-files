@@ -117,7 +117,11 @@ install-force: check backup
 	@if command -v swiftc >/dev/null 2>&1; then \
 		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
-		[ -f "$(CURDIR)/tools/jump-desktop.swift" ] && swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
+		if [ -f "$(CURDIR)/tools/jump-desktop.swift" ]; then \
+			swiftc -O -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker $(CURDIR)/tools/jump-desktop-Info.plist $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || \
+				swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
+			codesign -s - --force --identifier com.colorye.jump-desktop $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
+		fi; \
 		[ -f "$(CURDIR)/tools/clean-url.swift" ] && swiftc -O $(CURDIR)/tools/clean-url.swift -o $(CURDIR)/tools/clean-url 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/link-router.swift" ] && swiftc -O $(CURDIR)/tools/link-router.swift -o $(CURDIR)/tools/link-router 2>/dev/null || true; \
 	fi
@@ -213,7 +217,11 @@ install-tools:
 	@if command -v swiftc >/dev/null 2>&1; then \
 		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
-		[ -f "$(CURDIR)/tools/jump-desktop.swift" ] && swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
+		if [ -f "$(CURDIR)/tools/jump-desktop.swift" ]; then \
+			swiftc -O -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker $(CURDIR)/tools/jump-desktop-Info.plist $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || \
+				swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
+			codesign -s - --force --identifier com.colorye.jump-desktop $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
+		fi; \
 		[ -f "$(CURDIR)/tools/clean-url.swift" ] && swiftc -O $(CURDIR)/tools/clean-url.swift -o $(CURDIR)/tools/clean-url 2>/dev/null || true; \
 		[ -f "$(CURDIR)/tools/link-router.swift" ] && swiftc -O $(CURDIR)/tools/link-router.swift -o $(CURDIR)/tools/link-router 2>/dev/null || true; \
 	fi
@@ -243,15 +251,17 @@ install-jump-desktop-service:
 		echo "Installing jump-desktop background service..."; \
 		mkdir -p $(HOME)/Library/LaunchAgents; \
 		sed 's|__HOME__|$(HOME)|g; s|/Users/[^/]*/\.local|$(HOME)/.local|g' $(CURDIR)/launchd/com.colorye.jump-desktop.plist > $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
-		launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
-		launchctl load $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
+		launchctl bootout gui/$$(id -u) $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
+		launchctl bootstrap gui/$$(id -u) $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || \
+			launchctl load $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
 		echo "✓ jump-desktop watcher service installed and loaded"; \
 	fi
 
 uninstall-jump-desktop-service:
 	@if [ "$$(uname)" = "Darwin" ]; then \
 		echo "Stopping and removing jump-desktop service..."; \
-		launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
+		launchctl bootout gui/$$(id -u) $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || \
+			launchctl unload $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
 		rm -f $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
 		echo "✓ jump-desktop service uninstalled"; \
 	fi

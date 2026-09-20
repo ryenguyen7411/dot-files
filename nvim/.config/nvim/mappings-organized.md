@@ -6,7 +6,7 @@ A comprehensive guide to all custom key mappings in this Neovim configuration.
 
 - **Leader Key**: `<Space>` (Space bar)
 - **Local Leader Key**: `,` (Comma)
-- **Configuration Source**: Most mappings defined in `~/projects/colorye/dot-files/nvim/init.lua`
+- **Configuration Source**: `lua/mappings.lua`, `lua/plugins/*.lua` under `nvim/.config/nvim/`
 
 ## File and Project Operations
 
@@ -53,7 +53,22 @@ A comprehensive guide to all custom key mappings in this Neovim configuration.
 | `<Space>uw` | Toggle Wrap | Enable/disable line wrapping |
 | `<Space>us` | Toggle Spelling | Enable/disable spell checking |
 
-## AI & Copilot Operations
+## AI completions (neocursor.nvim)
+
+Active plugin: **neocursor** (Cursor Tab ghost text + next-edit jumps). Requires Cursor desktop signed in and `uv` on PATH. Run `:Lazy build neocursor` after install.
+
+| Key / Command | Action | Description |
+|---------------|--------|-------------|
+| `<Tab>` | Accept / jump / chain | Accept suggestion, jump to next predicted edit, repeat |
+| `<M-Right>` | Partial accept | Accept suggestion word-by-word |
+| `<Esc>` | Dismiss | Leave insert mode; rejection is sent to the model |
+| `:NeocursorSuggest` | Force suggest | Request a completion immediately |
+| `:NeocursorLog` | Live dashboard | Toggle debug event stream |
+| `:NeocursorDebug` | Diagnostics | Config, sidecar, last error |
+
+**Fallback:** Uncomment `M.setup_supermaven()` in `lua/plugins/gen_ai.lua` if your Supermaven account still works — do not enable both at once.
+
+### Sidekick / Copilot (optional, commented in config)
 
 ### Next Edit Suggestions (NES)
 
@@ -186,13 +201,22 @@ This configuration leverages several modern Neovim plugins:
 
 - **Snacks.nvim**: File picker, explorer, and utilities
 - **Mini.nvim Suite**: Jump, move, surround, comment, and more
-- **Sidekick.nvim**: AI-powered Next Edit Suggestions (NES) and CLI integration
-- **Supermaven**: Inline AI code completions
-- **CodeCompanion**: AI-powered code assistance
+- **neocursor.nvim**: Cursor Tab inline completions and next-edit jumps (primary AI layer)
+- **Supermaven**: Legacy inline AI (optional; enable in `gen_ai.lua` if account still works)
+- **Sidekick.nvim**: Copilot LSP + NES + Cursor CLI (optional; commented in `gen_ai.lua`)
+- **minuet-ai.nvim**: RyeAI / OpenAI-compatible ghost text (optional; commented in `gen_ai.lua`)
 - **Hardtime**: Movement restrictions for better habits
 - **Diffview**: Git diff and merge operations
-- **Telescope**: Fuzzy finding and selection
 - **Treesitter**: Enhanced syntax highlighting and text objects
+
+## TypeScript / JavaScript LSP
+
+| Server | When it runs | Binary |
+|--------|----------------|--------|
+| **ts_ls** | Default JS/TS projects (no `.oxfmtrc.json`) | `typescript-language-server` |
+| **tsc** | Projects with **oxfmt** (`.oxfmtrc.json` present) | TypeScript **7+** `tsc --lsp --stdio` (prefers `node_modules/.bin/tsc`) |
+
+Preview **`tsgo`** (`@typescript/native-preview`) is retired; use the stable `typescript` package and `tsc` instead.
 
 ## Notes
 

@@ -2,11 +2,21 @@ local M = {}
 local virtual_lines_enabled = false
 
 M.config = function()
+  local ts_on_attach = function(client, bufnr)
+    M.attach(client, bufnr)
+  end
+
+  vim.lsp.config('tsc', {
+    on_attach = ts_on_attach,
+  })
+
   vim.lsp.config('ts_ls', {
-    on_attach = function(client, bufnr)
-      M.attach(client, bufnr)
-    end,
+    on_attach = ts_on_attach,
     root_dir = function(bufnr, on_dir)
+      -- TypeScript 7 native LSP (`tsc --lsp`) owns oxfmt projects; see lsp/tsc.lua
+      if vim.fs.root(bufnr, { '.oxfmtrc.json' }) then
+        return
+      end
       local root = vim.fs.root(bufnr, { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' })
       if root then
         on_dir(root)
@@ -43,7 +53,7 @@ end
 
 M.start = function()
   vim.lsp.enable 'ts_ls'
-  vim.lsp.enable 'tsgo'
+  vim.lsp.enable 'tsc'
   vim.lsp.enable 'eslint'
   vim.lsp.enable 'quick_lint_js'
   vim.lsp.enable 'html'
