@@ -110,3 +110,6 @@ zsh_debug "ZSH configuration loaded successfully"
 
 # Added by Antigravity
 export PATH="/Users/ryeng/.antigravity/antigravity/bin:$PATH"
+
+# Upload a file to transfer.ryenguyen.dev (creds from ~/.netrc)
+transfer() { curl -n --progress-bar --upload-file "$1" "https://transfer.ryenguyen.dev/$(basename "$1")"; echo; }

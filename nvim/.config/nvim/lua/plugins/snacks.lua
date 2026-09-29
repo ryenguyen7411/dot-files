@@ -1,81 +1,11 @@
 function noop() end
 
+local picker_presets = require 'lib.picker_presets'
+
 local M = {}
 
-M.files_picker = function()
-  return {
-    hidden = true,
-    ignored = true,
-    layout = { preset = 'vscode' },
-    args = {
-      '-FHIL',
-      '--type=f',
-      '--color=never',
-      '--strip-cwd-prefix',
-      '--no-ignore',
-      '--ignore-file',
-      vim.fn.expand '~/.config/fd/.fdignore',
-    },
-    filter = { cwd = true },
-    formatters = {
-      file = {
-        filename_first = true,
-        truncate = 100,
-      },
-    },
-    win = {
-      input = {
-        keys = {
-          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
-        },
-      },
-      list = {
-        keys = {
-          ['<C-f>'] = 'toggle_focus',
-        },
-      },
-    },
-  }
-end
-
-M.grep_picker = function()
-  return {
-    hidden = true,
-    ignored = true,
-    layout = { preset = 'vscode' },
-    args = {
-      '-FHLSn.',
-      '--color=never',
-      '--column',
-      '--no-heading',
-      '--sort-files',
-      '--trim',
-      '--no-ignore',
-      '--ignore-file',
-      vim.fn.expand '~/.config/rg/.rgignore',
-    },
-    formatters = {
-      file = {
-        filename_first = true,
-        truncate = 40,
-      },
-    },
-    win = {
-      input = {
-        keys = {
-          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
-        },
-      },
-      list = {
-        keys = {
-          ['<C-f>'] = 'toggle_focus',
-        },
-      },
-    },
-  }
-end
+M.files_picker = picker_presets.snacks_files
+M.grep_picker = picker_presets.snacks_grep
 
 M.projects_picker = function()
   return {
@@ -215,8 +145,19 @@ return {
         { section = 'startup' },
       },
     },
-    explorer = { enable = true },
-    image = { enabled = true },
+    explorer = { enabled = true },
+    image = {
+      enabled = true,
+      doc = {
+        max_width = 120,
+        max_height = 60,
+        -- Hide the mermaid/math source and show only the rendered image.
+        -- Moving the cursor into the block reveals the source again for editing.
+        conceal = function(_, type)
+          return type == 'math' or type == 'chart'
+        end,
+      },
+    },
     indent = { enabled = true },
     input = { enabled = true },
     notifier = {
@@ -254,8 +195,20 @@ return {
   keys = {
     { 'zp', '<cmd>lua Snacks.zen()<CR>', desc = 'Toggle Zen Mode' },
 
-    { '<leader>h', '<cmd>lua Snacks.picker.files()<CR>', desc = 'Find Files' },
-    { '<leader>j', '<cmd>lua Snacks.picker.grep()<CR>', desc = 'Grep' },
+    {
+      '<leader>h',
+      function()
+        require('fff-snacks').find_files()
+      end,
+      desc = 'Find Files (fff + Snacks UI)',
+    },
+    {
+      '<leader>j',
+      function()
+        require('fff-snacks').live_grep()
+      end,
+      desc = 'Grep (fff + Snacks UI)',
+    },
     { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
     { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
@@ -263,6 +216,10 @@ return {
 
     { '<leader>i', '<cmd>lua Snacks.picker.files({ cwd = "~/notes" })<CR>', desc = 'Find Notes' },
     { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
+
+    { '<leader>gg', '<cmd>lua Snacks.lazygit()<CR>', desc = 'Lazygit' },
+    { '<leader>gs', '<cmd>lua Snacks.picker.git_status()<CR>', desc = 'Git status picker' },
+    { '<leader>gd', '<cmd>lua Snacks.picker.git_diff()<CR>', desc = 'Git diff hunks' },
 
     -- stylua: ignore start
     -- Top Pickers & Explorer
@@ -334,6 +291,18 @@ return {
     -- { "[[",         function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev Reference", mode = { "n", "t" } },
     -- stylua: ignore
   },
+  config = function(_, opts)
+    require('snacks').setup(opts)
+
+    -- The fork predates Neovim 0.12: it writes kitty graphics escape codes with io.stdout:write, which no longer
+    -- reliably reaches the terminal (the TUI runs in a separate process), so images render as empty space.
+    -- Upstream uses nvim_ui_send; do the same here. Remove once the fork is rebased on upstream.
+    if vim.api.nvim_ui_send then
+      Snacks.image.terminal.write = function(data)
+        vim.api.nvim_ui_send(data)
+      end
+    end
+  end,
   init = function()
     vim.api.nvim_create_autocmd('User', {
       pattern = 'VeryLazy',

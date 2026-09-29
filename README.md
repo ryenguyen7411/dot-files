@@ -32,7 +32,7 @@ Personal configuration files for my development environment (mostly macOS), mana
 
 | Tool | What's Inside |
 |------|---------------|
-| **Neovim** | Lua-based config with lazy.nvim, LSP, Treesitter, Telescope, and Oil |
+| **Neovim** | Lua-based config with lazy.nvim, LSP, Treesitter, Snacks picker, and Oil |
 | **Zsh** | Modular shell with oh-my-zsh, starship prompt, and performance tweaks |
 | **Tmux** | Custom theming via [oh-my-tmux](https://github.com/gpakosz/.tmux) + `tms` session manager |
 | **Kitty** | GPU-accelerated terminal with Hack Nerd Font |

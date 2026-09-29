@@ -13,5 +13,6 @@
 # @raycast.description Teleport mouse cursor to display 2
 # @raycast.author colorye
 
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+# shellcheck source=_env.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_env.sh"
 jump-display 2 --focus

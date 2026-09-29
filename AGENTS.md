@@ -99,6 +99,8 @@ Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast
 - `clean-clipboard-url.sh`: Strip trackers from clipboard URL on-demand.
 - `smart-open-url.sh`: Open URL in clipboard with matched browser and profile.
 
+Scripts source `_env.sh` to set `HOME` and `PATH` (Raycast runs non-login shells where `HOME` is often unset).
+
 Setup in Raycast on any machine:
 1. Open Raycast Settings (`Cmd + ,`) -> **Extensions**.
 2. Click **Add Extension** / `+` -> **Add Script Directory**.
