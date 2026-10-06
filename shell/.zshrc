@@ -96,9 +96,25 @@ safe_source "$ZSH_CONFIG_DIR/local.zsh"
 # TMUX AUTO-START
 # ========================
 
-# Only auto-start tmux in Kitty terminal (not in integrated terminals)
-if [[ -z "$TMUX" ]] && [[ -n "$KITTY_WINDOW_ID" ]]; then
-  tmux attach || tmux
+# Two named sessions so the Mac and the phone never steal each other's session:
+#   main   - Kitty on the Mac auto-attaches here
+#   mobile - SSH logins (Termius on the phone) auto-attach here; on the Mac it
+#            is only created detached and left running in the background
+# mobile starts in ~/projects running claude; claude is typed into the shell
+# (not run as the session command) so quitting it leaves a shell, not a dead session
+tmux_ensure_mobile() {
+  tmux has-session -t mobile 2>/dev/null && return 0
+  tmux new-session -d -s mobile -c "$HOME/projects"
+  tmux send-keys -t mobile 'claude' Enter
+}
+
+if [[ -z "$TMUX" ]] && command_exists tmux; then
+  if [[ -n "$SSH_CONNECTION" ]]; then
+    tmux_ensure_mobile && tmux attach-session -t mobile
+  elif [[ -n "$KITTY_WINDOW_ID" ]]; then
+    tmux_ensure_mobile
+    tmux new-session -A -s main
+  fi
 fi
 
 # ========================
