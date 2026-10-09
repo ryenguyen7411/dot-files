@@ -51,11 +51,44 @@ M.config = function()
   -- }
 end
 
+-- Run Node-based servers on fnm's default Node, not the one fnm switched to from a project's `.nvmrc`
+-- (e.g. finops pins Node 10, which can't parse ts_ls / eslint / oxlint)
+M.use_default_node = function(name)
+  local fnm_dir = vim.env.FNM_DIR or vim.fs.normalize '~/.local/share/fnm'
+  local node_bin = vim.fs.joinpath(fnm_dir, 'aliases/default/bin')
+  if not vim.uv.fs_stat(node_bin) then
+    return
+  end
+  local path = node_bin .. ':' .. vim.env.PATH
+
+  local cmd = vim.lsp.config[name].cmd
+  if type(cmd) ~= 'function' then
+    vim.lsp.config(name, { cmd_env = { PATH = path } })
+    return
+  end
+  -- Function cmds spawn without `cmd_env`, so swap PATH just for the (synchronous) spawn
+  vim.lsp.config(name, {
+    cmd = function(dispatchers, config)
+      local saved = vim.env.PATH
+      vim.env.PATH = path
+      local ok, client = pcall(cmd, dispatchers, config)
+      vim.env.PATH = saved
+      if not ok then
+        error(client)
+      end
+      return client
+    end,
+  })
+end
+
 M.start = function()
+  for _, name in ipairs { 'ts_ls', 'tsc', 'eslint', 'html', 'jsonls', 'oxlint' } do
+    M.use_default_node(name)
+  end
+
   vim.lsp.enable 'ts_ls'
   vim.lsp.enable 'tsc'
   vim.lsp.enable 'eslint'
-  vim.lsp.enable 'quick_lint_js'
   vim.lsp.enable 'html'
   vim.lsp.enable 'jsonls'
   vim.lsp.enable 'gopls'

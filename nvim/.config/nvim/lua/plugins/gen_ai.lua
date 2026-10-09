@@ -48,156 +48,133 @@ M.setup_minuet = function()
   }
 end
 
-M.setup_neocursor = function()
-  return {
-    'teocns/neocursor.nvim',
-    event = 'InsertEnter',
-    build = 'uv run --with "httpx[http2]" python -c "import httpx"',
-    opts = {
-      debounce = 250,
-      map_tab = true,
-      map_partial = '<M-Right>',
-    },
-  }
-end
-
 M.setup_sidekick = function()
   return {
     'folke/sidekick.nvim',
     dependencies = { 'neovim/nvim-lspconfig' },
-    lazy = false,
-    priority = 100,
+    event = 'VeryLazy',
     opts = {
-      debug = true, -- Enable debug logging
-      -- Next Edit Suggestions (NES) configuration
+      -- Next Edit Suggestions (NES): Cursor-Tab-style multi-line edits, powered by Copilot
       nes = {
         enabled = true,
-        keys = {
-          accept = '<M-l>', -- Alt+L to accept suggestion
-          reject = '<M-h>', -- Alt+H to reject suggestion
-          next = '<M-]>', -- Alt+] for next suggestion
-          prev = '<M-[>', -- Alt+[ for previous suggestion
-        },
+        debounce = 100,
       },
-      -- CLI integration for Cursor
       cli = {
-        enabled = true,
-        default = 'cursor', -- Set cursor as default CLI tool
+        win = {
+          layout = 'right',
+          split = { width = 80 },
+        },
         tools = {
-          cursor = {
-            cmd = { 'cursor', 'agent' },
-            name = 'Cursor',
-          },
-        },
-        keys = {
-          toggle = '<leader>sct', -- Toggle CLI window
-          send = '<leader>scs', -- Send selection to CLI
-          focus = '<leader>scf', -- Focus CLI window
-        },
-        window = {
-          position = 'right',
-          size = 80,
+          cursor = { cmd = { 'cursor', 'agent' } },
         },
       },
     },
     keys = {
-      -- NES keybindings
+      -- <Tab>: jump to / apply next edit suggestion -> accept Copilot ghost text -> literal <Tab>
+      {
+        '<Tab>',
+        function()
+          if require('sidekick').nes_jump_or_apply() then
+            return
+          end
+          if vim.lsp.inline_completion.get() then
+            return
+          end
+          return '<Tab>'
+        end,
+        mode = 'i',
+        expr = true,
+        desc = 'AI: Next edit / accept suggestion',
+      },
+      {
+        '<M-]>',
+        function()
+          vim.lsp.inline_completion.select { count = 1 }
+        end,
+        mode = 'i',
+        desc = 'AI: Next inline suggestion',
+      },
+      {
+        '<M-[>',
+        function()
+          vim.lsp.inline_completion.select { count = -1 }
+        end,
+        mode = 'i',
+        desc = 'AI: Previous inline suggestion',
+      },
+      -- NES
+      {
+        '<leader>snn',
+        function()
+          require('sidekick').nes_jump_or_apply()
+        end,
+        desc = 'NES: Jump / apply',
+      },
       { '<leader>snu', '<cmd>Sidekick nes update<cr>', desc = 'NES: Update suggestion' },
       { '<leader>sne', '<cmd>Sidekick nes enable<cr>', desc = 'NES: Enable' },
       { '<leader>snd', '<cmd>Sidekick nes disable<cr>', desc = 'NES: Disable' },
       { '<leader>snc', '<cmd>Sidekick nes clear<cr>', desc = 'NES: Clear' },
-      -- CLI keybindings
-      { '<leader>sct', '<cmd>Sidekick cli toggle<cr>', desc = 'CLI: Toggle' },
-      { '<leader>scs', '<cmd>Sidekick cli send msg="{selection}"<cr>', mode = 'v', desc = 'CLI: Send selection' },
-      { '<leader>scf', '<cmd>Sidekick cli focus<cr>', desc = 'CLI: Focus' },
-      { '<leader>sch', '<cmd>Sidekick cli hide<cr>', desc = 'CLI: Hide' },
-    },
-    config = function(_, opts)
-      -- Configure native Copilot LSP with sign-in support
-      vim.lsp.config('copilot', {
-        cmd = { 'copilot-language-server', '--stdio' },
-        root_markers = { '.git' },
-        filetypes = { '*' },
-        single_file_support = true,
-        init_options = {
-          editorInfo = {
-            name = 'Neovim',
-            version = tostring(vim.version()),
-          },
-          editorPluginInfo = {
-            name = 'Neovim',
-            version = tostring(vim.version()),
-          },
-        },
-        settings = {
-          telemetry = {
-            telemetryLevel = 'all',
-          },
-        },
-        on_attach = function(client, bufnr)
-          -- Create LspCopilotSignIn command
-          vim.api.nvim_buf_create_user_command(bufnr, 'LspCopilotSignIn', function()
-            client:request('signIn', vim.empty_dict(), function(err, result)
-              if err then
-                vim.notify(err.message, vim.log.levels.ERROR)
-                return
-              end
-              if result.command then
-                local code = result.userCode
-                local command = result.command
-                vim.fn.setreg('+', code)
-                vim.fn.setreg('*', code)
-                local continue = vim.fn.confirm(
-                  'Copied your one-time code to clipboard.\\nOpen the browser to complete the sign-in process?',
-                  '&Yes\\n&No'
-                )
-                if continue == 1 then
-                  client:exec_cmd(command, { bufnr = bufnr }, function(cmd_err, cmd_result)
-                    if cmd_err then
-                      vim.notify(cmd_err.message, vim.log.levels.ERROR)
-                      return
-                    end
-                    if cmd_result.status == 'OK' then
-                      vim.notify('Signed in as ' .. cmd_result.user .. '.')
-                    end
-                  end)
-                end
-              end
-              if result.status == 'PromptUserDeviceFlow' then
-                vim.notify('Enter your one-time code ' .. result.userCode .. ' in ' .. result.verificationUri)
-              elseif result.status == 'AlreadySignedIn' then
-                vim.notify('Already signed in as ' .. result.user .. '.')
-              end
-            end)
-          end, { desc = 'Sign in Copilot with GitHub' })
+      -- CLI (Cursor agent)
+      {
+        '<leader>sct',
+        function()
+          require('sidekick.cli').toggle { name = 'cursor', focus = true }
         end,
+        desc = 'CLI: Toggle',
+      },
+      {
+        '<leader>scs',
+        function()
+          require('sidekick.cli').send { name = 'cursor', msg = '{selection}' }
+        end,
+        mode = 'x',
+        desc = 'CLI: Send selection',
+      },
+      {
+        '<leader>scf',
+        function()
+          require('sidekick.cli').focus { name = 'cursor' }
+        end,
+        desc = 'CLI: Focus',
+      },
+      {
+        '<leader>sch',
+        function()
+          require('sidekick.cli').hide { name = 'cursor' }
+        end,
+        desc = 'CLI: Hide',
+      },
+    },
+    -- Runs at startup (not on VeryLazy) so Copilot also attaches to the buffer opened via `nvim <file>`
+    init = function()
+      -- Copilot via Neovim's native LSP. Base config (incl. :LspCopilotSignIn / :LspCopilotSignOut)
+      -- ships with nvim-lspconfig; requires `copilot-language-server` on PATH (see Brewfile).
+      vim.lsp.config('copilot', {
+        settings = {
+          telemetry = { telemetryLevel = 'off' },
+        },
       })
-
       vim.lsp.enable 'copilot'
 
-      -- Setup sidekick with options
-      require('sidekick').setup(opts)
-
-      -- Create an autocommand to ensure Copilot attaches to all buffers
-      vim.api.nvim_create_autocmd({ 'FileType', 'BufEnter' }, {
-        pattern = '*',
+      -- Native ghost-text completions (Neovim 0.12+)
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('copilot_inline_completion', { clear = true }),
         callback = function(args)
-          local bufnr = args.buf
-          if vim.bo[bufnr].buftype == '' then
-            vim.lsp.start {
-              name = 'copilot',
-              cmd = { 'copilot-language-server', '--stdio' },
-            }
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client and client:supports_method('textDocument/inlineCompletion', args.buf) then
+            vim.lsp.inline_completion.enable(true, { bufnr = args.buf })
           end
         end,
       })
+    end,
+    config = function(_, opts)
+      require('sidekick').setup(opts)
     end,
   }
 end
 
 return {
-  M.setup_neocursor(),
-  -- M.setup_supermaven(), -- Sunset by Cursor; still works for some accounts — toggle if needed
+  M.setup_supermaven(), -- Sunset by Cursor; still works for some accounts — toggle if needed
   -- M.setup_sidekick(),
   -- M.setup_minuet(),
 }

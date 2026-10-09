@@ -195,20 +195,22 @@ return {
   keys = {
     { 'zp', '<cmd>lua Snacks.zen()<CR>', desc = 'Toggle Zen Mode' },
 
-    {
-      '<leader>h',
-      function()
-        require('fff-snacks').find_files()
-      end,
-      desc = 'Find Files (fff + Snacks UI)',
-    },
-    {
-      '<leader>j',
-      function()
-        require('fff-snacks').live_grep()
-      end,
-      desc = 'Grep (fff + Snacks UI)',
-    },
+    { '<leader>h', '<cmd>lua Snacks.picker.files()<CR>', desc = 'Find Files' },
+    { '<leader>j', '<cmd>lua Snacks.picker.grep()<CR>', desc = 'Grep' },
+    -- {
+    --   '<leader>h',
+    --   function()
+    --     require('fff-snacks').find_files()
+    --   end,
+    --   desc = 'Find Files (fff + Snacks UI)',
+    -- },
+    -- {
+    --   '<leader>j',
+    --   function()
+    --     require('fff-snacks').live_grep()
+    --   end,
+    --   desc = 'Grep (fff + Snacks UI)',
+    -- },
     { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
     { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },

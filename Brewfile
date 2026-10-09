@@ -51,4 +51,5 @@ cask "font-hack-nerd-font"
 # Terminal Emulators & Utilities
 cask "kitty"
 cask "raycast"
+cask "copilot-language-server"  # Copilot LSP for Neovim (sidekick.nvim + native inline completion)
 # cask "alacritty"         # Alternative
