@@ -61,7 +61,8 @@ return {
       -- Remap adding surrounding to Visual mode selection
       vim.keymap.del('x', 'ys')
       vim.keymap.set('x', 'S', [[:<C-u>lua MiniSurround.add('visual')<CR>]], { noremap = true, silent = true })
-      vim.keymap.set('n', 'yss', 'yss', { noremap = false })
+      -- vim-surround's `yss` (surround the line); remap so `ys` reaches mini.surround
+      vim.keymap.set('n', 'yss', 'ys_', { remap = true })
     end,
   },
 }

@@ -14,6 +14,7 @@ nvim/.config/nvim/plugin/
 
 # Machine-specific local config (created from .gitconfig-local.example)
 git/.gitconfig-local
+git/.gitconfig-work
 
 # -----------------------------------------------------------------------------
 # Shell
@@ -21,6 +22,8 @@ git/.gitconfig-local
 
 # Machine-specific local config (created from local.zsh.example)
 shell/.config/zsh/local.zsh
+# Work-only helpers (company project IDs / cluster names; this repo is public)
+shell/.config/zsh/work.zsh
 
 # -----------------------------------------------------------------------------
 # Tmux Sessions

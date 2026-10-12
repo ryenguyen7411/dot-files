@@ -1,0 +1,5 @@
+# Global git ignores (git reads ~/.config/git/ignore by default)
+.DS_Store
+._*
+*.swp
+**/.claude/settings.local.json

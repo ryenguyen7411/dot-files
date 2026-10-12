@@ -7,7 +7,7 @@
 ```
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Neovim-0.10+-57A143?style=flat-square&logo=neovim&logoColor=white" alt="Neovim">
+  <img src="https://img.shields.io/badge/Neovim-0.11+-57A143?style=flat-square&logo=neovim&logoColor=white" alt="Neovim">
   <img src="https://img.shields.io/badge/Lua-2C2D72?style=flat-square&logo=lua&logoColor=white" alt="Lua">
   <img src="https://img.shields.io/badge/Zsh-F15A24?style=flat-square&logo=zsh&logoColor=white" alt="Zsh">
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License">
@@ -33,10 +33,10 @@ Personal configuration files for my development environment (mostly macOS), mana
 | Tool | What's Inside |
 |------|---------------|
 | **Neovim** | Lua-based config with lazy.nvim, LSP, Treesitter, Snacks picker, and Oil |
-| **Zsh** | Modular shell with oh-my-zsh, starship prompt, and performance tweaks |
+| **Zsh** | Modular shell on zinit (turbo mode) with Oh My Zsh library snippets and the robbyrussell prompt |
 | **Tmux** | Custom theming via [oh-my-tmux](https://github.com/gpakosz/.tmux) + `tms` session manager |
 | **Kitty** | GPU-accelerated terminal with Hack Nerd Font |
-| **Git** | Sensible defaults and useful aliases |
+| **Git** | Sensible defaults, delta pager, global ignore, automatic work identity for `~/projects/be/` |
 | **Bat** | Syntax highlighting for `cat` with custom themes |
 | **Raycast** | Custom Script Commands for multi-monitor jump and image optimization |
 
@@ -44,7 +44,7 @@ Personal configuration files for my development environment (mostly macOS), mana
 
 ```bash
 # Clone it
-git clone https://github.com/colorye/dot-files.git ~/projects/colorye/dot-files
+git clone https://github.com/ryenguyen7411/dot-files.git ~/projects/colorye/dot-files
 cd ~/projects/colorye/dot-files
 
 # Check you have what you need
@@ -67,10 +67,9 @@ make install
 
 # Install packages from Brewfile
 brew bundle
-
-# Oh My Zsh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
+
+Zinit (the zsh plugin manager) and Oh my tmux! are installed automatically on first use.
 
 ### Full Install
 
@@ -82,25 +81,30 @@ make backup
 make install
 
 # Or pick what you need
-make install-shell     # Zsh config
+make install-shell     # Zsh config (.zshrc, .zprofile, ~/.config/zsh)
 make install-nvim      # Neovim
 make install-kitty     # Kitty terminal
-make install-tmux      # Tmux
-make install-git       # Git config
-make install-starship  # Starship prompt
+make install-tmux      # Tmux (clones Oh my tmux! if missing)
+make install-git       # Git config + global ignore
+make install-starship  # Starship prompt config (prompt init is off; robbyrussell is used)
 make install-bat       # Bat themes
 make install-raycast   # Raycast script commands
-make install-tools     # Standalone tools (tms, jump-display, etc.)
+make install-search    # fd/rg ignore files used by the Neovim pickers
+make install-ssh       # SSH config (needs ssh/.ssh/config.local)
+make install-tools     # Standalone tools (tms, jump-display, etc.), rebuilt when changed
 ```
 
 ### Machine-Specific Setup
 
 ```bash
-# Set your machine name in ~/.config/zsh/local.zsh (used for tmux-sessions, etc.)
-export MACHINE_NAME=work  # or 'home', 'default'
-
-# Copy and customize local config
+# Machine-specific shell config (MACHINE_NAME picks the tmux-sessions layout: home, work, default)
 cp shell/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh
+
+# Work-only shell helpers (e.g. `swe`) go in ~/.config/zsh/work.zsh (untracked: this repo is public)
+
+# Git identity: personal in ~/.gitconfig-local, work (used under ~/projects/be/) in ~/.gitconfig-work
+cp git/.gitconfig-local.example ~/.gitconfig-local
+cp git/.gitconfig-work.example ~/.gitconfig-work
 ```
 
 ## 🗂 Structure
@@ -109,6 +113,7 @@ cp shell/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh
 dot-files/
 ├── shell/              # Zsh configuration (modular)
 │   ├── .zshrc          # Main loader
+│   ├── .zprofile       # Login shells (Homebrew, OrbStack)
 │   └── .config/zsh/    # Modules (aliases, functions, etc.)
 ├── nvim/               # Neovim configuration
 │   └── .config/nvim/
@@ -117,7 +122,8 @@ dot-files/
 ├── tmux/               # Tmux configuration
 │   └── .tmux.conf.local
 ├── git/                # Git configuration
-│   └── .gitconfig
+│   ├── .gitconfig
+│   └── .config/git/ignore  # Global ignores
 ├── starship/           # Starship prompt
 │   └── .config/starship.toml
 ├── bat/                # Bat syntax highlighter
@@ -132,6 +138,9 @@ dot-files/
 │   ├── home/
 │   ├── work/
 │   └── default/
+├── ssh/                # SSH config template (config.local is untracked)
+├── launchd/            # LaunchAgent for the jump-desktop watcher
+└── .ignore             # fd/rg ignore list for the Neovim pickers (make install-search)
 ```
 
 ### Stow Packages
@@ -140,11 +149,11 @@ Each directory is a "stow package" that mirrors your home directory:
 
 | Package | Creates |
 |---------|---------|
-| `shell` | `~/.zshrc`, `~/.config/zsh/*` |
+| `shell` | `~/.zshrc`, `~/.zprofile`, `~/.config/zsh/*` |
 | `nvim` | `~/.config/nvim/*` |
 | `kitty` | `~/.config/kitty/kitty.conf` |
 | `tmux` | `~/.tmux.conf.local` |
-| `git` | `~/.gitconfig` |
+| `git` | `~/.gitconfig`, `~/.config/git/ignore` |
 | `starship` | `~/.config/starship.toml` |
 | `bat` | `~/.config/bat/*` |
 | `raycast` | `~/.config/raycast/scripts/*` |
@@ -157,9 +166,15 @@ Each directory is a "stow package" that mirrors your home directory:
 |-----|--------|
 | `<Space>` | Leader |
 | `,` | Local Leader |
-| `<leader>ff` | Find files |
-| `<leader>fg` | Live grep |
-| `<leader>e` | File explorer (Oil) |
+| `<leader>h` | Find files |
+| `<leader>j` | Grep |
+| `<leader>;` | Smart find (frecency) |
+| `<leader>b` | Buffers |
+| `<leader>k` | File explorer |
+| `<leader>o` | Oil (floating) |
+| `<leader>l` | Projects |
+| `<leader>0` | Close all buffers |
+| `00` | In a commit message / rebase todo: abort (`:cq`) |
 
 ### Tmux
 
@@ -169,8 +184,10 @@ Each directory is a "stow package" that mirrors your home directory:
 | `prefix + \|` | Split vertical |
 | `prefix + -` | Split horizontal |
 | `Ctrl+p` | Open `tms` Project Manager popup |
-| `Ctrl+o` | Open Opencode popup |
-| `Ctrl+y` | Open Claude popup |
+| `Ctrl+o` | Open Claude popup |
+| `Ctrl+y` | Open Opencode popup |
+
+`Ctrl+p`, `Ctrl+o` and `Ctrl+y` are passed through to Neovim when the pane runs nvim (jump back, scroll, etc.).
 | `prefix + u` | Spread & equalize layout |
 | `prefix + U` | Restore previous layout |
 
@@ -241,8 +258,9 @@ Integrates `jump-display` and Shottr utilities into Raycast with 0ms delay:
 
 ```bash
 make update      # Update Neovim plugins
-make lint        # Check Lua formatting
+make lint        # stylua + shellcheck + zsh syntax check
 make lint-fix    # Auto-fix Lua formatting
+make brew-check  # Drift between the Brewfile and what's installed
 make brew-dump   # Update Brewfile from installed packages
 ```
 

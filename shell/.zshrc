@@ -67,14 +67,23 @@ zinit snippet OMZP::sudo
 
 # Core plugins loaded in Turbo mode (after prompt, for speed)
 zinit wait lucid light-mode for \
-  atinit"zicompinit; zicdreplay" \
+  atinit"zicdreplay" \
     zdharma-continuum/fast-syntax-highlighting \
   atload"_zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions \
   blockf atpull'zinit creinstall -q .' \
     zsh-users/zsh-completions
 
-autoload -U compinit && compinit
+# One compinit for the whole shell (the turbo block above only replays compdefs).
+# Full security check at most once a day, otherwise trust the dump (-C).
+autoload -Uz compinit
+_zcompdump_stale=(${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24))
+if (( $#_zcompdump_stale )) || [[ ! -f ${ZDOTDIR:-$HOME}/.zcompdump ]]; then
+  compinit
+else
+  compinit -C
+fi
+unset _zcompdump_stale
 
 # ========================
 # LOAD MODULAR CONFIG
@@ -89,7 +98,8 @@ safe_source "$ZSH_CONFIG_DIR/aliases.zsh"
 safe_source "$ZSH_CONFIG_DIR/functions.zsh"
 safe_source "$ZSH_CONFIG_DIR/tools.zsh"
 
-# Machine-specific config (not tracked in git)
+# Not tracked in git: work-only helpers, then machine-specific config
+safe_source "$ZSH_CONFIG_DIR/work.zsh"
 safe_source "$ZSH_CONFIG_DIR/local.zsh"
 
 # ========================
@@ -138,9 +148,3 @@ fi
 
 zsh_debug "ZSH configuration loaded successfully"
 
-
-# Added by Antigravity
-export PATH="/Users/ryeng/.antigravity/antigravity/bin:$PATH"
-
-# Upload a file to transfer.ryenguyen.dev (creds from ~/.netrc)
-transfer() { curl -n --progress-bar --upload-file "$1" "https://transfer.ryenguyen.dev/$(basename "$1")"; echo; }

@@ -143,7 +143,7 @@ local function close_all_buffers()
     vim.cmd ':%bdelete!'
   end
 end
-vim.keymap.set('n', '0\\', close_all_buffers, { silent = true })
+vim.keymap.set('n', '<leader>0', close_all_buffers, { silent = true })
 
 -- ============================================================================
 -- MISCELLANEOUS
@@ -153,7 +153,15 @@ vim.keymap.set('n', '<leader>n', ':enew<CR>', { silent = true })
 vim.keymap.set('n', 'gT', ':Inspect<CR>', { silent = true })
 vim.keymap.set('n', '<Esc>', ':nohl<CR>:ccl<CR><C-l>:echo<CR>', { silent = true })
 vim.keymap.set('n', 'gb', "<cmd>echo expand('%:p')<CR>", { silent = true })
-vim.keymap.set('n', '00', 'ggdG:w<CR><C-w>q', { silent = true, noremap = true })
+-- No global mappings start with `0`, so the `0` motion never waits for a second key.
+-- In a commit message / rebase todo, `00` aborts the commit or rebase (:cq exits with an
+-- error, which git treats as "abort") without touching the file.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'gitcommit', 'gitrebase' },
+  callback = function(event)
+    vim.keymap.set('n', '00', '<Cmd>cq<CR>', { buffer = event.buf, desc = 'Abort commit/rebase' })
+  end,
+})
 
 -- ============================================================================
 -- DEBUG & PROFILING

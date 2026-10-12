@@ -100,6 +100,41 @@ M.explorer_picker = function()
   }
 end
 
+-- Personal picker actions (they used to be patched into a fork of snacks.nvim)
+local function explorer_open(picker, item, action, close)
+  if not item then
+    return
+  end
+  if item.dir then
+    require('snacks.explorer.tree'):toggle(item.file)
+    require('snacks.explorer.actions').update(picker, { refresh = true })
+    return
+  end
+  Snacks.picker.actions.jump(picker, item, action)
+  if close then
+    picker:close()
+  else
+    picker:focus()
+  end
+end
+
+M.picker_actions = {
+  -- open the file and close the explorer; folders just expand/collapse
+  confirm_and_close = function(picker, item, action)
+    explorer_open(picker, item, action, true)
+  end,
+  -- open the file and keep focus in the explorer
+  confirm_and_refocus = function(picker, item, action)
+    explorer_open(picker, item, action, false)
+  end,
+  list_down_fast = function(picker)
+    picker.list:move(6)
+  end,
+  list_up_fast = function(picker)
+    picker.list:move(-6)
+  end,
+}
+
 M.buffer_picker = function()
   return {
     focus = 'list', -- focus on list to start with normal mode
@@ -108,8 +143,7 @@ M.buffer_picker = function()
 end
 
 return {
-  'ryenguyen7411/snacks.nvim',
-  branch = 'develop',
+  'folke/snacks.nvim',
   priority = 1000,
   lazy = false,
   ---@type snacks.Config
@@ -169,6 +203,15 @@ return {
     },
     picker = {
       enabled = true,
+      actions = M.picker_actions,
+      win = {
+        list = {
+          keys = {
+            ['<c-j>'] = 'list_down_fast',
+            ['<c-k>'] = 'list_up_fast',
+          },
+        },
+      },
       sources = {
         smart = M.files_picker(),
         files = M.files_picker(),
@@ -295,15 +338,6 @@ return {
   },
   config = function(_, opts)
     require('snacks').setup(opts)
-
-    -- The fork predates Neovim 0.12: it writes kitty graphics escape codes with io.stdout:write, which no longer
-    -- reliably reaches the terminal (the TUI runs in a separate process), so images render as empty space.
-    -- Upstream uses nvim_ui_send; do the same here. Remove once the fork is rebased on upstream.
-    if vim.api.nvim_ui_send then
-      Snacks.image.terminal.write = function(data)
-        vim.api.nvim_ui_send(data)
-      end
-    end
   end,
   init = function()
     vim.api.nvim_create_autocmd('User', {

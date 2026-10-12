@@ -52,14 +52,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- Set filetype=html for specific extensions
-vim.api.nvim_create_autocmd('BufEnter', {
-  pattern = { '*.hbs', '*.cshtml' },
-  callback = function()
-    vim.bo.filetype = 'html'
-  end,
-})
-
 -- Keep cursor position after yank (if previously saved)
 vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function()
@@ -89,23 +81,6 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     -- Formatting itself is handled by conform (lsp_format = 'fallback')
   end,
 })
-
--- Utility function to associate file patterns with filetypes
-local function set_filetypes(filetype_map)
-  for pattern, filetype in pairs(filetype_map) do
-    vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-      pattern = pattern,
-      callback = function()
-        vim.bo.filetype = filetype
-      end,
-    })
-  end
-end
-
--- Example usage
-set_filetypes {
-  ['Fastfile'] = 'ruby',
-}
 
 -- Auto-reload buffers when files change on disk (replaces vim-autoread plugin)
 vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {

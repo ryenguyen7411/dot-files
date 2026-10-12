@@ -448,7 +448,9 @@ func getManagedDisplaySpaces(cid: UInt32) -> [String: UInt64] {
     return result
 }
 
-// Watcher mode using direct CGS WindowServer polling (0% CPU, ultra-reliable across all macOS versions and multi-display setups)
+// Watcher mode: event-driven. macOS posts NSWorkspace.activeSpaceDidChangeNotification on every
+// Space switch, so the process sleeps between switches instead of polling the WindowServer
+// (the old 40 ms poll cost ~0.8% of a core around the clock).
 func startWatcher(delayMs: UInt32, warp: Bool, click: Bool) {
     setlinebuf(stdout)
     ensureAccessibilityPrompt()
@@ -464,8 +466,7 @@ func startWatcher(delayMs: UInt32, warp: Bool, click: Bool) {
     let formatter = DateFormatter()
     formatter.dateFormat = "HH:mm:ss"
 
-    while true {
-        usleep(40_000) // Poll every 40ms (ultra-responsive, <0.001% CPU)
+    func handleSpaceChange() {
         let newDisplaySpaces = getManagedDisplaySpaces(cid: cid)
         let newActiveSpace = CGSGetActiveSpace(cid)
 
@@ -475,43 +476,55 @@ func startWatcher(delayMs: UInt32, warp: Bool, click: Bool) {
         } else {
             hasChange = (newActiveSpace != currentActiveSpace)
         }
+        guard hasChange else { return }
 
-        if hasChange {
-            currentDisplaySpaces = newDisplaySpaces
-            currentActiveSpace = newActiveSpace
+        currentDisplaySpaces = newDisplaySpaces
+        currentActiveSpace = newActiveSpace
 
-            // Settling delay (default 80ms) to allow desktop slide animation to start
-            if delayMs > 0 {
-                usleep(delayMs * 1000)
+        // Settling delay (default 80ms) to let the desktop slide animation finish
+        if delayMs > 0 {
+            usleep(delayMs * 1000)
+        }
+
+        // Retry loop (up to 6 attempts with 40ms intervals) to handle desktop switch animation settling
+        var targetResult: (target: AppTarget, reason: String)?
+        var mouseLoc = CGEvent(source: nil)?.location ?? .zero
+
+        for attempt in 1...6 {
+            mouseLoc = CGEvent(source: nil)?.location ?? .zero
+            if let res = getTarget(mouseLoc: mouseLoc) {
+                targetResult = res
+                break
             }
-
-            // Retry loop (up to 6 attempts with 40ms intervals) to handle desktop switch animation settling
-            var targetResult: (target: AppTarget, reason: String)?
-            var mouseLoc = CGEvent(source: nil)?.location ?? .zero
-
-            for attempt in 1...6 {
-                mouseLoc = CGEvent(source: nil)?.location ?? .zero
-                if let res = getTarget(mouseLoc: mouseLoc) {
-                    targetResult = res
-                    break
-                }
-                if attempt < 6 {
-                    usleep(40_000)
-                }
-            }
-
-            let timeStr = formatter.string(from: Date())
-
-            if let target = targetResult {
-                focusWindow(target: target.target, warp: warp, click: click)
-                print("[\(timeStr)] Space changed -> Focused \(target.reason): \(target.target.appName) (PID: \(target.target.pid)) [mouse: (\(Int(mouseLoc.x)), \(Int(mouseLoc.y)))]")
-                fflush(stdout)
-            } else {
-                print("[\(timeStr)] Space changed -> (No active application window) [mouse: (\(Int(mouseLoc.x)), \(Int(mouseLoc.y)))]")
-                fflush(stdout)
+            if attempt < 6 {
+                usleep(40_000)
             }
         }
+
+        let timeStr = formatter.string(from: Date())
+
+        if let target = targetResult {
+            focusWindow(target: target.target, warp: warp, click: click)
+            print("[\(timeStr)] Space changed -> Focused \(target.reason): \(target.target.appName) (PID: \(target.target.pid)) [mouse: (\(Int(mouseLoc.x)), \(Int(mouseLoc.y)))]")
+        } else {
+            print("[\(timeStr)] Space changed -> (No active application window) [mouse: (\(Int(mouseLoc.x)), \(Int(mouseLoc.y)))]")
+        }
+        fflush(stdout)
     }
+
+    // NSWorkspace notifications need the shared application object; it never shows in the Dock
+    _ = NSApplication.shared
+    NSApp.setActivationPolicy(.prohibited)
+
+    NSWorkspace.shared.notificationCenter.addObserver(
+        forName: NSWorkspace.activeSpaceDidChangeNotification,
+        object: nil,
+        queue: .main
+    ) { _ in
+        handleSpaceChange()
+    }
+
+    RunLoop.main.run()
 }
 
 // MARK: - CLI Entrypoint

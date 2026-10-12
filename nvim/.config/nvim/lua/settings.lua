@@ -1,5 +1,4 @@
 vim.g.have_nerd_font = true -- Enable Nerd Font support for icons
-vim.g.filetype = 'on' -- Enable filetype detection
 vim.g.loaded_python3_provider = 0 -- Disable Python 3 provider
 vim.g.loaded_perl_provider = 0 -- Disable Perl provider
 vim.g.loaded_ruby_provider = 0 -- Disable Ruby provider
@@ -8,12 +7,11 @@ vim.g.loaded_node_provider = 0 -- Disable Node.js provider
 vim.env.LANG = 'en_US.UTF-8' -- Set language environment variable
 
 vim.opt.backspace = 'indent,eol,start' -- Allow backspace over everything
-vim.opt.backup = false -- Enable backup files
+vim.opt.backup = false -- No backup files
 vim.opt.backupcopy = 'yes' -- Use copy method for backup
 vim.opt.breakindent = true -- Enable break indent
 vim.opt.cmdheight = 0 -- Hide command line unless needed
 vim.opt.cursorline = true -- Highlight current line
-vim.opt.encoding = 'utf-8' -- Set internal encoding
 vim.opt.expandtab = true -- Use spaces instead of tabs
 vim.opt.fileencoding = 'utf-8' -- Set file encoding
 vim.opt.fillchars = 'eob: ' -- Remove ~ from empty lines
@@ -44,7 +42,8 @@ vim.opt.updatetime = 750 -- Faster CursorHold events
 vim.opt.whichwrap:append '<>' -- Allow left/right keys to wrap lines
 
 vim.filetype.add {
-  extension = { mdc = 'markdown' },
+  extension = { mdc = 'markdown', hbs = 'html', cshtml = 'html' },
+  filename = { Fastfile = 'ruby' },
 }
 
 -- make all keymaps silent by default

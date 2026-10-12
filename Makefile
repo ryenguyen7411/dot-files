@@ -3,14 +3,26 @@
 
 STOW := stow
 STOW_FLAGS := -v --target=$(HOME)
-STOW_ADOPT := -v --target=$(HOME) --adopt
 PACKAGES := shell nvim kitty tmux git starship bat raycast
+BACKUP_DIR := $(HOME)/.dotfiles-backup
 
-.PHONY: all install install-adopt uninstall update lint help
-.PHONY: install-shell install-nvim install-kitty install-tmux install-git install-tools install-raycast install-starship install-bat install-ssh install-ubuntu-server install-jump-desktop-service uninstall-jump-desktop-service
-.PHONY: install-zinit backup-omz install-difftastic
-.PHONY: uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
-.PHONY: backup check dry-run
+# Standalone tools linked into ~/.local/bin
+SWIFT_TOOLS := imgcopy jump-display jump-desktop clean-url link-router
+SCRIPT_TOOLS := tms shottr-optimize shottr-upload
+SWIFT_BINS := $(addprefix tools/,$(SWIFT_TOOLS))
+
+# Bash scripts checked by `make lint` (zsh files are syntax-checked with zsh -n)
+SHELL_SCRIPTS := tools/tms tools/shottr-optimize tools/shottr-upload tools/install-ubuntu-server.sh \
+	$(wildcard raycast/.config/raycast/scripts/*.sh)
+ZSH_FILES := shell/.zshrc shell/.zprofile $(wildcard shell/.config/zsh/*.zsh) \
+	shell/.config/zsh/claude-popup shell/.config/zsh/opencode-popup
+
+.PHONY: all help check dry-run backup
+.PHONY: install install-force install-shell install-nvim install-kitty install-tmux install-git install-starship
+.PHONY: install-bat install-raycast install-ssh install-tools install-search install-ubuntu-server
+.PHONY: install-jump-desktop-service uninstall-jump-desktop-service install-zinit install-difftastic
+.PHONY: uninstall uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship
+.PHONY: uninstall-bat uninstall-ssh uninstall-raycast uninstall-search restow update lint lint-fix brew-install brew-dump brew-check
 
 # Default target
 all: help
@@ -24,48 +36,34 @@ check:
 	@command -v stow >/dev/null 2>&1 || { echo "✗ stow not found. Run: brew install stow"; exit 1; }
 	@command -v nvim >/dev/null 2>&1 || echo "⚠ nvim not found (optional)"
 	@command -v tmux >/dev/null 2>&1 || echo "⚠ tmux not found (optional)"
+	@command -v yq >/dev/null 2>&1 || echo "⚠ yq not found (tms needs it)"
 	@echo "✓ Prerequisites OK"
 
 dry-run:
 	@echo "=== Dry run - no changes will be made ==="
-	@echo ""
-	@echo "Shell package:"
-	@$(STOW) --simulate $(STOW_FLAGS) shell 2>&1 || true
-	@echo ""
-	@echo "Nvim package:"
-	@$(STOW) --simulate $(STOW_FLAGS) nvim 2>&1 || true
-	@echo ""
-	@echo "Kitty package:"
-	@$(STOW) --simulate $(STOW_FLAGS) kitty 2>&1 || true
-	@echo ""
-	@echo "Tmux package:"
-	@$(STOW) --simulate $(STOW_FLAGS) tmux 2>&1 || true
-	@echo ""
-	@echo "Git package:"
-	@$(STOW) --simulate $(STOW_FLAGS) git 2>&1 || true
-	@echo ""
-	@echo "Starship package:"
-	@$(STOW) --simulate $(STOW_FLAGS) starship 2>&1 || true
-	@echo ""
-	@echo "Raycast package:"
-	@$(STOW) --simulate $(STOW_FLAGS) raycast 2>&1 || true
+	@for pkg in $(PACKAGES); do \
+		echo ""; echo "$$pkg package:"; \
+		$(STOW) --simulate $(STOW_FLAGS) $$pkg 2>&1 || true; \
+	done
 
+# Copies every config `make install` may replace (only real files/dirs; symlinks are ours)
 backup:
-	@echo "Backing up existing configs..."
-	@mkdir -p $(HOME)/.dotfiles-backup
-	@[ -f $(HOME)/.zshrc ] && cp $(HOME)/.zshrc $(HOME)/.dotfiles-backup/.zshrc.bak || true
-	@[ -f $(HOME)/.gitconfig ] && cp $(HOME)/.gitconfig $(HOME)/.dotfiles-backup/.gitconfig.bak || true
-	@[ -f $(HOME)/.tmux.conf.local ] && cp $(HOME)/.tmux.conf.local $(HOME)/.dotfiles-backup/.tmux.conf.local.bak || true
-	@[ -d $(HOME)/.config/nvim ] && cp -r $(HOME)/.config/nvim $(HOME)/.dotfiles-backup/nvim.bak || true
-	@[ -d $(HOME)/.config/kitty ] && cp -r $(HOME)/.config/kitty $(HOME)/.dotfiles-backup/kitty.bak || true
-	@[ -d $(HOME)/.config/zsh ] && cp -r $(HOME)/.config/zsh $(HOME)/.dotfiles-backup/zsh.bak || true
-	@echo "✓ Backup created at ~/.dotfiles-backup/"
+	@echo "Backing up existing configs to $(BACKUP_DIR)/ ..."
+	@mkdir -p $(BACKUP_DIR)
+	@for f in .zshrc .zprofile .gitconfig .config/git/ignore .tmux.conf .tmux.conf.local .ssh/config \
+		.config/nvim .config/kitty .config/zsh .config/bat .config/starship.toml .config/raycast/scripts; do \
+		if [ -e "$(HOME)/$$f" ] && [ ! -L "$(HOME)/$$f" ]; then \
+			mkdir -p "$(BACKUP_DIR)/$$(dirname $$f)"; \
+			cp -R "$(HOME)/$$f" "$(BACKUP_DIR)/$$f.bak" && echo "  $$f"; \
+		fi; \
+	done
+	@echo "✓ Backup done"
 
 #------------------------------------------------------------------------------
 # Installation
 #------------------------------------------------------------------------------
 
-install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-jump-desktop-service install-raycast install-bat install-ssh
+install: check install-shell install-nvim install-kitty install-tmux install-git install-starship install-tools install-jump-desktop-service install-raycast install-bat install-search install-ssh
 	@echo ""
 	@echo "✓ All packages installed"
 	@echo ""
@@ -73,74 +71,35 @@ install: check install-shell install-nvim install-kitty install-tmux install-git
 	@echo "  1. Copy local config:"
 	@echo "     cp ~/.config/zsh/local.zsh.example ~/.config/zsh/local.zsh"
 	@echo "     cp ~/.gitconfig-local.example ~/.gitconfig-local"
+	@echo "     cp ~/.gitconfig-work.example ~/.gitconfig-work   # identity for ~/projects/be/"
 	@echo "  2. Set MACHINE_NAME in ~/.config/zsh/local.zsh"
-	@echo "  3. Update gitconfig with your name and email, also add any other git config settings for this machine"
-	@echo "  4. Reload shell: source ~/.zshrc"
+	@echo "  3. Reload shell: exec zsh"
 
 install-ubuntu-server:
 	@echo "Installing dotfiles for Ubuntu server (shell + nvim only)..."
 	@./tools/install-ubuntu-server.sh
 
-# Install with force: removes existing files and creates symlinks
-# Use this for first-time setup when you have existing configs
+# First-time setup over existing configs: back them up, remove them, then install
 install-force: check backup
-	@echo "Installing (removing existing files, backup created)..."
-	@mkdir -p $(HOME)/.config/zsh $(HOME)/.config/kitty $(HOME)/.config/tmux-sessions
-	@# Shell
-	@rm -f $(HOME)/.zshrc
-	@rm -rf $(HOME)/.config/zsh
-	@# Nvim
-	@rm -rf $(HOME)/.config/nvim
-	@# Kitty
-	@rm -f $(HOME)/.config/kitty/kitty.conf
-	@# Tmux (tmux-sessions handled separately in install-tmux)
-	@rm -f $(HOME)/.tmux.conf.local
-	@# Git
-	@rm -f $(HOME)/.gitconfig
-	@# Starship
-	@rm -f $(HOME)/.config/starship.toml
-	@# Bat
-	@rm -rf $(HOME)/.config/bat
-	@# Raycast
-	@rm -rf $(HOME)/.config/raycast/scripts
-	@# Now stow everything
-	$(STOW) $(STOW_FLAGS) shell
-	$(STOW) $(STOW_FLAGS) nvim
-	$(STOW) $(STOW_FLAGS) kitty
-	$(STOW) $(STOW_FLAGS) tmux
-	$(STOW) $(STOW_FLAGS) git
-	$(STOW) $(STOW_FLAGS) starship
-	$(STOW) $(STOW_FLAGS) bat
-	$(STOW) $(STOW_FLAGS) raycast
-	@if command -v bat >/dev/null 2>&1; then bat cache --build; fi
-	@mkdir -p $(HOME)/.local/bin
-	@if command -v swiftc >/dev/null 2>&1; then \
-		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
-		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
-		if [ -f "$(CURDIR)/tools/jump-desktop.swift" ]; then \
-			swiftc -O -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker $(CURDIR)/tools/jump-desktop-Info.plist $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || \
-				swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
-			codesign -s - --force --identifier com.colorye.jump-desktop $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
-		fi; \
-		[ -f "$(CURDIR)/tools/clean-url.swift" ] && swiftc -O $(CURDIR)/tools/clean-url.swift -o $(CURDIR)/tools/clean-url 2>/dev/null || true; \
-		[ -f "$(CURDIR)/tools/link-router.swift" ] && swiftc -O $(CURDIR)/tools/link-router.swift -o $(CURDIR)/tools/link-router 2>/dev/null || true; \
+	@echo "Replacing existing configs (backup in $(BACKUP_DIR))..."
+	@rm -f $(HOME)/.zshrc $(HOME)/.zprofile $(HOME)/.gitconfig $(HOME)/.config/git/ignore
+	@rm -f $(HOME)/.tmux.conf.local $(HOME)/.config/kitty/kitty.conf $(HOME)/.config/starship.toml
+	@rm -rf $(HOME)/.config/zsh $(HOME)/.config/nvim $(HOME)/.config/bat $(HOME)/.config/raycast/scripts
+	@$(MAKE) install
+
+# Stow helper: move a real (non-symlink) file out of the way so stow can link it
+define move_aside
+	@if [ -e "$(HOME)/$(1)" ] && [ ! -L "$(HOME)/$(1)" ]; then \
+		mkdir -p "$(BACKUP_DIR)/$$(dirname $(1))"; \
+		mv "$(HOME)/$(1)" "$(BACKUP_DIR)/$(1).bak"; \
+		echo "  moved existing ~/$(1) to $(BACKUP_DIR)/$(1).bak"; \
 	fi
-	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
-	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
-	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
-	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
-	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
-	@[ -f "$(CURDIR)/tools/jump-desktop" ] && ln -sf $(CURDIR)/tools/jump-desktop $(HOME)/.local/bin/jump-desktop || true
-	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
-	@[ -f "$(CURDIR)/tools/link-router" ] && ln -sf $(CURDIR)/tools/link-router $(HOME)/.local/bin/link-router || true
-	@$(MAKE) install-jump-desktop-service
-	@echo ""
-	@echo "✓ All packages installed"
-	@echo "✓ Backup available at ~/.dotfiles-backup/"
+endef
 
 install-shell:
 	@echo "Installing shell config..."
 	@mkdir -p $(HOME)/.config/zsh
+	$(call move_aside,.zprofile)
 	$(STOW) $(STOW_FLAGS) shell
 
 install-nvim:
@@ -155,7 +114,11 @@ install-kitty:
 
 install-tmux:
 	@echo "Installing tmux config..."
-	@# .tmux.conf.local via stow
+	@# Oh my tmux! provides ~/.tmux.conf, which loads our ~/.tmux.conf.local
+	@if [ ! -d "$(HOME)/.tmux" ]; then \
+		git clone --single-branch https://github.com/gpakosz/.tmux.git "$(HOME)/.tmux"; \
+	fi
+	@if [ ! -e "$(HOME)/.tmux.conf" ]; then ln -s .tmux/.tmux.conf "$(HOME)/.tmux.conf"; fi
 	$(STOW) $(STOW_FLAGS) tmux
 	@# tmux-sessions: symlink machine-specific directory (requires MACHINE_NAME)
 	@if [ -n "$$MACHINE_NAME" ]; then \
@@ -164,16 +127,18 @@ install-tmux:
 			echo "Creating new machine config from template..."; \
 			cp -r "$(CURDIR)/tmux-sessions/default" "$$MACHINE_DIR"; \
 		fi; \
-		rm -rf $(HOME)/.config/tmux-sessions; \
-		ln -sf "$$MACHINE_DIR" $(HOME)/.config/tmux-sessions; \
+		rm -f $(HOME)/.config/tmux-sessions; \
+		ln -sfn "$$MACHINE_DIR" $(HOME)/.config/tmux-sessions; \
 		echo "✓ Linked tmux-sessions for: $$MACHINE_NAME"; \
 	else \
 		echo "⚠ MACHINE_NAME not set, skipping tmux-sessions config"; \
-		echo "  Set MACHINE_NAME in ~/.env.local and re-run"; \
+		echo "  Set MACHINE_NAME in ~/.config/zsh/local.zsh, open a new shell and re-run"; \
 	fi
 
 install-git:
 	@echo "Installing git config..."
+	@mkdir -p $(HOME)/.config/git
+	$(call move_aside,.config/git/ignore)
 	$(STOW) $(STOW_FLAGS) git
 
 install-starship:
@@ -192,47 +157,45 @@ install-bat:
 		echo "⚠ bat not found, skipping cache build (run 'bat cache --build' after installing bat)"; \
 	fi
 
-install-ssh:
-	@echo "Installing SSH config with multiplexing..."
-	@if [ ! -f "$(CURDIR)/ssh/.ssh/config.local" ]; then \
-		echo "✗ Error: ssh/.ssh/config.local not found"; \
-		echo ""; \
-		echo "  Create it from the template:"; \
-		echo "    cp ssh/.ssh/config.example ssh/.ssh/config.local"; \
-		echo "    # Edit config.local with your server details"; \
-		echo ""; \
-		exit 1; \
-	fi
-	@mkdir -p $(HOME)/.ssh/sockets
-	@chmod 700 $(HOME)/.ssh
-	@chmod 700 $(HOME)/.ssh/sockets
-	@rm -f $(HOME)/.ssh/config
-	@ln -sf $(CURDIR)/ssh/.ssh/config.local $(HOME)/.ssh/config
-	@chmod 600 $(HOME)/.ssh/config
-	@echo "✓ SSH config installed with multiplexing enabled"
+# Global ignore list for the Neovim file/grep pickers (they run fd/rg with --no-ignore)
+install-search:
+	@echo "Installing fd/rg ignore files..."
+	@mkdir -p $(HOME)/.config/fd $(HOME)/.config/rg
+	@ln -sfn $(CURDIR)/.ignore $(HOME)/.config/fd/.fdignore
+	@ln -sfn $(CURDIR)/.ignore $(HOME)/.config/rg/.rgignore
+	@echo "✓ ~/.config/fd/.fdignore and ~/.config/rg/.rgignore -> .ignore"
 
-install-tools:
+install-ssh:
+	@if [ ! -f "$(CURDIR)/ssh/.ssh/config.local" ]; then \
+		echo "⚠ Skipping SSH config: ssh/.ssh/config.local not found"; \
+		echo "  Create it from the template, then run: make install-ssh"; \
+		echo "    cp ssh/.ssh/config.example ssh/.ssh/config.local"; \
+	else \
+		echo "Installing SSH config with multiplexing..."; \
+		mkdir -p $(HOME)/.ssh/sockets; \
+		chmod 700 $(HOME)/.ssh $(HOME)/.ssh/sockets; \
+		if [ -e $(HOME)/.ssh/config ] && [ ! -L $(HOME)/.ssh/config ]; then \
+			mkdir -p $(BACKUP_DIR)/.ssh; \
+			mv $(HOME)/.ssh/config $(BACKUP_DIR)/.ssh/config.bak; \
+			echo "  moved existing ~/.ssh/config to $(BACKUP_DIR)/.ssh/config.bak"; \
+		fi; \
+		ln -sfn $(CURDIR)/ssh/.ssh/config.local $(HOME)/.ssh/config; \
+		chmod 600 $(CURDIR)/ssh/.ssh/config.local; \
+		echo "✓ SSH config installed with multiplexing enabled"; \
+	fi
+
+# Swift tools are rebuilt only when their source changes; compile errors stop the build
+tools/%: tools/%.swift
+	swiftc -O $< -o $@
+
+tools/jump-desktop: tools/jump-desktop.swift tools/jump-desktop-Info.plist
+	swiftc -O -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker tools/jump-desktop-Info.plist $< -o $@
+	codesign -s - --force --identifier com.colorye.jump-desktop $@
+
+install-tools: $(SWIFT_BINS)
 	@echo "Installing standalone tools..."
 	@mkdir -p $(HOME)/.local/bin
-	@if command -v swiftc >/dev/null 2>&1; then \
-		[ -f "$(CURDIR)/tools/imgcopy.swift" ] && swiftc -O $(CURDIR)/tools/imgcopy.swift -o $(CURDIR)/tools/imgcopy 2>/dev/null || true; \
-		[ -f "$(CURDIR)/tools/jump-display.swift" ] && swiftc -O $(CURDIR)/tools/jump-display.swift -o $(CURDIR)/tools/jump-display 2>/dev/null || true; \
-		if [ -f "$(CURDIR)/tools/jump-desktop.swift" ]; then \
-			swiftc -O -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker $(CURDIR)/tools/jump-desktop-Info.plist $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || \
-				swiftc -O $(CURDIR)/tools/jump-desktop.swift -o $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
-			codesign -s - --force --identifier com.colorye.jump-desktop $(CURDIR)/tools/jump-desktop 2>/dev/null || true; \
-		fi; \
-		[ -f "$(CURDIR)/tools/clean-url.swift" ] && swiftc -O $(CURDIR)/tools/clean-url.swift -o $(CURDIR)/tools/clean-url 2>/dev/null || true; \
-		[ -f "$(CURDIR)/tools/link-router.swift" ] && swiftc -O $(CURDIR)/tools/link-router.swift -o $(CURDIR)/tools/link-router 2>/dev/null || true; \
-	fi
-	@ln -sf $(CURDIR)/tools/tms $(HOME)/.local/bin/tms
-	@ln -sf $(CURDIR)/tools/shottr-optimize $(HOME)/.local/bin/shottr-optimize
-	@ln -sf $(CURDIR)/tools/shottr-upload $(HOME)/.local/bin/shottr-upload
-	@[ -f "$(CURDIR)/tools/imgcopy" ] && ln -sf $(CURDIR)/tools/imgcopy $(HOME)/.local/bin/imgcopy || true
-	@[ -f "$(CURDIR)/tools/jump-display" ] && ln -sf $(CURDIR)/tools/jump-display $(HOME)/.local/bin/jump-display || true
-	@[ -f "$(CURDIR)/tools/jump-desktop" ] && ln -sf $(CURDIR)/tools/jump-desktop $(HOME)/.local/bin/jump-desktop || true
-	@[ -f "$(CURDIR)/tools/clean-url" ] && ln -sf $(CURDIR)/tools/clean-url $(HOME)/.local/bin/clean-url || true
-	@[ -f "$(CURDIR)/tools/link-router" ] && ln -sf $(CURDIR)/tools/link-router $(HOME)/.local/bin/link-router || true
+	@for tool in $(SWIFT_TOOLS) $(SCRIPT_TOOLS); do ln -sf $(CURDIR)/tools/$$tool $(HOME)/.local/bin/$$tool; done
 	@echo "✓ Standalone tools installed to ~/.local/bin"
 
 install-raycast:
@@ -283,16 +246,6 @@ install-zinit:
 		echo "✓ Zinit installed"; \
 	fi
 
-backup-omz:
-	@echo "Backing up Oh-My-Zsh..."
-	@if [ -d "$(HOME)/.oh-my-zsh" ]; then \
-		mv "$(HOME)/.oh-my-zsh" "$(HOME)/.oh-my-zsh.bak"; \
-		echo "✓ Oh-My-Zsh backed up to ~/.oh-my-zsh.bak"; \
-		echo "  To restore: mv ~/.oh-my-zsh.bak ~/.oh-my-zsh"; \
-	else \
-		echo "⚠ Oh-My-Zsh not found at ~/.oh-my-zsh, nothing to backup"; \
-	fi
-
 #------------------------------------------------------------------------------
 # Git Tools
 #------------------------------------------------------------------------------
@@ -313,8 +266,8 @@ install-difftastic:
 # Uninstallation
 #------------------------------------------------------------------------------
 
-uninstall: uninstall-jump-desktop-service uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast
-	@rm -f $(HOME)/.local/bin/tms $(HOME)/.local/bin/shottr-upload $(HOME)/.local/bin/shottr-optimize $(HOME)/.local/bin/imgcopy $(HOME)/.local/bin/jump-display $(HOME)/.local/bin/jump-desktop $(HOME)/.local/bin/clean-url $(HOME)/.local/bin/link-router
+uninstall: uninstall-jump-desktop-service uninstall-shell uninstall-nvim uninstall-kitty uninstall-tmux uninstall-git uninstall-starship uninstall-bat uninstall-ssh uninstall-raycast uninstall-search
+	@for tool in $(SWIFT_TOOLS) $(SCRIPT_TOOLS); do rm -f $(HOME)/.local/bin/$$tool; done
 	@echo "✓ All packages uninstalled"
 
 uninstall-raycast:
@@ -344,14 +297,18 @@ uninstall-starship:
 uninstall-bat:
 	$(STOW) $(STOW_FLAGS) -D bat || true
 
+uninstall-search:
+	@rm -f $(HOME)/.config/fd/.fdignore $(HOME)/.config/rg/.rgignore
+
 uninstall-ssh:
-	@rm -f $(HOME)/.ssh/config
+	@if [ -L $(HOME)/.ssh/config ]; then rm -f $(HOME)/.ssh/config; fi
 
 #------------------------------------------------------------------------------
 # Restow (refresh symlinks)
 #------------------------------------------------------------------------------
 
-restow: uninstall install
+restow:
+	@for pkg in $(PACKAGES); do $(STOW) $(STOW_FLAGS) --restow $$pkg; done
 	@echo "✓ All packages restowed"
 
 #------------------------------------------------------------------------------
@@ -366,7 +323,10 @@ update:
 lint:
 	@echo "Checking Lua formatting..."
 	stylua --check nvim/.config/nvim/
-	@echo "✓ Lua files are formatted correctly"
+	@echo "Checking shell scripts..."
+	shellcheck --severity=warning $(SHELL_SCRIPTS)
+	@for f in $(ZSH_FILES); do zsh -n "$$f" || exit 1; done
+	@echo "✓ Lint passed"
 
 lint-fix:
 	@echo "Fixing Lua formatting..."
@@ -383,6 +343,13 @@ brew-dump:
 	brew bundle dump --force
 	@echo "✓ Brewfile updated"
 
+# Drift check: what the Brewfile lacks (installed but unlisted) and what isn't installed
+brew-check:
+	@echo "Installed but not in Brewfile:"
+	@brew bundle cleanup || true
+	@echo ""
+	@brew bundle check --verbose || true
+
 #------------------------------------------------------------------------------
 # Help
 #------------------------------------------------------------------------------
@@ -396,34 +363,35 @@ help:
 	@echo "  check            Check prerequisites (stow, etc.)"
 	@echo "  dry-run          Preview what stow would do"
 	@echo "  backup           Backup existing configs to ~/.dotfiles-backup/"
-	@echo "  install-force    Install, replacing existing files (creates backup first)"
+	@echo "  install-force    Back up, remove existing configs, then install"
 	@echo ""
 	@echo "Installation:"
-	@echo "  install          Install all packages (fails if conflicts exist)"
-	@echo "  install-shell    Install shell config only"
+	@echo "  install          Install all packages"
+	@echo "  install-shell    Install shell config (.zshrc, .zprofile, ~/.config/zsh)"
 	@echo "  install-nvim     Install neovim config only"
 	@echo "  install-kitty    Install kitty config only"
-	@echo "  install-tmux     Install tmux config only"
-	@echo "  install-git      Install git config only"
+	@echo "  install-tmux     Install tmux config (+ Oh my tmux! if missing)"
+	@echo "  install-git      Install git config + global ignore"
 	@echo "  install-starship Install starship config only"
 	@echo "  install-bat      Install bat config and themes"
 	@echo "  install-raycast  Install Raycast script commands"
+	@echo "  install-search   Link fd/rg ignore files used by the Neovim pickers"
 	@echo "  install-ssh      Install SSH config with multiplexing"
-	@echo "  install-tools    Install standalone tools (tms)"
+	@echo "  install-tools    Build (if changed) and link standalone tools"
 	@echo "  install-ubuntu-server Install minimal shell+nvim for Ubuntu server"
 	@echo ""
 	@echo "Uninstallation:"
 	@echo "  uninstall        Uninstall all packages"
-	@echo "  restow           Uninstall and reinstall (refresh symlinks)"
+	@echo "  restow           Refresh all stow symlinks"
 	@echo ""
-	@echo "Migration:"
+	@echo "Extras:"
 	@echo "  install-zinit    Install Zinit plugin manager for Zsh"
-	@echo "  backup-omz       Backup Oh-My-Zsh to ~/.oh-my-zsh.bak"
 	@echo "  install-difftastic Install difftastic (structural diff tool)"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  update           Update Neovim plugins"
-	@echo "  lint             Check Lua formatting"
+	@echo "  lint             stylua + shellcheck + zsh syntax check"
 	@echo "  lint-fix         Fix Lua formatting"
 	@echo "  brew-install     Install packages from Brewfile"
 	@echo "  brew-dump        Update Brewfile from installed packages"
+	@echo "  brew-check       Show drift between the Brewfile and what's installed"

@@ -14,14 +14,14 @@ LAYOUTS_DIR="$CONFIG_DIR/layouts"
 LASTUSED_FILE="$CONFIG_DIR/.lastused.conf"
 
 # ANSI color codes (Tokyo Night)
-C_RESET='\033[0m'
-C_BOLD='\033[1m'
-C_CYAN='\033[38;2;125;207;255m'
-C_GREEN='\033[38;2;158;206;106m'
-C_YELLOW='\033[38;2;224;175;104m'
-C_RED='\033[38;2;247;118;142m'
-C_BLUE='\033[38;2;122;162;247m'
-C_COMMENT='\033[38;2;86;95;137m'
+C_RESET=$'\033[0m'
+C_BOLD=$'\033[1m'
+C_CYAN=$'\033[38;2;125;207;255m'
+C_GREEN=$'\033[38;2;158;206;106m'
+C_YELLOW=$'\033[38;2;224;175;104m'
+C_RED=$'\033[38;2;247;118;142m'
+C_BLUE=$'\033[38;2;122;162;247m'
+C_COMMENT=$'\033[38;2;86;95;137m'
 
 # FZF colors
 FZF_COLORS="bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5,hl:#7aa2f7,hl+:#7dcfff,info:#9ece6a,prompt:#7aa2f7,pointer:#f7768e,marker:#9ece6a,spinner:#bb9af7,header:#565f89,border:#292e42"
@@ -128,10 +128,6 @@ apply_layout() {
   # Arrays to store pane info - use pane_id (stable) not pane_index (changes)
   local -a pane_commands=()
   local -a pane_ids=()
-
-  # Get pane-base-index for targeting the first pane
-  local pane_base
-  pane_base=$(tmux show-options -gv pane-base-index 2>/dev/null || echo "0")
 
   # Phase 1: Create all panes
   for ((p = 0; p < num_panes; p++)); do
@@ -253,7 +249,7 @@ add_project() {
   grep -q "^${name}|" "$PROJECTS_FILE" 2>/dev/null && { echo -e "${C_RED}✗ Project '$name' already exists${C_RESET}" >&2; return 1; }
 
   local store_path="${path}"
-  [[ "$path" == "$HOME"* ]] && store_path="~${path#$HOME}"
+  [[ "$path" == "$HOME"* ]] && store_path="~${path#"$HOME"}"
 
   echo "${name}|${store_path}|default" >> "$PROJECTS_FILE"
   echo -e "${C_GREEN}✓ Added '$name'${C_RESET}"
