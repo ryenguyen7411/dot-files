@@ -1,7 +1,5 @@
 # clearly makes git better
-
-[include]
-  path = ~/.gitconfig-local
+# (machine-specific includes are at the bottom so they can override anything here)
 
 [alias]
 	rm-merged = !git branch --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" { print $1 }' | xargs -r git branch -D
@@ -42,8 +40,10 @@
 [rerere]
   enabled = true
   autoupdate = true
+[merge]
+  conflictStyle = zdiff3
 [core]
-  excludesfile = ~/.gitignore
+  # global ignores live at the default path, ~/.config/git/ignore (stowed from git/)
   pager = delta
 
 [interactive]
@@ -60,14 +60,18 @@
 
 # a matter of taste (uncomment if you dare)
 
+# No global core.fsmonitor: it starts a daemon per repo on the first `git status` and the
+# daemons never exit (217 of them, 660 MB, on 2026-10-12). Enable it per big repo instead:
+#   git config core.fsmonitor true
 [core]
-  fsmonitor = true
   untrackedCache = true
-  compression = 0
+# Never merge or rebase implicitly; use `git pull --rebase` when you mean it
 [pull]
-  rebase = true
-	ff = only
-[http]
-	postBuffer = 1048576000
-[pull]
-	ff = only
+  ff = only
+
+# Machine-specific settings (user, keys, ...), then the work identity for company repos.
+# Last so they win over everything above.
+[include]
+  path = ~/.gitconfig-local
+[includeIf "gitdir:~/projects/be/"]
+  path = ~/.gitconfig-work
