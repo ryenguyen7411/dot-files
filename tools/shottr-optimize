@@ -12,7 +12,6 @@ set -eo pipefail
 # ANSI colors (Tokyo Night)
 C_RESET='\033[0m'
 C_BOLD='\033[1m'
-C_CYAN='\033[38;2;125;207;255m'
 C_GREEN='\033[38;2;158;206;106m'
 C_YELLOW='\033[38;2;224;175;104m'
 C_COMMENT='\033[38;2;86;95;137m'
@@ -79,7 +78,6 @@ FINAL_SIZE=$(stat -f "%z" "$TARGET" 2>/dev/null || echo "$INITIAL_SIZE")
 
 SAVED_PCT="0%"
 if [[ "$INITIAL_SIZE" -gt 0 && "$FINAL_SIZE" -lt "$INITIAL_SIZE" ]]; then
-  SAVED_BYTES=$(( INITIAL_SIZE - FINAL_SIZE ))
   SAVED_PCT=$(awk -v init="$INITIAL_SIZE" -v final="$FINAL_SIZE" 'BEGIN { printf "%.1f%%", ((init - final) / init) * 100 }')
 fi
 

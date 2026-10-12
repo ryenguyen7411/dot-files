@@ -13,12 +13,13 @@ set -eo pipefail
 # ANSI color codes (Tokyo Night)
 C_RESET='\033[0m'
 C_BOLD='\033[1m'
-C_CYAN='\033[38;2;125;207;255m'
-C_GREEN='\033[38;2;158;206;106m'
 C_YELLOW='\033[38;2;224;175;104m'
 C_RED='\033[38;2;247;118;142m'
 C_BLUE='\033[38;2;122;162;247m'
 C_COMMENT='\033[38;2;86;95;137m'
+
+# Pinned on purpose: npx --yes would otherwise run whatever version is newest on npm
+FILE_KIWI_PKG="@file-kiwi/node@1.0.9"
 
 # Temporary directories and files
 TEMP_DIR=""
@@ -69,10 +70,11 @@ copy_to_clipboard() {
   fi
 }
 
-# Check if a file is an image
+# Check if a file is an image (extension compared case-insensitively: IMG_0001.PNG counts)
 is_image_file() {
-  local f="$1"
-  case "${f:l}" in
+  local f
+  f=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+  case "$f" in
     *.png|*.jpg|*.jpeg|*.gif|*.webp|*.bmp|*.tiff|*.tif|*.svg) return 0 ;;
     *) return 1 ;;
   esac
@@ -155,7 +157,7 @@ main() {
 
   # Resume mode
   if [[ -n "$resume_id" ]]; then
-    npx --yes @file-kiwi/node --resume "$resume_id"
+    npx --yes "$FILE_KIWI_PKG" --resume "$resume_id"
     exit $?
   fi
 
@@ -274,7 +276,8 @@ main() {
     const { spawn, exec } = require('child_process');
     const runnerArgs = process.argv.slice(1);
 
-    const child = spawn('npx', ['--yes', '@file-kiwi/node', ...runnerArgs], {
+    const [pkg, ...rest] = runnerArgs;
+    const child = spawn('npx', ['--yes', pkg, ...rest], {
       stdio: ['inherit', 'pipe', 'inherit']
     });
 
@@ -312,7 +315,7 @@ main() {
     child.on('close', (code) => {
       process.exit(code || 0);
     });
-  " "${runner_args[@]}"
+  " "$FILE_KIWI_PKG" "${runner_args[@]}"
 }
 
 main "$@"

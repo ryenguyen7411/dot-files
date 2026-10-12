@@ -54,11 +54,23 @@ if [[ "${INSTALL_EXTRAS}" == "1" ]]; then
   sudo apt-get install -y eza zoxide direnv atuin
 fi
 
-if [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
-  log "==> Installing Oh My Zsh"
-  RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Neovim: apt's build is far older than this config needs (0.11+), so use the official release
+NVIM_MIN="0.11"
+nvim_version() { nvim --version 2>/dev/null | awk 'NR==1 { sub(/^v/, "", $2); print $2 }'; }
+if ! command -v nvim >/dev/null 2>&1 || [[ "$(printf '%s\n' "$NVIM_MIN" "$(nvim_version)" | sort -V | head -n1)" != "$NVIM_MIN" ]]; then
+  case "$(uname -m)" in
+    x86_64) nvim_arch="x86_64" ;;
+    aarch64 | arm64) nvim_arch="arm64" ;;
+    *) log "Error: unsupported CPU $(uname -m) for the Neovim release build"; exit 1 ;;
+  esac
+  log "==> Installing Neovim (latest stable release, ${nvim_arch})"
+  mkdir -p "${HOME}/.local/opt"
+  curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.tar.gz" |
+    tar -xz -C "${HOME}/.local/opt"
+  ln -sfn "${HOME}/.local/opt/nvim-linux-${nvim_arch}/bin/nvim" "${HOME}/.local/bin/nvim"
 fi
+
+# The shell config uses zinit, which installs itself on the first zsh start (no Oh My Zsh needed)
 
 log "==> Stowing packages (shell, nvim)"
 stow --target="${HOME}" --dir="${DOTFILES_DIR}" shell nvim
