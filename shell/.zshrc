@@ -97,15 +97,15 @@ safe_source "$ZSH_CONFIG_DIR/local.zsh"
 # ========================
 
 # Two named sessions so the Mac and the phone never steal each other's session:
-#   main   - Kitty on the Mac auto-attaches here
-#   mobile - SSH logins (Termius on the phone) auto-attach here; on the Mac it
-#            is only created detached and left running in the background
-# mobile starts in ~/projects running claude; claude is typed into the shell
+#   main  - Kitty on the Mac, and SSH logins from any non-phone client, attach here
+#   phone - SSH logins from a tailnet peer named *phone* (Termius) attach here; on
+#           the Mac it is only created detached and left running in the background
+# phone starts in ~/projects running claude; claude is typed into the shell
 # (not run as the session command) so quitting it leaves a shell, not a dead session
-tmux_ensure_mobile() {
-  tmux has-session -t mobile 2>/dev/null && return 0
-  tmux new-session -d -s mobile -c "$HOME/projects"
-  tmux send-keys -t mobile 'claude' Enter
+tmux_ensure_phone() {
+  tmux has-session -t phone 2>/dev/null && return 0
+  tmux new-session -d -s phone -c "$HOME/projects"
+  tmux send-keys -t phone 'claude' Enter
 }
 
 # Tailscale device name of the SSH client (e.g. ryeng-phone, ryeng-work); empty when
@@ -118,19 +118,16 @@ ssh_peer_name() {
 
 if [[ -z "$TMUX" ]] && command_exists tmux; then
   if [[ -n "$SSH_CONNECTION" ]]; then
-    # Phone (or an unrecognised client) -> mobile; another Mac -> its own session named
-    # after it (ryeng-work -> "work"), so Mac-to-Mac logins never take over mobile/main.
+    # Phone -> phone; anything else (another Mac, a LAN IP, no tailscale) -> main.
     # Leaving tmux (detach or last pane closed) also ends the SSH login; if tmux itself
     # fails, the login falls through to a plain shell instead of disconnecting
-    ssh_peer="$(ssh_peer_name)"
-    if [[ -n "$ssh_peer" && "$ssh_peer" != *phone* ]]; then
-      tmux new-session -A -s "${ssh_peer#ryeng-}" -c "$HOME/projects" && exit
+    if [[ "$(ssh_peer_name)" == *phone* ]]; then
+      tmux_ensure_phone && tmux attach-session -t phone && exit
     else
-      tmux_ensure_mobile && tmux attach-session -t mobile && exit
+      tmux new-session -A -s main && exit
     fi
-    unset ssh_peer
   elif [[ -n "$KITTY_WINDOW_ID" ]]; then
-    tmux_ensure_mobile
+    tmux_ensure_phone
     tmux new-session -A -s main
   fi
 fi
