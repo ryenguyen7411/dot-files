@@ -10,6 +10,9 @@
 #   nvim ~/.config/zsh/local.zsh
 #
 
+# Work-only helpers (e.g. `swe`, the GCloud/GKE switcher) go in ~/.config/zsh/work.zsh,
+# also untracked, so company project IDs stay out of this public repo.
+
 # Machine identifier (used by tms for tmux session configs)
 # Values: 'work', 'home', 'default', or custom
 export MACHINE_NAME="default"
@@ -24,10 +27,11 @@ export MACHINE_NAME="default"
 # Machine-specific paths
 # export PATH="$HOME/custom-tools:$PATH"
 
-# API keys and secrets (NEVER commit these!)
-# export OPENAI_API_KEY="sk-..."
-# export ANTHROPIC_API_KEY="sk-ant-..."
-# export GITHUB_TOKEN="ghp_..."
+# API keys: exported variables are visible to every process the shell starts (npm install
+# scripts, npx, MCP servers). Keep keys in Keychain and pass them only to the command that
+# needs them:
+#   security add-generic-password -a "$USER" -s GEMINI_API_KEY -w   # prompts for the value
+#   gemini() { GEMINI_API_KEY=$(security find-generic-password -s GEMINI_API_KEY -w) command gemini "$@"; }
 
 # Work proxy settings
 # export HTTP_PROXY="http://proxy.company.com:8080"
