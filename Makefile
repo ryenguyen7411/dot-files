@@ -250,6 +250,7 @@ install-jump-desktop-service:
 	@if [ "$$(uname)" = "Darwin" ]; then \
 		echo "Installing jump-desktop background service..."; \
 		mkdir -p $(HOME)/Library/LaunchAgents; \
+		rm -f $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
 		sed 's|__HOME__|$(HOME)|g; s|/Users/[^/]*/\.local|$(HOME)/.local|g' $(CURDIR)/launchd/com.colorye.jump-desktop.plist > $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist; \
 		launchctl bootout gui/$$(id -u) $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || true; \
 		launchctl bootstrap gui/$$(id -u) $(HOME)/Library/LaunchAgents/com.colorye.jump-desktop.plist 2>/dev/null || \
