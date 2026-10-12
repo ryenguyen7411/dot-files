@@ -17,7 +17,7 @@ return {
     'madmaxieee/fff-snacks.nvim',
     dependencies = {
       'dmtrKovalenko/fff',
-      { 'ryenguyen7411/snacks.nvim', branch = 'develop' },
+      'folke/snacks.nvim',
     },
     ---@type fff_snacks.Config
     opts = {

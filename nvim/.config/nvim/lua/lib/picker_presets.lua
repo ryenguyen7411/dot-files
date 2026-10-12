@@ -52,7 +52,6 @@ M.snacks_grep = function()
       '--color=never',
       '--column',
       '--no-heading',
-      '--sort-files',
       '--trim',
       '--no-ignore',
       '--ignore-file',
