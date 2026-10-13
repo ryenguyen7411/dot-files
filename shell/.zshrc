@@ -106,10 +106,14 @@ safe_source "$ZSH_CONFIG_DIR/local.zsh"
 # TMUX AUTO-START
 # ========================
 
-# Two named sessions so the Mac and the phone never steal each other's session:
-#   main  - Kitty on the Mac, and SSH logins from any non-phone client, attach here
-#   phone - SSH logins from a tailnet peer named *phone* (Termius) attach here; on
-#           the Mac it is only created detached and left running in the background
+# One tmux session per client, so two machines never share (and fight over the size
+# and layout of) the same session:
+#   main     - Kitty on the Mac attaches here
+#   phone    - SSH logins from a tailnet peer named *phone* (Termius) attach here; on
+#              the Mac it is only created detached and left running in the background
+#   <device> - SSH logins from any other tailnet peer get a session named after it
+#              (ryeng-work -> "work"); reconnecting from that device reattaches to it
+#   ssh-<ip> - SSH logins from a non-tailnet client (LAN IP, no tailscale CLI)
 # phone starts in ~/projects running claude; claude is typed into the shell
 # (not run as the session command) so quitting it leaves a shell, not a dead session
 tmux_ensure_phone() {
@@ -126,16 +130,34 @@ ssh_peer_name() {
     | awk '/^  Name:/ { split($2, parts, "."); print parts[1]; exit }'
 }
 
+# tmux session name for the current SSH login (see the list above). Characters tmux
+# rejects or rewrites in session names (".", ":", "%" in IPv6 addresses) become "-"
+ssh_session_name() {
+  local peer name
+  peer="$(ssh_peer_name)"
+  if [[ "$peer" == *phone* ]]; then
+    name=phone
+  elif [[ -n "$peer" ]]; then
+    name="${peer#ryeng-}"
+  else
+    name="ssh-${SSH_CONNECTION%% *}"
+  fi
+  # Never hand an SSH client Kitty's session
+  [[ "$name" == main ]] && name=ssh-main
+  print -r -- "${name//[^[:alnum:]_-]/-}"
+}
+
 if [[ -z "$TMUX" ]] && command_exists tmux; then
   if [[ -n "$SSH_CONNECTION" ]]; then
-    # Phone -> phone; anything else (another Mac, a LAN IP, no tailscale) -> main.
     # Leaving tmux (detach or last pane closed) also ends the SSH login; if tmux itself
     # fails, the login falls through to a plain shell instead of disconnecting
-    if [[ "$(ssh_peer_name)" == *phone* ]]; then
+    ssh_session="$(ssh_session_name)"
+    if [[ "$ssh_session" == phone ]]; then
       tmux_ensure_phone && tmux attach-session -t phone && exit
     else
-      tmux new-session -A -s main && exit
+      tmux new-session -A -s "$ssh_session" -c "$HOME/projects" && exit
     fi
+    unset ssh_session
   elif [[ -n "$KITTY_WINDOW_ID" ]]; then
     tmux_ensure_phone
     tmux new-session -A -s main
