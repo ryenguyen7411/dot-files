@@ -76,7 +76,7 @@ install: check install-shell install-nvim install-kitty install-tmux install-git
 	@echo "  3. Reload shell: exec zsh"
 
 install-ubuntu-server:
-	@echo "Installing dotfiles for Ubuntu server (shell + nvim only)..."
+	@echo "Installing dotfiles for Ubuntu server (shell, nvim, git, bat, mise tools)..."
 	@./tools/install-ubuntu-server.sh
 
 # First-time setup over existing configs: back them up, remove them, then install
@@ -378,7 +378,7 @@ help:
 	@echo "  install-search   Link fd/rg ignore files used by the Neovim pickers"
 	@echo "  install-ssh      Install SSH config with multiplexing"
 	@echo "  install-tools    Build (if changed) and link standalone tools"
-	@echo "  install-ubuntu-server Install minimal shell+nvim for Ubuntu server"
+	@echo "  install-ubuntu-server Ubuntu server: zsh, nvim, git, bat + mise tools"
 	@echo ""
 	@echo "Uninstallation:"
 	@echo "  uninstall        Uninstall all packages"

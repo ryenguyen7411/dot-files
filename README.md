@@ -94,6 +94,20 @@ make install-ssh       # SSH config (needs ssh/.ssh/config.local)
 make install-tools     # Standalone tools (tms, jump-display, etc.), rebuilt when changed
 ```
 
+### Ubuntu Server
+
+```bash
+git clone https://github.com/ryenguyen7411/dot-files.git ~/projects/colorye/dot-files
+cd ~/projects/colorye/dot-files
+make install-ubuntu-server   # needs sudo; safe to re-run
+```
+
+Stows `shell`, `nvim`, `git`, `bat` and `mise`, makes zsh the login shell, and installs the CLI tools in
+`mise/.config/mise/config.toml` (Neovim, fzf, ripgrep, fd, bat, eza, zoxide, yq, atuin, direnv, delta,
+difftastic, lazygit, k9s, dust) as current release binaries through [mise](https://mise.jdx.dev). tmux is
+installed with its stock config, so it nests cleanly inside the Mac's tmux. Update everything with
+`mise up` (tools) and `make update` (Neovim plugins).
+
 ### Machine-Specific Setup
 
 ```bash
@@ -157,6 +171,7 @@ Each directory is a "stow package" that mirrors your home directory:
 | `starship` | `~/.config/starship.toml` |
 | `bat` | `~/.config/bat/*` |
 | `raycast` | `~/.config/raycast/scripts/*` |
+| `mise` | `~/.config/mise/config.toml` (Ubuntu servers only) |
 
 ## ⌨️ Key Bindings
 
