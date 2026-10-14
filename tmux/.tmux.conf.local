@@ -448,6 +448,8 @@ set -sg escape-time 0
 set-option -g default-terminal 'tmux-256color'
 set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
+# Let apps (nvim yanks) set the clipboard with OSC 52; tmux forwards it to the attached client's terminal.
+set -s set-clipboard on
 
 # Forward Kitty's extended keyboard protocol so apps inside tmux (e.g. Claude
 # Code) can tell Shift+Enter apart from Enter, instead of only Alt+Enter.
