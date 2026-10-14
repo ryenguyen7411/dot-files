@@ -99,8 +99,10 @@ fi
 log "==> Installing zinit"
 TMUX=install zsh -ic exit </dev/null >/dev/null 2>&1 || true
 
-log "==> Installing Neovim plugins"
-nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 || log "  Lazy sync failed; open nvim and run :Lazy"
+# restore, not sync: install the commits pinned in lazy-lock.json, so the server matches
+# the Mac and the checkout stays clean (sync would bump plugins and rewrite the lockfile)
+log "==> Installing Neovim plugins (lazy-lock.json)"
+nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 || log "  Lazy restore failed; open nvim and run :Lazy"
 
 if [[ "${SET_DEFAULT_SHELL}" == "1" && "$(getent passwd "${USER}" | cut -d: -f7)" != "$(command -v zsh)" ]]; then
   log "==> Setting default shell to zsh"
@@ -111,4 +113,4 @@ log "==> Done"
 log "Next:"
 log "  - Git identity: cp ${DOTFILES_DIR}/git/.gitconfig-local.example ~/.gitconfig-local"
 log "  - Log in again (or: exec zsh)"
-log "  - Update tools later: mise up && (cd ${DOTFILES_DIR} && git pull && make update)"
+log "  - Update later: mise up (tools); cd ${DOTFILES_DIR} && git pull && nvim --headless \"+Lazy! restore\" +qa (plugins)"
