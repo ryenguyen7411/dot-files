@@ -4,16 +4,16 @@ return {
   -- TO BE UPDATED
   {
     'mattn/' .. 'emmet-vim',
-    event = 'BufRead',
+    event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       vim.keymap.set('i', '<C-j>', '<Plug>(emmet-expand-abbr)', { noremap = false })
     end,
   },
 
-  { 'tpope/' .. 'vim-repeat', event = 'BufRead' },
+  { 'tpope/' .. 'vim-repeat', event = 'VeryLazy' },
   {
     'folke/' .. 'todo-comments.nvim',
-    event = 'BufRead',
+    event = { 'BufReadPre', 'BufNewFile' },
     keys = {
       { '<space>a', '<cmd>lua Snacks.picker.todo_comments()<CR>', desc = 'Todo Comments' },
     },
@@ -39,7 +39,7 @@ return {
   },
   {
     'm4xshen/' .. 'hardtime.nvim',
-    event = 'BufRead',
+    event = { 'BufReadPre', 'BufNewFile' },
     dependencies = {
       'MunifTanjim/' .. 'nui.nvim',
       'nvim-lua/' .. 'plenary.nvim',
@@ -65,6 +65,7 @@ return {
         'opencode_input',
         'opencode_output',
         'sidekick',
+        'fff',
       },
     },
   },

@@ -48,15 +48,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
 vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
   callback = function()
-    vim.highlight.on_yank()
-  end,
-})
-
--- Set filetype=html for specific extensions
-vim.api.nvim_create_autocmd('BufEnter', {
-  pattern = { '*.hbs', '*.cshtml' },
-  callback = function()
-    vim.bo.filetype = 'html'
+    vim.hl.on_yank()
   end,
 })
 
@@ -74,7 +66,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 vim.api.nvim_create_autocmd('BufWritePre', {
   pattern = '*.go',
   callback = function()
-    local params = vim.lsp.util.make_range_params()
+    local gopls = vim.lsp.get_clients({ bufnr = 0, name = 'gopls' })[1]
+    local params = vim.lsp.util.make_range_params(0, gopls and gopls.offset_encoding or 'utf-16')
     params.context = { only = { 'source.organizeImports' } }
     local result = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', params)
     for cid, res in pairs(result or {}) do
@@ -85,26 +78,9 @@ vim.api.nvim_create_autocmd('BufWritePre', {
         end
       end
     end
-    vim.lsp.buf.format { async = false }
+    -- Formatting itself is handled by conform (lsp_format = 'fallback')
   end,
 })
-
--- Utility function to associate file patterns with filetypes
-local function set_filetypes(filetype_map)
-  for pattern, filetype in pairs(filetype_map) do
-    vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-      pattern = pattern,
-      callback = function()
-        vim.bo.filetype = filetype
-      end,
-    })
-  end
-end
-
--- Example usage
-set_filetypes {
-  ['Fastfile'] = 'ruby',
-}
 
 -- Auto-reload buffers when files change on disk (replaces vim-autoread plugin)
 vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {

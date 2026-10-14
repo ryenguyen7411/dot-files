@@ -6,15 +6,17 @@
 # Git Utilities
 # ---------------------------
 
-# Reset to N commits back
-reset() {
-  git reset HEAD~"$1"
+# Undo the last N commits, keeping their changes in the working tree (default 1).
+# Not named `reset`: that would shadow the terminal's /usr/bin/reset.
+greset() {
+  git reset "HEAD~${1:-1}"
 }
 
-# Hard reset to N commits back
+# Hard reset N commits back (default 1). Everything uncommitted, untracked files included,
+# is stashed first, so `git stash pop` brings it back.
 rhard() {
-  gac
-  git reset --hard HEAD~"$1"
+  git stash push --include-untracked -m "rhard backup $(date +%F_%T)" || return 1
+  git reset --hard "HEAD~${1:-1}"
 }
 
 # Cherry pick visualization
@@ -106,9 +108,9 @@ gmr() {
 }
 
 # Push current branch and create PR/MR via official CLI (opens browser)
-# Usage: gmr [target_branch]
-#   gmr           → current branch → master
-#   gmr develop   → current branch → develop
+# Usage: gmrnew [target_branch]
+#   gmrnew           → current branch → master
+#   gmrnew develop   → current branch → develop
 gmrnew() {
   local target="${1:-master}"
   local branch provider
@@ -189,7 +191,11 @@ gls() {
 
   git switch -c "$backport_branch" "origin/$release_branch" || return 1
 
-  git cherry-pick "$sha" || {
+  # A merge-commit PR/MR can only be cherry-picked relative to its mainline parent
+  local pick_args=()
+  (( $(git rev-list --parents -n1 "$sha" | wc -w) > 2 )) && pick_args=(-m 1)
+
+  git cherry-pick "${pick_args[@]}" "$sha" || {
     echo "Cherry-pick conflict — resolve and run: git cherry-pick --continue" >&2
     return 1
   }
@@ -220,10 +226,15 @@ gls() {
 # Process Management
 # ---------------------------
 
-# Kill process by port
+# Kill the process listening on a port (not the clients connected to it, e.g. your browser)
 if command_exists lsof; then
   killp() {
-    kill $(lsof -ti:$1)
+    local pids=(${(f)"$(lsof -ti "tcp:$1" -sTCP:LISTEN)"})
+    if (( ! $#pids )); then
+      echo "Nothing is listening on port $1" >&2
+      return 1
+    fi
+    kill $pids
   }
 fi
 
@@ -377,90 +388,30 @@ dockerexec() {
 # Cloud & Infrastructure
 # ---------------------------
 
-# Lazy load helper
-lazy_load() {
-  local func_name="$1"
-  local loader_func="$2"
-
-  eval "$func_name() {
-    unset -f $func_name
-    $loader_func
-    $func_name \"\$@\"
-  }"
-}
-
-# GCloud/Kubernetes environment switcher (lazy loaded)
-_load_swe() {
-  swe() {
-    case $1 in
-      develop)
-        gcloud config set project gam-project-cgd-x0l-zm4
-        gcloud container clusters get-credentials bu1-k8s-dev --zone=asia-southeast1-a
-        ;;
-      stage)
-        gcloud config set project veep-staging
-        gcloud container clusters get-credentials default --zone=asia-southeast1-a
-        ;;
-      production)
-        gcloud config set project veep-production
-        gcloud container clusters get-credentials default --zone=asia-southeast1-a
-        ;;
-      saas)
-        gcloud config set project veep-production
-        gcloud container clusters get-credentials saas-1 --region=asia-southeast1
-        ;;
-      qa)
-        gcloud config set project veep-staging
-        gcloud container clusters get-credentials qa --zone=asia-southeast1-a
-        ;;
-      cake-dev)
-        gcloud config set project bef-cake-sandbox
-        gcloud container clusters get-credentials cake-dev-2 --zone=asia-southeast1
-        ;;
-      cake-qa)
-        gcloud config set project bef-cake-sandbox
-        gcloud container clusters get-credentials cake-qa-1 --zone=asia-southeast1
-        ;;
-      cake-stage)
-        gcloud config set project bef-cake-sandbox
-        gcloud container clusters get-credentials cake-stage-1 --zone=asia-southeast1
-        ;;
-      cake-prod)
-        gcloud config set project bef-cake-prod
-        gcloud container clusters get-credentials cake-prod-1 --zone=asia-southeast1
-        ;;
-      help|*)
-        echo "Available environments:"
-        echo "  develop    - Development environment"
-        echo "  stage      - Staging environment"
-        echo "  production - Production environment"
-        echo "  qa         - QA environment"
-        echo "  saas       - SaaS environment"
-        echo "  cake-dev   - Cake development"
-        echo "  cake-qa    - Cake QA"
-        echo "  cake-stage - Cake staging"
-        echo "  cake-prod  - Cake production"
-        ;;
-    esac
-  }
-}
-
-lazy_load swe _load_swe
+# Work-only helpers (e.g. `swe`, the GCloud/GKE environment switcher) live in the gitignored
+# ~/.config/zsh/work.zsh, sourced from .zshrc, so company project IDs stay out of this public repo.
 
 # ---------------------------
 # Kubernetes (k3s via SSH tunnel)
 # ---------------------------
 
-# Wrapper for kubectl that ensures SSH tunnel to k3s is active
-kubectl() {
+# Wrapper for kubectl that opens the SSH tunnel to k3s, but only when the current
+# context actually talks to the tunnel's local end (127.0.0.1/localhost:6443).
+# macOS only: on a k3s server 127.0.0.1:6443 is the cluster itself, not a tunnel.
+[[ "$OSTYPE" == darwin* ]] && kubectl() {
   local tunnel_host="rye-opc"
   local local_port=6443
   local remote_port=6443
+  local server
+  server=$(command kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null)
 
-  # Check if tunnel already exists
-  if ! pgrep -f "ssh.*-L.*${local_port}:127.0.0.1:${remote_port}.*${tunnel_host}" > /dev/null 2>&1; then
+  if [[ "$server" == *(127.0.0.1|localhost):${local_port}* ]] &&
+    ! pgrep -f "ssh.*-L.*${local_port}:127.0.0.1:${remote_port}.*${tunnel_host}" > /dev/null 2>&1; then
     echo "Starting SSH tunnel to k3s..." >&2
-    ssh -f -N -L ${local_port}:127.0.0.1:${remote_port} ${tunnel_host}
+    # Fail instead of silently running without the forward; drop the tunnel when the link dies
+    ssh -f -N \
+      -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+      -L ${local_port}:127.0.0.1:${remote_port} ${tunnel_host} || return 1
     sleep 1  # Give tunnel time to establish
   fi
 
@@ -475,6 +426,7 @@ _kmount_ensure_sftp_server() {
   local pod="$2"
   local container="$3"
   local remote_sftp_server="${4:-/tmp/.kmount-sftp-server}"
+  # Only a Linux host can lend its sftp-server binary to a (Linux) pod
   local host_sftp_server="/usr/lib/openssh/sftp-server"
   local kubectl_args=(-n "$namespace")
 
@@ -487,8 +439,9 @@ _kmount_ensure_sftp_server() {
     return 0
   fi
 
-  if [[ ! -x "$host_sftp_server" ]]; then
-    echo "Error: local sftp-server not found at $host_sftp_server" >&2
+  if [[ "$OSTYPE" != linux* || ! -x "$host_sftp_server" ]]; then
+    echo "Error: the pod has no $remote_sftp_server and this host can't provide one" >&2
+    echo "  (copying the host's sftp-server only works from a Linux host, e.g. rye-opc)" >&2
     return 1
   fi
 
@@ -542,7 +495,7 @@ kmount() {
   remote_sftp_server=$(_kmount_ensure_sftp_server "$namespace" "$full_pod" "$container") || return 1
 
   # Unmount stale mount if exists
-  fusermount3 -uz "$mount_path" 2>/dev/null || fusermount -uz "$mount_path" 2>/dev/null
+  _kmount_unmount "$mount_path" force 2>/dev/null
 
   # Mount via sshfs over kubectl exec, so it works without root in the pod.
   local ssh_command
@@ -563,13 +516,33 @@ EOF
     -o cache=yes \
     -o no_check_root
 
-  if mountpoint -q "$mount_path" 2>/dev/null || mount | grep -q "$mount_path"; then
+  if _kmount_is_mounted "$mount_path"; then
     echo "Mounted $full_pod:/ -> $mount_path"
     echo "  namespace: $namespace"
     echo "  Unmount with: kunmount $mount_path"
   else
     echo "Error: sshfs mount failed" >&2
     return 1
+  fi
+}
+
+# Platform helpers: macOS (macFUSE) has umount/diskutil, Linux has fusermount
+_kmount_is_mounted() {
+  mount | grep -qF " on $1 "
+}
+
+_kmount_unmount() {
+  local mount_path="$1" force="${2:-}"
+  if [[ "$OSTYPE" == darwin* ]]; then
+    if [[ -n "$force" ]]; then
+      diskutil unmount force "$mount_path" >/dev/null
+    else
+      umount "$mount_path"
+    fi
+  elif [[ -n "$force" ]]; then
+    fusermount3 -uz "$mount_path" 2>/dev/null || fusermount -uz "$mount_path"
+  else
+    fusermount3 -u "$mount_path" 2>/dev/null || fusermount -u "$mount_path"
   fi
 }
 
@@ -581,7 +554,7 @@ kunmount() {
   if [[ -z "$mount_path" ]]; then
     # List active kmount mounts under ~/mnt
     local mounts
-    mounts=$(mount | grep "fuse.sshfs" | grep "$HOME/mnt" | awk '{print $3}')
+    mounts=$(mount | grep -E "fuse\.sshfs|macfuse|osxfuse" | grep -F " on $HOME/mnt/" | awk '{print $3}')
     if [[ -z "$mounts" ]]; then
       echo "No active kmount mounts found"
       return 0
@@ -593,12 +566,14 @@ kunmount() {
     return 1
   fi
 
-  # Unmount
-  if fusermount3 -u "$mount_path" 2>/dev/null || fusermount -u "$mount_path" 2>/dev/null; then
+  # Unmount, and only report what actually happened
+  if _kmount_unmount "$mount_path" 2>/dev/null; then
     echo "Unmounted $mount_path"
-  else
-    fusermount3 -uz "$mount_path" 2>/dev/null || fusermount -uz "$mount_path" 2>/dev/null
+  elif _kmount_unmount "$mount_path" force 2>/dev/null; then
     echo "Force-unmounted $mount_path"
+  else
+    echo "Error: could not unmount $mount_path" >&2
+    return 1
   fi
 }
 
@@ -640,19 +615,21 @@ zshrc-reload() {
   source ~/.zshrc && echo "Configuration reloaded"
 }
 
-# Backup zshrc
-zshrc-backup() {
-  local backup_file="$HOME/.zshrc.backup.$(date +%Y%m%d_%H%M%S)"
-  cp ~/.zshrc "$backup_file" && echo "Backup created: $backup_file"
-}
-
-# Profile load time
+# Profile startup: time 10 interactive starts, then show where one start spends its time
 zshrc-profile() {
-  local start_time=$(date +%s.%3N)
-  source ~/.zshrc >/dev/null 2>&1
-  local end_time=$(date +%s.%3N)
-  local load_time=$(echo "$end_time - $start_time" | bc)
-  echo "ZSH configuration loaded in ${load_time}s"
+  zmodload -F zsh/datetime p:EPOCHREALTIME
+  local i t0 dir
+  for i in {1..10}; do
+    t0=$EPOCHREALTIME
+    zsh -i -c exit >/dev/null 2>&1
+    printf '%.0f ms  ' $(( (EPOCHREALTIME - t0) * 1000 ))
+  done
+  echo
+  dir=$(mktemp -d)
+  [[ -f ${ZDOTDIR:-$HOME}/.zcompdump ]] && cp ${ZDOTDIR:-$HOME}/.zcompdump "$dir/"
+  print -r -- 'zmodload zsh/zprof; source ~/.zshrc; zprof | head -20' > "$dir/.zshrc"
+  ZDOTDIR=$dir zsh -i -c exit 2>/dev/null
+  rm -rf "$dir"
 }
 
 # Debug mode
@@ -666,20 +643,6 @@ zshrc-debug-off() {
   echo "Debug mode disabled."
 }
 
-# Plugin status
-zshrc-plugins() {
-  echo "Loaded ZSH plugins:"
-  for plugin in "${plugins[@]}"; do
-    if [[ -d "$ZSH/custom/plugins/$plugin" ]]; then
-      echo "  - $plugin (custom)"
-    elif [[ -d "$ZSH/plugins/$plugin" ]]; then
-      echo "  - $plugin (built-in)"
-    else
-      echo "  - $plugin (command-based)"
-    fi
-  done
-}
-
 # Path diagnostics
 zshrc-path() {
   echo "PATH contents (one per line):"
@@ -689,13 +652,28 @@ zshrc-path() {
 # Environment summary
 zshrc-info() {
   echo "=== ZSH Configuration Info ==="
-  echo "Version: 4.0.0"
   echo "ZSH Version: $ZSH_VERSION"
-  echo "Theme: $ZSH_THEME"
-  echo "Plugins: ${#plugins[@]} loaded"
-  echo "PATH entries: $(echo "$PATH" | tr ':' '\n' | wc -l)"
+  echo "Plugin manager: zinit ($(zinit loaded 2>/dev/null | grep -c .) plugins/snippets loaded)"
+  echo "PATH entries: ${#path}"
   echo "Terminal: $TERM"
   echo "Editor: ${EDITOR:-not set}"
+  echo "Machine: ${MACHINE_NAME:-not set}"
   echo "Debug mode: ${ZSH_DEBUG:-disabled}"
 }
 
+# Upload a file to transfer.ryenguyen.dev (creds from ~/.netrc)
+transfer() {
+  curl -n --progress-bar --upload-file "$1" "https://transfer.ryenguyen.dev/$(basename "$1")"
+  echo
+}
+
+# fnm leaves one symlink per shell in fnm_multishells and never removes it.
+# Drop the ones whose shell is gone (the name starts with the shell's PID).
+fnm-clean() {
+  local dir=${XDG_STATE_HOME:-$HOME/.local/state}/fnm_multishells link removed=0
+  for link in $dir/*(N@); do
+    kill -0 ${${link:t}%%_*} 2>/dev/null && continue
+    rm -f -- "$link" && (( ++removed ))
+  done
+  echo "Removed $removed stale fnm shell links"
+}

@@ -7,11 +7,8 @@ brew "stow"                # Symlink farm manager
 brew "neovim"
 brew "tmux"
 
-# Shell
+# Shell (zsh plugins come from zinit, see shell/.zshrc)
 brew "zsh"
-brew "zsh-autosuggestions"
-brew "zsh-syntax-highlighting"
-brew "zsh-completions"
 
 # Search & Navigation
 brew "fzf"                 # Fuzzy finder
@@ -20,6 +17,7 @@ brew "fd"                  # Fast find
 brew "bat"                 # Better cat
 brew "eza"                 # Better ls
 brew "zoxide"              # Smarter cd
+brew "yq"                  # YAML processor (required by tms)
 
 # Development
 brew "fnm"                 # Fast Node Manager
@@ -27,9 +25,10 @@ brew "stylua"              # Lua formatter
 brew "shellcheck"          # Shell script linter
 brew "jq"                  # JSON processor
 brew "direnv"              # Per-directory environment variables
+brew "gopls"               # Go language server (Neovim)
 
 # Modern CLI Enhancements
-brew "starship"            # Cross-shell prompt
+brew "starship"            # Cross-shell prompt (config kept; init is commented out in tools.zsh)
 brew "atuin"               # Better shell history with sync
 brew "tldr"                # Simplified man pages
 brew "btop"                # Beautiful system monitor
@@ -37,13 +36,19 @@ brew "btop"                # Beautiful system monitor
 # Git Enhancements
 brew "gh"                  # GitHub CLI
 brew "glab"                # GitLab CLI
-brew "delta"               # Better git diff
+brew "git-delta"           # Better git diff (pager in git/.gitconfig)
+brew "difftastic"          # Structural diff (git difft / git logt)
 brew "lazygit"             # Git TUI
 
 # Containers & Cloud
-brew "kubectl"
-brew "docker"
-brew "docker-compose"
+brew "kubernetes-cli"      # kubectl
+brew "helm"
+brew "kubeseal"
+
+# Images / docs (shottr scripts, snacks.image in Neovim)
+brew "pngpaste"            # Clipboard image -> file (shottr-upload / shottr-optimize)
+brew "imagemagick"         # snacks.image conversions
+brew "mermaid-cli"         # snacks.image mermaid diagrams
 
 # Fonts (Nerd Fonts for terminal icons)
 cask "font-hack-nerd-font"
@@ -51,4 +56,6 @@ cask "font-hack-nerd-font"
 # Terminal Emulators & Utilities
 cask "kitty"
 cask "raycast"
+cask "orbstack"            # Docker runtime + CLI (replaces the docker / docker-compose formulae)
+cask "copilot-language-server"  # Copilot LSP for Neovim (sidekick.nvim + native inline completion)
 # cask "alacritty"         # Alternative

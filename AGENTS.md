@@ -14,14 +14,14 @@ Commands:
 - **Prerequisites check**: `make check` - verifies stow and other tools are installed
 - **Preview**: `make dry-run` - preview what stow would do
 - **Install all**: `make install` - creates symbolic links via GNU Stow
-- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-raycast`, `make install-tools`
+- **Individual packages**: `make install-shell`, `make install-nvim`, `make install-kitty`, `make install-tmux`, `make install-git`, `make install-starship`, `make install-bat`, `make install-raycast`, `make install-search`, `make install-ssh`, `make install-tools`
 
 This creates symbolic links for:
-- Shell config (`~/.zshrc`, `~/.config/zsh/`)
+- Shell config (`~/.zshrc`, `~/.zprofile`, `~/.config/zsh/`)
 - Neovim config (`~/.config/nvim`)
 - Kitty config (`~/.config/kitty/kitty.conf`)
 - Tmux config (`~/.tmux.conf.local`)
-- Git config (`~/.gitconfig`)
+- Git config (`~/.gitconfig`, `~/.config/git/ignore`)
 - Starship prompt (`~/.config/starship.toml`)
 - Bat config (`~/.config/bat/`)
 - Raycast Script Commands (`~/.config/raycast/scripts/`)
@@ -38,6 +38,7 @@ Project-specific documentation and tooling config belong in **each application r
   - `lua/mappings.lua`: Key mappings
   - `lua/autocmds.lua`: Auto commands
   - `lua/plugins/`: Plugin configurations organized by functionality
+- **Requires Neovim 0.11+** (`vim.lsp.config` / `vim.lsp.enable`, `after/lsp/*.lua`)
 - **Key Features**:
   - Disabled built-in plugins for performance
   - Leader key: `<Space>`, Local leader: `,`
@@ -45,11 +46,12 @@ Project-specific documentation and tooling config belong in **each application r
   - Persistent undo, relative line numbers
 
 ## Build/Lint/Test Commands
-- **No build/test commands** - This is a configuration repository
-- **Lua formatting**: `make lint` (check) / `make lint-fix` (auto-fix) - uses stylua via `.stylua.toml`
-- **JS/TS linting**: ESLint configured in `.eslintrc` (standard, standard-jsx, standard-react)
-- **Yarn commands**: `check-format`, `check-lint`, `check-types`
-- **Make commands**: `make lint` (check), `make lint-fix` (auto-fix)
+- **Check everything**: `make lint` - stylua `--check` on the Neovim config, shellcheck on the bash tools and
+  Raycast scripts, `zsh -n` on the zsh files. Run it before reporting work done.
+- **Fix Lua formatting**: `make lint-fix` (stylua via `.stylua.toml`)
+- **Swift tools**: `make install-tools` rebuilds a tool only when its `.swift` source changed; compile errors fail
+  the build.
+- **Stow changes**: `make dry-run` shows what stow would link. There is no package.json / yarn here.
 
 ## Code Style Guidelines
 
@@ -61,13 +63,11 @@ Project-specific documentation and tooling config belong in **each application r
 - Module pattern: `local M = {}` and return plugin spec
 - Format on save enabled via conform.nvim with stylua
 
-### JavaScript/TypeScript
-- Follow `standard`, `standard-jsx`, `standard-react` extends
-- Semicolons required (`semi: ["error", "always"]`)
-- Comma dangle on multiline (`comma-dangle: ["error", "always-multiline"]`)
-- JSX uses double quotes (`jsx-quotes: ["error", "prefer-double"]`)
-- Unix line endings, unused vars with `_` prefix ignored
-- Import ordering enforced
+### Shell
+- Tools in `tools/` are bash; keep them shellcheck-clean (`make lint`).
+- Interactive helpers live in `shell/.config/zsh/*.zsh` (zsh syntax). Agents' shells inherit these aliases and
+  functions, so don't shadow system commands (e.g. `reset`) and keep `ls` working without a TTY.
+- Work-only helpers with company identifiers go in the untracked `~/.config/zsh/work.zsh` (this repo is public).
 
 ### General
 - Focus on dotfile consistency and Neovim plugin configuration
@@ -84,6 +84,9 @@ Project-specific documentation and tooling config belong in **each application r
 - `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
 - `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)
 - `jump-display`: Teleports mouse cursor across connected monitors dynamically or via env overrides (installed to `~/.local/bin/jump-display`)
+- `jump-desktop`: Switches macOS virtual desktops (Spaces) with instant window autofocus, or runs as a background watcher (installed to `~/.local/bin/jump-desktop`)
+- `clean-url`: Strips tracking query parameters (UTM, fbclid, gclid, si, etc.) from URLs and clipboard (installed to `~/.local/bin/clean-url`)
+- `link-router`: Cross-browser and multi-profile smart URL router based on domain rules (installed to `~/.local/bin/link-router`)
 
 ### Raycast Script Commands
 Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast/scripts/` via `make install` or `make install-raycast`:
@@ -93,6 +96,10 @@ Stored in `raycast/.config/raycast/scripts/` and installed to `~/.config/raycast
 - `jump-display-3.sh`: Teleport mouse cursor to display 3 and focus the top window.
 - `shottr-optimize.sh`: Optimize clipboard image or screenshot with ImageOptim.
 - `shottr-upload.sh`: Optimize clipboard image and upload to File.kiwi.
+- `clean-clipboard-url.sh`: Strip trackers from clipboard URL on-demand.
+- `smart-open-url.sh`: Open URL in clipboard with matched browser and profile.
+
+Scripts source `_env.sh` to set `HOME` and `PATH` (Raycast runs non-login shells where `HOME` is often unset).
 
 Setup in Raycast on any machine:
 1. Open Raycast Settings (`Cmd + ,`) -> **Extensions**.

@@ -21,7 +21,7 @@ func printUsage() {
       -h, --help     Show this help message
 
     \u{001B}[1mOptions:\u{001B}[0m
-      --focus, -f    Automatically focus / activate the top window under the target destination
+      --focus, -f    Automatically focus / activate and raise the specific window under destination
       --click, -c    Simulate a left-click at the target destination to guarantee input focus
       --no-focus     Do not change window focus (default)
 
@@ -58,11 +58,12 @@ func parseCoordinates(from string: String) -> CGPoint? {
 }
 
 func activateWindowUnder(point: CGPoint) {
-    // 1. Fast Accessibility check
+    // 1. Accessibility API check (identifies exact window element under point and raises it)
     let systemWide = AXUIElementCreateSystemWide()
     var element: AXUIElement?
-    if AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &element) == .success,
-       let elem = element {
+    let copyResult = AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &element)
+
+    if copyResult == .success, let elem = element {
         var pid: pid_t = 0
         if AXUIElementGetPid(elem, &pid) == .success && pid > 0 {
             if let app = NSRunningApplication(processIdentifier: pid) {
@@ -75,12 +76,31 @@ func activateWindowUnder(point: CGPoint) {
                 #else
                 app.activate(options: [.activateIgnoringOtherApps])
                 #endif
-                return
+            }
+
+            // Traverse ancestors to find the specific AXWindow and raise it
+            var current: AXUIElement? = elem
+            while let currentElem = current {
+                var roleValue: AnyObject?
+                if AXUIElementCopyAttributeValue(currentElem, kAXRoleAttribute as CFString, &roleValue) == .success,
+                   let role = roleValue as? String, role == kAXWindowRole as String {
+                    AXUIElementPerformAction(currentElem, kAXRaiseAction as CFString)
+                    AXUIElementSetAttributeValue(currentElem, kAXMainAttribute as CFString, kCFBooleanTrue)
+                    return
+                }
+
+                var parentValue: AnyObject?
+                if AXUIElementCopyAttributeValue(currentElem, kAXParentAttribute as CFString, &parentValue) == .success,
+                   let parentElem = parentValue {
+                    current = (parentElem as! AXUIElement)
+                } else {
+                    current = nil
+                }
             }
         }
     }
 
-    // 2. Fallback to CGWindowList check
+    // 2. Fallback to CGWindowList check (matches coordinate bounds against application windows)
     let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
     guard let windowListInfo = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
         return
@@ -105,6 +125,31 @@ func activateWindowUnder(point: CGPoint) {
             #else
             app.activate(options: [.activateIgnoringOtherApps])
             #endif
+
+            // Find and raise the specific matching window of this app
+            let appElement = AXUIElementCreateApplication(pid)
+            var windowsValue: AnyObject?
+            if AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowsValue) == .success,
+               let windows = windowsValue as? [AXUIElement] {
+                for win in windows {
+                    var posVal: AnyObject?
+                    var sizeVal: AnyObject?
+                    if AXUIElementCopyAttributeValue(win, kAXPositionAttribute as CFString, &posVal) == .success,
+                       AXUIElementCopyAttributeValue(win, kAXSizeAttribute as CFString, &sizeVal) == .success {
+                        var pos = CGPoint.zero
+                        var size = CGSize.zero
+                        if AXValueGetValue(posVal as! AXValue, .cgPoint, &pos),
+                           AXValueGetValue(sizeVal as! AXValue, .cgSize, &size) {
+                            let rect = CGRect(origin: pos, size: size)
+                            if rect.contains(point) {
+                                AXUIElementPerformAction(win, kAXRaiseAction as CFString)
+                                AXUIElementSetAttributeValue(win, kAXMainAttribute as CFString, kCFBooleanTrue)
+                                return
+                            }
+                        }
+                    }
+                }
+            }
             return
         }
     }
@@ -250,7 +295,7 @@ guard let destination = targetPoint else {
 CGWarpMouseCursorPosition(destination)
 CGAssociateMouseAndMouseCursorPosition(1)
 
-// Auto-focus application / window under cursor
+// Auto-focus and raise specific window under cursor
 if shouldFocus {
     activateWindowUnder(point: destination)
 }

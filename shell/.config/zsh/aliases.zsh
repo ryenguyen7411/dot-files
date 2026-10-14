@@ -20,11 +20,17 @@ alias arc='/Applications/Arc.app/Contents/MacOS/Arc --remote-debugging-port=9222
 
 # Modern CLI replacements
 if command_exists eza; then
-  alias ls='eza --icons --group-directories-first'
-  alias ll='eza -la --icons --group-directories-first'
-  alias la='eza -a --icons --group-directories-first'
-  alias lt='eza --tree --level=2 --icons'
-  alias l='eza -F --icons'
+  # Functions, not aliases: eza reads paths from stdin when stdin isn't a terminal, which
+  # makes `ls` print nothing or hang in agent shells and pipes. Fall back to plain ls there.
+  # (`function name` form: zsh won't alias-expand the name, e.g. Oh My Zsh's own `ls` alias)
+  # Each function is self-contained: Claude Code's shell snapshot drops `_`-prefixed functions,
+  # so a shared `_eza` helper left `ls` failing with "command not found: _eza" there.
+  unalias ls ll la lt l 2>/dev/null
+  function ls { if [[ -t 0 ]]; then eza --icons --group-directories-first "$@"; else command ls "${@:#--*}"; fi }
+  function ll { if [[ -t 0 ]]; then eza --icons --group-directories-first -la "$@"; else command ls -la "${@:#--*}"; fi }
+  function la { if [[ -t 0 ]]; then eza --icons --group-directories-first -a "$@"; else command ls -a "${@:#--*}"; fi }
+  function lt { if [[ -t 0 ]]; then eza --tree --level=2 --icons "$@"; else command ls -R "$@"; fi }
+  function l { if [[ -t 0 ]]; then eza --icons --group-directories-first -F "$@"; else command ls -F "${@:#--*}"; fi }
 else
   alias ls='ls -a --color=auto'
   alias ll='ls -alF --color=auto'
@@ -75,7 +81,7 @@ alias pop='git stash pop'
 
 # Git fast commit
 alias gmm='git commit -m'
-alias gmmn='git commit -m --no-verify'
+alias gmmn='git commit --no-verify -m'
 
 # Git configuration
 alias skip='git update-index --skip-worktree'

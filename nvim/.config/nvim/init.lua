@@ -13,6 +13,7 @@ require('lazy').setup {
   spec = {
     { import = 'plugins' },
   },
+  rocks = { enabled = false }, -- no plugin needs luarocks, silences the hererocks health error
   performance = {
     cache = {
       enabled = true,

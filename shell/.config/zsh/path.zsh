@@ -2,6 +2,9 @@
 # PATH CONFIGURATION
 # =============================================================================
 
+# Keep PATH free of duplicates (zsh dedupes the tied `path` array, first entry wins)
+typeset -gU path PATH
+
 # Helper: Add path if directory exists
 add_path() {
   local dir="$1"
@@ -18,10 +21,8 @@ add_path() {
 add_path "/opt/homebrew/bin"
 add_path "/opt/homebrew/sbin"
 
-# GNU utilities (prefer over BSD on macOS)
-add_path "/usr/local/opt/libtool/libexec/gnubin"
-add_path "/usr/local/opt/gnu-sed/libexec/gnubin"
-add_path "/usr/local/opt/gnu-tar/libexec/gnubin"
+# GNU tools stay under their g-prefixed names (gsed, gtar): agents and scripts on this
+# Mac expect BSD `sed -i ''`, so the gnubin dirs are deliberately not on PATH.
 
 # Standard system paths
 add_path "/usr/local/sbin"
@@ -29,6 +30,9 @@ add_path "/usr/local/bin"
 
 # User local binaries
 export PATH="$HOME/.local/bin:$PATH"
+
+# mise shims (Linux servers: tools from ~/.config/mise/config.toml, ahead of apt's)
+add_path "$HOME/.local/share/mise/shims"
 
 # ---------------------------
 # Development Tools
@@ -91,10 +95,6 @@ add_path "$HOME/.npm-cache/bin"
 # OpenCode
 add_path "$HOME/.opencode/bin"
 
-# ---------------------------
-# Final Cleanup
-# ---------------------------
-
-# Remove duplicates while preserving order
-export PATH=$(echo "$PATH" | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed 's/:$//')
+# Antigravity
+add_path "$HOME/.antigravity/antigravity/bin"
 

@@ -67,14 +67,23 @@ zinit snippet OMZP::sudo
 
 # Core plugins loaded in Turbo mode (after prompt, for speed)
 zinit wait lucid light-mode for \
-  atinit"zicompinit; zicdreplay" \
+  atinit"zicdreplay" \
     zdharma-continuum/fast-syntax-highlighting \
   atload"_zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions \
   blockf atpull'zinit creinstall -q .' \
     zsh-users/zsh-completions
 
-autoload -U compinit && compinit
+# One compinit for the whole shell (the turbo block above only replays compdefs).
+# Full security check at most once a day, otherwise trust the dump (-C).
+autoload -Uz compinit
+_zcompdump_stale=(${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24))
+if (( $#_zcompdump_stale )) || [[ ! -f ${ZDOTDIR:-$HOME}/.zcompdump ]]; then
+  compinit
+else
+  compinit -C
+fi
+unset _zcompdump_stale
 
 # ========================
 # LOAD MODULAR CONFIG
@@ -89,16 +98,70 @@ safe_source "$ZSH_CONFIG_DIR/aliases.zsh"
 safe_source "$ZSH_CONFIG_DIR/functions.zsh"
 safe_source "$ZSH_CONFIG_DIR/tools.zsh"
 
-# Machine-specific config (not tracked in git)
+# Not tracked in git: work-only helpers, then machine-specific config
+safe_source "$ZSH_CONFIG_DIR/work.zsh"
 safe_source "$ZSH_CONFIG_DIR/local.zsh"
 
 # ========================
 # TMUX AUTO-START
 # ========================
 
-# Only auto-start tmux in Kitty terminal (not in integrated terminals)
-if [[ -z "$TMUX" ]] && [[ -n "$KITTY_WINDOW_ID" ]]; then
-  tmux attach || tmux
+# One tmux session per client, so two machines never share (and fight over the size
+# and layout of) the same session:
+#   main     - Kitty on the Mac attaches here
+#   phone    - SSH logins from a tailnet peer named *phone* (Termius) attach here; on
+#              the Mac it is only created detached and left running in the background
+#   <device> - SSH logins from any other tailnet peer get a session named after it
+#              (ryeng-work -> "work"); reconnecting from that device reattaches to it
+#   ssh-<ip> - SSH logins from a non-tailnet client (LAN IP, no tailscale CLI)
+# phone starts in ~/projects running claude; claude is typed into the shell
+# (not run as the session command) so quitting it leaves a shell, not a dead session
+tmux_ensure_phone() {
+  tmux has-session -t phone 2>/dev/null && return 0
+  tmux new-session -d -s phone -c "$HOME/projects"
+  tmux send-keys -t phone 'claude' Enter
+}
+
+# Tailscale device name of the SSH client (e.g. ryeng-phone, ryeng-work); empty when
+# the client isn't a tailnet peer (e.g. a LAN IP) or the tailscale CLI is missing
+ssh_peer_name() {
+  command_exists tailscale || return 0
+  tailscale whois "${SSH_CONNECTION%% *}" 2>/dev/null \
+    | awk '/^  Name:/ { split($2, parts, "."); print parts[1]; exit }'
+}
+
+# tmux session name for the current SSH login (see the list above). Characters tmux
+# rejects or rewrites in session names (".", ":", "%" in IPv6 addresses) become "-"
+ssh_session_name() {
+  local peer name
+  peer="$(ssh_peer_name)"
+  if [[ "$peer" == *phone* ]]; then
+    name=phone
+  elif [[ -n "$peer" ]]; then
+    name="${peer#ryeng-}"
+  else
+    name="ssh-${SSH_CONNECTION%% *}"
+  fi
+  # Never hand an SSH client Kitty's session
+  [[ "$name" == main ]] && name=ssh-main
+  print -r -- "${name//[^[:alnum:]_-]/-}"
+}
+
+if [[ -z "$TMUX" ]] && command_exists tmux; then
+  if [[ -n "$SSH_CONNECTION" ]]; then
+    # Leaving tmux (detach or last pane closed) also ends the SSH login; if tmux itself
+    # fails, the login falls through to a plain shell instead of disconnecting
+    ssh_session="$(ssh_session_name)"
+    if [[ "$ssh_session" == phone ]]; then
+      tmux_ensure_phone && tmux attach-session -t phone && exit
+    else
+      tmux new-session -A -s "$ssh_session" -c "$HOME/projects" && exit
+    fi
+    unset ssh_session
+  elif [[ -n "$KITTY_WINDOW_ID" ]]; then
+    tmux_ensure_phone
+    tmux new-session -A -s main
+  fi
 fi
 
 # ========================
@@ -107,6 +170,3 @@ fi
 
 zsh_debug "ZSH configuration loaded successfully"
 
-
-# Added by Antigravity
-export PATH="/Users/ryeng/.antigravity/antigravity/bin:$PATH"

@@ -411,6 +411,25 @@ setw -g monitor-activity on
 # Pane helper
 bind-key | split-window -h
 
+# Prevent accidental layout corruption
+unbind-key C-o                  # Unbind rotate-window (accidental prefix + C-o)
+unbind-key Space                # Unbind next-layout (accidental prefix + Space)
+unbind-key -n M-1               # Unbind layout even-horizontal
+unbind-key -n M-2               # Unbind layout even-vertical
+unbind-key -n M-3               # Unbind layout main-horizontal
+unbind-key -n M-4               # Unbind layout main-vertical
+unbind-key -n M-5               # Unbind layout tiled
+unbind-key -T prefix M-1
+unbind-key -T prefix M-2
+unbind-key -T prefix M-3
+unbind-key -T prefix M-4
+unbind-key -T prefix M-5
+
+# Undo accidental layout change with <prefix> u
+# (Uses tmux layout history / previous layout register)
+bind-key u select-layout -E \; display-message "Layout spaces equalized"
+bind-key U previous-layout \; display-message "Previous layout restored"
+
 bind-key -r -T prefix       H                    resize-pane -L 100
 bind-key -r -T prefix       J                    resize-pane -D 50
 bind-key -r -T prefix       K                    resize-pane -U 100
@@ -429,7 +448,23 @@ set -sg escape-time 0
 set-option -g default-terminal 'tmux-256color'
 set-option -sa terminal-features ',xterm-kitty:RGB'
 set -gq allow-passthrough on
-set -ga terminal-overrides ',*:clipboard:pass-through'
+# Let apps (nvim yanks) set the clipboard with OSC 52; tmux forwards it to the attached client's terminal.
+set -s set-clipboard on
+
+# Forward Kitty's extended keyboard protocol so apps inside tmux (e.g. Claude
+# Code) can tell Shift+Enter apart from Enter, instead of only Alt+Enter.
+# Without this, tmux reports every Enter variant identically, no matter what
+# the app or the outer terminal supports, because Enter has no "well-known"
+# modified representation in the classic termcap/xterm sense (unlike e.g.
+# Shift+Up), so tmux drops the modifier unless told the terminal can report it.
+#
+# extended-keys-format is set to match Kitty's own wire format (CSI code;mod u)
+# instead of tmux's xterm-style default (CSI 27;mod;code~), since that's the
+# format terminals in Kitty's class send Shift+Enter as outside of tmux, and
+# what Claude Code's input parser recognizes.
+set-option -sa terminal-features ',xterm-kitty:extkeys'
+set-option -s extended-keys always
+set-option -s extended-keys-format csi-u
 
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important
@@ -496,16 +531,21 @@ tmux_conf_uninstall_plugins_on_reload=true
 # Press ctrl-p to open, esc or ctrl-p again to close
 bind-key -n C-p display-popup -E -T "Tmux Session Manager" -h 100% -w 30% -x "#{client_width}-#{popup_width}" -y 0 "~/.local/bin/tms"
 
-# Quick save current layout with <prefix> S
-bind-key S run-shell "~/.local/bin/tms save && tmux display-message 'Layout saved'"
+# Toggle Opencode with ctrl-y / Claude with ctrl-o
+#
+# The popup runs a nested client attached to an opencode_*/claude_* session on
+# the *same* server, so these root-table bindings also fire while the popup has
+# focus. Without the guard, pressing the key inside the popup opened a second,
+# nested popup which then tore everything down. When the current session is the
+# popup's own session, just detach that client: the popup closes and the
+# session stays alive for the next toggle.
+bind-key -n C-y if-shell -F '#{m:opencode_*,#{session_name}}' \
+  detach-client \
+  'display-popup -E -T Opencode -w 30% -h 100% -xR -d "#{pane_current_path}" "zsh ~/.config/zsh/opencode-popup"'
 
-# Toggle Opencode with ctrl-o
-bind-key -n C-o display-popup -E -T "Opencode" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-"zsh \"$HOME/.config/zsh/opencode-popup\""
-
-# Toggle Claude with ctrl-y
-bind-key -n C-y display-popup -E -T "Claude" -w 30% -h 100% -xR -d "#{pane_current_path}" \
-"zsh \"$HOME/.config/zsh/claude-popup\""
+bind-key -n C-o if-shell -F '#{m:claude_*,#{session_name}}' \
+  detach-client \
+  'display-popup -E -T Claude -w 30% -h 100% -xR -d "#{pane_current_path}" "zsh ~/.config/zsh/claude-popup"'
 
 # # Toggle Codex with <prefix> C
 # bind-key C run-shell '

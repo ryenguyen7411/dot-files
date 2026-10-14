@@ -1,0 +1,12 @@
+# =============================================================================
+# WORK GIT IDENTITY (included for every repo under ~/projects/be/)
+# =============================================================================
+#
+# Copy to ~/.gitconfig-work. Not tracked in git.
+#
+#   cp ~/projects/colorye/dot-files/git/.gitconfig-work.example ~/.gitconfig-work
+#
+
+[user]
+  email = you@company.com
+  name = Your Name

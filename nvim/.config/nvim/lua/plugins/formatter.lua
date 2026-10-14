@@ -35,7 +35,7 @@ M.setup_formatter = function()
     },
     format_on_save = {
       timeout_ms = 500,
-      lsp_fallback = true,
+      lsp_format = 'fallback',
     },
   }
 end
@@ -49,7 +49,7 @@ return {
       'gcF',
       function()
         vim.lsp.buf.format()
-        require('conform').format { async = true, timeout_ms = 10000, lsp_fallback = false }
+        require('conform').format { async = true, timeout_ms = 10000, lsp_format = 'never' }
         vim.cmd 'silent write'
       end,
       desc = 'Format + Save buffer',

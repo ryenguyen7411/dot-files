@@ -1,81 +1,11 @@
 function noop() end
 
+local picker_presets = require 'lib.picker_presets'
+
 local M = {}
 
-M.files_picker = function()
-  return {
-    hidden = true,
-    ignored = true,
-    layout = { preset = 'vscode' },
-    args = {
-      '-FHIL',
-      '--type=f',
-      '--color=never',
-      '--strip-cwd-prefix',
-      '--no-ignore',
-      '--ignore-file',
-      vim.fn.expand '~/.config/fd/.fdignore',
-    },
-    filter = { cwd = true },
-    formatters = {
-      file = {
-        filename_first = true,
-        truncate = 100,
-      },
-    },
-    win = {
-      input = {
-        keys = {
-          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
-        },
-      },
-      list = {
-        keys = {
-          ['<C-f>'] = 'toggle_focus',
-        },
-      },
-    },
-  }
-end
-
-M.grep_picker = function()
-  return {
-    hidden = true,
-    ignored = true,
-    layout = { preset = 'vscode' },
-    args = {
-      '-FHLSn.',
-      '--color=never',
-      '--column',
-      '--no-heading',
-      '--sort-files',
-      '--trim',
-      '--no-ignore',
-      '--ignore-file',
-      vim.fn.expand '~/.config/rg/.rgignore',
-    },
-    formatters = {
-      file = {
-        filename_first = true,
-        truncate = 40,
-      },
-    },
-    win = {
-      input = {
-        keys = {
-          ['<Esc>'] = { 'close', mode = { 'n', 'i' } },
-          ['<C-f>'] = { 'toggle_focus', mode = { 'n', 'i' } },
-        },
-      },
-      list = {
-        keys = {
-          ['<C-f>'] = 'toggle_focus',
-        },
-      },
-    },
-  }
-end
+M.files_picker = picker_presets.snacks_files
+M.grep_picker = picker_presets.snacks_grep
 
 M.projects_picker = function()
   return {
@@ -170,6 +100,41 @@ M.explorer_picker = function()
   }
 end
 
+-- Personal picker actions (they used to be patched into a fork of snacks.nvim)
+local function explorer_open(picker, item, action, close)
+  if not item then
+    return
+  end
+  if item.dir then
+    require('snacks.explorer.tree'):toggle(item.file)
+    require('snacks.explorer.actions').update(picker, { refresh = true })
+    return
+  end
+  Snacks.picker.actions.jump(picker, item, action)
+  if close then
+    picker:close()
+  else
+    picker:focus()
+  end
+end
+
+M.picker_actions = {
+  -- open the file and close the explorer; folders just expand/collapse
+  confirm_and_close = function(picker, item, action)
+    explorer_open(picker, item, action, true)
+  end,
+  -- open the file and keep focus in the explorer
+  confirm_and_refocus = function(picker, item, action)
+    explorer_open(picker, item, action, false)
+  end,
+  list_down_fast = function(picker)
+    picker.list:move(6)
+  end,
+  list_up_fast = function(picker)
+    picker.list:move(-6)
+  end,
+}
+
 M.buffer_picker = function()
   return {
     focus = 'list', -- focus on list to start with normal mode
@@ -178,8 +143,7 @@ M.buffer_picker = function()
 end
 
 return {
-  'ryenguyen7411/snacks.nvim',
-  branch = 'develop',
+  'folke/snacks.nvim',
   priority = 1000,
   lazy = false,
   ---@type snacks.Config
@@ -215,8 +179,19 @@ return {
         { section = 'startup' },
       },
     },
-    explorer = { enable = true },
-    image = { enabled = true },
+    explorer = { enabled = true },
+    image = {
+      enabled = true,
+      doc = {
+        max_width = 120,
+        max_height = 60,
+        -- Hide the mermaid/math source and show only the rendered image.
+        -- Moving the cursor into the block reveals the source again for editing.
+        conceal = function(_, type)
+          return type == 'math' or type == 'chart'
+        end,
+      },
+    },
     indent = { enabled = true },
     input = { enabled = true },
     notifier = {
@@ -228,6 +203,15 @@ return {
     },
     picker = {
       enabled = true,
+      actions = M.picker_actions,
+      win = {
+        list = {
+          keys = {
+            ['<c-j>'] = 'list_down_fast',
+            ['<c-k>'] = 'list_up_fast',
+          },
+        },
+      },
       sources = {
         smart = M.files_picker(),
         files = M.files_picker(),
@@ -256,6 +240,20 @@ return {
 
     { '<leader>h', '<cmd>lua Snacks.picker.files()<CR>', desc = 'Find Files' },
     { '<leader>j', '<cmd>lua Snacks.picker.grep()<CR>', desc = 'Grep' },
+    -- {
+    --   '<leader>h',
+    --   function()
+    --     require('fff-snacks').find_files()
+    --   end,
+    --   desc = 'Find Files (fff + Snacks UI)',
+    -- },
+    -- {
+    --   '<leader>j',
+    --   function()
+    --     require('fff-snacks').live_grep()
+    --   end,
+    --   desc = 'Grep (fff + Snacks UI)',
+    -- },
     { '<leader>b', '<cmd>lua Snacks.picker.buffers()<CR>', desc = 'Buffers' },
     { '<leader>;', '<cmd>lua Snacks.picker.smart()<CR>', desc = 'Smart Find Files' },
     { '<leader>k', '<cmd>lua Snacks.explorer()<CR>', desc = 'File Explorer' },
@@ -263,6 +261,10 @@ return {
 
     { '<leader>i', '<cmd>lua Snacks.picker.files({ cwd = "~/notes" })<CR>', desc = 'Find Notes' },
     { '<leader>l', '<cmd>lua Snacks.picker.projects()<CR>', desc = 'Projects' },
+
+    { '<leader>gg', '<cmd>lua Snacks.lazygit()<CR>', desc = 'Lazygit' },
+    { '<leader>gs', '<cmd>lua Snacks.picker.git_status()<CR>', desc = 'Git status picker' },
+    { '<leader>gd', '<cmd>lua Snacks.picker.git_diff()<CR>', desc = 'Git diff hunks' },
 
     -- stylua: ignore start
     -- Top Pickers & Explorer
@@ -334,6 +336,9 @@ return {
     -- { "[[",         function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev Reference", mode = { "n", "t" } },
     -- stylua: ignore
   },
+  config = function(_, opts)
+    require('snacks').setup(opts)
+  end,
   init = function()
     vim.api.nvim_create_autocmd('User', {
       pattern = 'VeryLazy',

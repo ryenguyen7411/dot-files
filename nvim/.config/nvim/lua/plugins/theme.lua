@@ -5,6 +5,7 @@ local M = {}
 M.setup_colorscheme = function()
   require('tokyonight').setup {
     transparent = true,
+    styles = { sidebars = 'transparent', floats = 'transparent' },
     on_colors = function(c)
       c.border = c.border_highlight
     end,
@@ -24,38 +25,6 @@ M.setup_colorscheme = function()
   g.lightline = {
     colorscheme = 'tokyonight',
   }
-
-  local transparents = {
-    'Normal',
-    'NormalNC',
-    'Comment',
-    'Constant',
-    'Special',
-    'Identifier',
-    'Statement',
-    'PreProc',
-    'Type',
-    'Underlined',
-    'Todo',
-    'String',
-    'Function',
-    'Conditional',
-    'Repeat',
-    'Operator',
-    'Structure',
-    'LineNr',
-    'NonText',
-    'SignColumn',
-    'CursorLineNr',
-    'EndOfBuffer',
-
-    'NormalFloat',
-    'FloatBorder',
-  }
-
-  for _, part in pairs(transparents) do
-    vim.cmd('au VimEnter * highlight ' .. part .. ' ctermbg=NONE guibg=NONE')
-  end
 
   vim.cmd 'colorscheme tokyonight'
 end
@@ -107,7 +76,7 @@ return {
   },
   {
     'brenoprata10/' .. 'nvim-highlight-colors',
-    event = 'BufRead',
+    event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       require('nvim-highlight-colors').setup {
         render = 'virtual',
@@ -116,7 +85,7 @@ return {
   },
   {
     'HiPhish/' .. 'rainbow-delimiters.nvim',
-    event = 'BufRead',
+    event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       M.setup_rainbow_delimiters()
     end,
