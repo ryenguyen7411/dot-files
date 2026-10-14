@@ -105,8 +105,9 @@ cd ~/projects/colorye/dot-files
 Stows `shell`, `nvim`, `git`, `bat` and `mise`, makes zsh the login shell, and installs the CLI tools in
 `mise/.config/mise/config.toml` (Neovim, fzf, ripgrep, fd, bat, eza, zoxide, yq, atuin, direnv, delta,
 difftastic, lazygit, k9s, dust) as current release binaries through [mise](https://mise.jdx.dev). tmux is
-installed with its stock config, so it nests cleanly inside the Mac's tmux. Update everything with
-`mise up` (tools) and `make update` (Neovim plugins).
+installed with its stock config, so it nests cleanly inside the Mac's tmux. Neovim plugins are pinned to
+`lazy-lock.json` (bump them on the Mac with `make update`, commit the lockfile). On the server, update with
+`mise up` (tools) and `git pull && nvim --headless "+Lazy! restore" +qa` (plugins).
 
 ### Machine-Specific Setup
 
