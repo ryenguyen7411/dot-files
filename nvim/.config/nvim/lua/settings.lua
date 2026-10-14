@@ -55,24 +55,57 @@ vim.keymap.set = function(mode, lhs, rhs, opts)
   return keymap_set(mode, lhs, rhs, opts)
 end
 
-local is_ssh = vim.env.SSH_CONNECTION ~= nil or vim.env.SSH_TTY ~= nil
+-- Clipboard. `y`/`d`/`x` write to "* (mappings.lua), so these decide where a yank ends up.
+-- SSH_CONNECTION is not trusted inside tmux: an SSH client attaching to a session leaves it in the
+-- session environment, so later local panes would look remote and pick OSC 52.
+local is_remote = vim.env.TMUX ~= nil or vim.env.SSH_CONNECTION ~= nil or vim.env.SSH_TTY ~= nil
 
-if is_ssh then
-  -- Remote: OSC 52 → local clipboard
+-- Put lines on the clipboard of the terminal showing this nvim, over SSH too, with OSC 52 ("c" is
+-- the clipboard Cmd+V reads; "p" would be the primary selection). Inside tmux it goes straight to
+-- the tmux client's tty, so this host's tmux config and the outer terminal's type don't matter;
+-- a local tmux in between needs set-clipboard on to pass it to Kitty.
+local function osc52_send(lines)
+  local seq = string.format('\027]52;c;%s\027\\', vim.base64.encode(table.concat(lines, '\n')))
+  if vim.env.TMUX then
+    local tty = vim.trim(vim.fn.system { 'tmux', 'display-message', '-p', '#{client_tty}' })
+    local f = vim.v.shell_error == 0 and tty ~= '' and io.open(tty, 'w')
+    if f then
+      f:write(seq)
+      f:close()
+      return
+    end
+  end
+  vim.api.nvim_ui_send(seq)
+end
+
+if vim.fn.executable 'pbcopy' == 1 then
+  -- macOS: the built-in pbcopy/pbpaste provider. In tmux or over SSH, also send OSC 52 so the
+  -- clipboard of the machine you are typing on gets the yank too.
+  if is_remote then
+    vim.api.nvim_create_autocmd('TextYankPost', {
+      group = vim.api.nvim_create_augroup('osc52_yank', { clear = true }),
+      callback = function()
+        local reg = vim.v.event.regname
+        if reg == '*' or reg == '+' then
+          osc52_send(vim.v.event.regcontents)
+        end
+      end,
+    })
+  end
+elseif is_remote then
+  -- Remote host without pbcopy: copy via OSC 52. Paste the last copy: an OSC 52 read gets no
+  -- answer through tmux and blocks for 10s; Cmd+V still pastes the local clipboard.
+  local last = { {}, 'v' }
+  local function copy(lines, regtype)
+    last = { lines, regtype }
+    osc52_send(lines)
+  end
+  local function paste()
+    return last
+  end
   vim.g.clipboard = {
     name = 'OSC 52',
-    copy = {
-      ['+'] = require('vim.ui.clipboard.osc52').copy '+',
-      ['*'] = require('vim.ui.clipboard.osc52').copy '*',
-    },
-    paste = {
-      ['+'] = require('vim.ui.clipboard.osc52').paste '+',
-      ['*'] = require('vim.ui.clipboard.osc52').paste '*',
-    },
-    osc52 = {
-      max_length = 100000,
-    },
+    copy = { ['+'] = copy, ['*'] = copy },
+    paste = { ['+'] = paste, ['*'] = paste },
   }
-else
-  -- Local: native system clipboard
 end
