@@ -99,7 +99,7 @@ make install-tools     # Standalone tools (tms, jump-display, etc.), rebuilt whe
 ```bash
 git clone https://github.com/ryenguyen7411/dot-files.git ~/projects/colorye/dot-files
 cd ~/projects/colorye/dot-files
-make install-ubuntu-server   # needs sudo; safe to re-run
+./tools/install-ubuntu-server.sh   # needs sudo; safe to re-run (fresh Ubuntu has no make)
 ```
 
 Stows `shell`, `nvim`, `git`, `bat` and `mise`, makes zsh the login shell, and installs the CLI tools in
