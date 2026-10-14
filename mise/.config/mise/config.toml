@@ -1,0 +1,30 @@
+# Global CLI tools for Linux servers (macOS uses the Brewfile instead).
+# Installed by tools/install-ubuntu-server.sh; update them all with `mise up`.
+# mise downloads release binaries and verifies their checksums; tools land on PATH
+# through the shims dir (shell/.config/zsh/path.zsh).
+
+[tools]
+# Editor (the config needs 0.11+, apt ships 0.9)
+neovim = "latest"
+
+# Search & navigation (used by the Neovim pickers and the zsh config)
+fzf = "latest"
+ripgrep = "latest"
+fd = "latest"
+bat = "latest"
+eza = "latest"
+zoxide = "latest"
+yq = "latest"
+
+# Shell
+atuin = "latest"
+direnv = "latest"
+
+# Git (delta is the pager in git/.gitconfig, difftastic backs `git difft`)
+delta = "latest"
+difftastic = "latest"
+lazygit = "latest"
+
+# Server ops
+k9s = "latest"
+dust = "latest"

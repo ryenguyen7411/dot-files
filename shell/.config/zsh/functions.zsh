@@ -396,8 +396,9 @@ dockerexec() {
 # ---------------------------
 
 # Wrapper for kubectl that opens the SSH tunnel to k3s, but only when the current
-# context actually talks to the tunnel's local end (127.0.0.1/localhost:6443)
-kubectl() {
+# context actually talks to the tunnel's local end (127.0.0.1/localhost:6443).
+# macOS only: on a k3s server 127.0.0.1:6443 is the cluster itself, not a tunnel.
+[[ "$OSTYPE" == darwin* ]] && kubectl() {
   local tunnel_host="rye-opc"
   local local_port=6443
   local remote_port=6443

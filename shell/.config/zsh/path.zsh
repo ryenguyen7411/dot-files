@@ -31,6 +31,9 @@ add_path "/usr/local/bin"
 # User local binaries
 export PATH="$HOME/.local/bin:$PATH"
 
+# mise shims (Linux servers: tools from ~/.config/mise/config.toml, ahead of apt's)
+add_path "$HOME/.local/share/mise/shims"
+
 # ---------------------------
 # Development Tools
 # ---------------------------
