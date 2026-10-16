@@ -524,7 +524,9 @@ func startWatcher(delayMs: UInt32, warp: Bool, click: Bool) {
         handleSpaceChange()
     }
 
-    RunLoop.main.run()
+    // NSApp.run(), not RunLoop.main.run(): the WindowServer delivers Space changes through the AppKit
+    // event loop, so a bare run loop never sees activeSpaceDidChangeNotification.
+    NSApp.run()
 }
 
 // MARK: - CLI Entrypoint
