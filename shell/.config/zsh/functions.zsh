@@ -395,29 +395,62 @@ dockerexec() {
 # Kubernetes (k3s via SSH tunnel)
 # ---------------------------
 
-# Wrapper for kubectl that opens the SSH tunnel to k3s, but only when the current
-# context actually talks to the tunnel's local end (127.0.0.1/localhost:6443).
+# Wrappers for kubectl/helm on the Mac, where each k3s cluster sits behind its own SSH tunnel:
+#   local port 6443  -> ssh rye-opc (contexts in ~/.kube/config)
+#   local port 16443 -> ssh jms     (context `jms` in ~/.kube/jms.yaml)
+# - Unless KUBECONFIG is set, both files are merged, so `--context jms` works from anywhere.
+# - Under ~/projects/jms with no context given, the `jms` context is used.
+# - The tunnel the chosen context points at is opened when its port is closed.
+# Everything is decided inside the function (not via exports) because agent shells only inherit functions.
 # macOS only: on a k3s server 127.0.0.1:6443 is the cluster itself, not a tunnel.
-[[ "$OSTYPE" == darwin* ]] && kubectl() {
-  local tunnel_host="rye-opc"
-  local local_port=6443
-  local remote_port=6443
-  local server
-  server=$(command kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null)
+_kube_run() {  # <kubectl|helm> <context flag> [args...]
+  local tool="$1" context_flag="$2"
+  shift 2
+  local -A tunnel_hosts=(6443 rye-opc 16443 jms)
+  local kubeconfig="$KUBECONFIG"
+  if [[ -z "$kubeconfig" ]]; then
+    kubeconfig="$HOME/.kube/config"
+    [[ -f "$HOME/.kube/jms.yaml" ]] && kubeconfig+=":$HOME/.kube/jms.yaml"
+  fi
 
-  if [[ "$server" == *(127.0.0.1|localhost):${local_port}* ]] &&
-    ! pgrep -f "ssh.*-L.*${local_port}:127.0.0.1:${remote_port}.*${tunnel_host}" > /dev/null 2>&1; then
-    echo "Starting SSH tunnel to k3s..." >&2
+  # Context named on the command line (args after `--` belong to the remote command)
+  local context="" previous="" arg
+  for arg in "$@"; do
+    [[ "$arg" == "--" ]] && break
+    [[ "$previous" == "$context_flag" ]] && context="$arg"
+    [[ "$arg" == "$context_flag="* ]] && context="${arg#*=}"
+    previous="$arg"
+  done
+
+  local -a default_context=()
+  if [[ -z "$context" && -z "$KUBECONFIG" && "$1" != "config" && "$PWD/" == "$HOME/projects/jms/"* ]]; then
+    context="jms"
+    default_context=("$context_flag" "$context")
+  fi
+
+  local -a context_args=()
+  [[ -n "$context" ]] && context_args=(--context "$context")
+  local server port host
+  server=$(KUBECONFIG="$kubeconfig" command kubectl config view --minify "${context_args[@]}" \
+    -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null)
+  port="${${server##*:}%%/*}"
+  host="${tunnel_hosts[$port]}"
+  if [[ -n "$host" && "$server" == *(127.0.0.1|localhost):* ]] && ! nc -z 127.0.0.1 "$port" 2>/dev/null; then
+    echo "Starting SSH tunnel to $host (127.0.0.1:$port)..." >&2
     # Fail instead of silently running without the forward; drop the tunnel when the link dies
     ssh -f -N \
       -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
-      -L ${local_port}:127.0.0.1:${remote_port} ${tunnel_host} || return 1
+      -L "$port:127.0.0.1:6443" "$host" || return 1
     sleep 1  # Give tunnel time to establish
   fi
 
-  # Run the actual kubectl command
-  command kubectl "$@"
+  KUBECONFIG="$kubeconfig" command "$tool" "${default_context[@]}" "$@"
 }
+
+if [[ "$OSTYPE" == darwin* ]]; then
+  kubectl() { _kube_run kubectl --context "$@"; }
+  helm() { _kube_run helm --kube-context "$@"; }
+fi
 
 # Mount a Kubernetes pod's filesystem locally via sshfs
 # Usage: kmount <pod_name> [local_path] [-n namespace] [-c container]
