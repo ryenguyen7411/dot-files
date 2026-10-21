@@ -80,6 +80,8 @@ Project-specific documentation and tooling config belong in **each application r
 ## Utilities
 - `check_secure_input`: Python script to identify processes using macOS Secure Input
 - `tms`: Tmux session manager for project-based workflows (installed to `~/.local/bin/tms`)
+- `tmux-ssh-passthrough`: Fills the `ssh_pending` key table so a single backtick goes to a nested tmux in ssh panes
+  and a double backtick reaches the local tmux; called from `.tmux.conf.local` (installed to `~/.local/bin/tmux-ssh-passthrough`)
 - `shottr-optimize`: Optimizes screenshot/clipboard image or image file with ImageOptim and copies optimized image back to clipboard (installed to `~/.local/bin/shottr-optimize`)
 - `shottr-upload`: Uploads screenshot from clipboard or any file/directory to File.kiwi (auto-optimizes images with ImageOptim) and copies download link to clipboard (installed to `~/.local/bin/shottr-upload`)
 - `imgcopy`: Native macOS clipboard image copy utility (installed to `~/.local/bin/imgcopy`)

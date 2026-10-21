@@ -399,9 +399,26 @@ set -gu prefix
 set -gu prefix2
 unbind C-a
 unbind C-b
-set -g prefix `
-set -g prefix2 `
-bind ` send-prefix -2
+
+# Backtick prefix that steps aside for a nested tmux over ssh:
+#   normal pane: `  = prefix, `` = literal backtick
+#   ssh pane:    `  = goes to the remote (its tmux prefix), `` = local prefix
+# The real `prefix` option can't be used: tmux checks it before every other key table, so it
+# would swallow the first backtick in ssh panes. tools/tmux-ssh-passthrough fills `ssh_pending`;
+# without it (e.g. on a server with only this file), fall back to the plain backtick prefix.
+if-shell 'command -v tmux-ssh-passthrough >/dev/null 2>&1' {
+  set -g prefix None
+  set -g prefix2 None
+  run-shell 'tmux-ssh-passthrough'
+  bind -n ` if -F '#{m/r:^(ssh|mosh-client)$,#{pane_current_command}}' \
+    'switch-client -T ssh_pending' 'switch-client -T prefix'
+  bind -T prefix ` send-keys `
+  bind -T ssh_pending ` switch-client -T prefix
+} {
+  set -g prefix `
+  set -g prefix2 `
+  bind ` send-prefix -2
+}
 
 # disable tmux status line
 set -g status off

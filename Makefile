@@ -8,11 +8,11 @@ BACKUP_DIR := $(HOME)/.dotfiles-backup
 
 # Standalone tools linked into ~/.local/bin
 SWIFT_TOOLS := imgcopy jump-display jump-desktop clean-url link-router
-SCRIPT_TOOLS := tms shottr-optimize shottr-upload
+SCRIPT_TOOLS := tms tmux-ssh-passthrough shottr-optimize shottr-upload
 SWIFT_BINS := $(addprefix tools/,$(SWIFT_TOOLS))
 
 # Bash scripts checked by `make lint` (zsh files are syntax-checked with zsh -n)
-SHELL_SCRIPTS := tools/tms tools/shottr-optimize tools/shottr-upload tools/install-ubuntu-server.sh \
+SHELL_SCRIPTS := tools/tms tools/tmux-ssh-passthrough tools/shottr-optimize tools/shottr-upload tools/install-ubuntu-server.sh \
 	$(wildcard raycast/.config/raycast/scripts/*.sh)
 ZSH_FILES := shell/.zshrc shell/.zprofile $(wildcard shell/.config/zsh/*.zsh) \
 	shell/.config/zsh/claude-popup shell/.config/zsh/opencode-popup

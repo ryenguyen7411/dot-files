@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# tmux-ssh-passthrough - fill the `ssh_pending` key table used by the backtick prefix
+#
+# In a pane running ssh, the first ` switches the client to `ssh_pending`. The next key decides:
+#   ` (second backtick) -> local prefix table (bound in .tmux.conf.local)
+#   anything else       -> send "` + key" to the pane, so the remote tmux gets its prefix + command
+#
+# tmux cannot forward "the key that was just pressed", so every key gets its own binding here.
+# A key missing from this list is still sent to the pane, just without the leading backtick.
+#
+# Run from .tmux.conf.local via run-shell; $TMUX points the tmux calls at the right server.
+
+set -euo pipefail
+
+keys=()
+for c in {a..z} {A..Z} {0..9}; do keys+=("$c"); done
+for c in '!' '@' '#' '$' '%' '^' '&' '*' '(' ')' '-' '_' '=' '+' '[' ']' '{' '}' '|' '\' \
+  ':' "'" '"' ',' '.' '<' '>' '/' '?' '~'; do
+  keys+=("$c")
+done
+for c in {a..z}; do keys+=("C-$c" "M-$c"); done
+for c in {0..9}; do keys+=("M-$c"); done
+for n in {1..12}; do keys+=("F$n"); done
+keys+=(Space Enter Escape Tab BTab BSpace DC IC Home End PageUp PageDown)
+for k in Up Down Left Right; do keys+=("$k" "C-$k" "M-$k" "S-$k"); done
+
+for k in "${keys[@]}"; do
+  tmux bind-key -T ssh_pending "$k" send-keys '`' "$k"
+done
+
+# `;` is a command separator on the tmux command line, so send it as raw bytes (` = 0x60, ; = 0x3b).
+tmux bind-key -T ssh_pending '\;' send-keys -H 60 3b
